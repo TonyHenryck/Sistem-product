@@ -27,6 +27,23 @@ export interface FiltrosColaborador {
   incluirDesligados?: boolean
 }
 
+export async function listarColaboradoresAtivos(unidadeId: string): Promise<Catalogo[]> {
+  const { data, error } = await supabase
+    .from('colaborador')
+    .select('id, nome')
+    .eq('unidade_id', unidadeId)
+    .eq('ativo', true)
+    .order('nome')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function listarNomesColaboradores(unidadeId: string): Promise<Catalogo[]> {
+  const { data, error } = await supabase.from('colaborador').select('id, nome').eq('unidade_id', unidadeId).order('nome')
+  if (error) throw error
+  return data ?? []
+}
+
 export async function buscarCatalogos(empresaId: string, unidadeId: string): Promise<Catalogos> {
   const [funcoes, escalas, locais, beneficios] = await Promise.all([
     supabase.from('cat_funcao').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),

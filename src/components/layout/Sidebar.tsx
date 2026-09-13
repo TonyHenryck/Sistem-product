@@ -4,6 +4,9 @@ import { NavLink } from 'react-router-dom'
 const ITENS = [
   { rota: '/colaboradores', rotulo: 'Colaboradores' },
   { rota: '/escala', rotulo: 'Escala' },
+  { rota: '/diarias', rotulo: 'Diárias' },
+  { rota: '/faltas', rotulo: 'Faltas' },
+  { rota: '/trocas', rotulo: 'Trocas' },
 ]
 
 export function Sidebar() {

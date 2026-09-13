@@ -533,6 +533,167 @@ export interface Database {
           criado_em?: string
         }
       }
+      config_regra: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string | null
+          chave: string
+          valor: string
+          descricao: string | null
+          atualizado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id?: string | null
+          chave: string
+          valor: string
+          descricao?: string | null
+          atualizado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string | null
+          chave?: string
+          valor?: string
+          descricao?: string | null
+          atualizado_em?: string
+        }
+      }
+      cat_motivo_ausencia: {
+        Row: {
+          id: string
+          empresa_id: string
+          nome: string
+          ativo: boolean
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          nome: string
+          ativo?: boolean
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          nome?: string
+          ativo?: boolean
+        }
+      }
+      diaria: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          local_id: string | null
+          data: string
+          turno: 'Diurno' | 'Noturno' | null
+          faltante_id: string | null
+          faltante_nome: string | null
+          motivo_id: string | null
+          atestado: 'Sim' | 'Não' | 'Não se aplica' | null
+          cobriu_id: string | null
+          cobriu_nome: string | null
+          vinculo_cobriu: 'CLT' | 'Prestador' | null
+          funcao_exercida: string | null
+          valor: number | null
+          autorizado_por: string | null
+          status: 'Registrado' | 'Enviado à matriz' | 'Pago' | 'Cancelado'
+          forma_pagamento: 'PIX' | 'Transferência' | 'Espécie' | null
+          recibo_assinado: boolean
+          obs: string | null
+          criado_por: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          local_id?: string | null
+          data: string
+          turno?: 'Diurno' | 'Noturno' | null
+          faltante_id?: string | null
+          faltante_nome?: string | null
+          motivo_id?: string | null
+          atestado?: 'Sim' | 'Não' | 'Não se aplica' | null
+          cobriu_id?: string | null
+          cobriu_nome?: string | null
+          vinculo_cobriu?: 'CLT' | 'Prestador' | null
+          funcao_exercida?: string | null
+          valor?: number | null
+          autorizado_por?: string | null
+          status?: 'Registrado' | 'Enviado à matriz' | 'Pago' | 'Cancelado'
+          forma_pagamento?: 'PIX' | 'Transferência' | 'Espécie' | null
+          recibo_assinado?: boolean
+          obs?: string | null
+          criado_por?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          local_id?: string | null
+          data?: string
+          turno?: 'Diurno' | 'Noturno' | null
+          faltante_id?: string | null
+          faltante_nome?: string | null
+          motivo_id?: string | null
+          atestado?: 'Sim' | 'Não' | 'Não se aplica' | null
+          cobriu_id?: string | null
+          cobriu_nome?: string | null
+          vinculo_cobriu?: 'CLT' | 'Prestador' | null
+          funcao_exercida?: string | null
+          valor?: number | null
+          autorizado_por?: string | null
+          status?: 'Registrado' | 'Enviado à matriz' | 'Pago' | 'Cancelado'
+          forma_pagamento?: 'PIX' | 'Transferência' | 'Espécie' | null
+          recibo_assinado?: boolean
+          obs?: string | null
+          criado_por?: string | null
+          criado_em?: string
+        }
+      }
+      diaria_beneficiario: {
+        Row: {
+          diaria_id: string
+          empresa_id: string
+          nome: string | null
+          telefone: string | null
+          cpf: string | null
+          tipo_chave: string | null
+          chave_pix: string | null
+          banco: string | null
+          agencia: string | null
+          conta: string | null
+        }
+        Insert: {
+          diaria_id: string
+          empresa_id: string
+          nome?: string | null
+          telefone?: string | null
+          cpf?: string | null
+          tipo_chave?: string | null
+          chave_pix?: string | null
+          banco?: string | null
+          agencia?: string | null
+          conta?: string | null
+        }
+        Update: {
+          diaria_id?: string
+          empresa_id?: string
+          nome?: string | null
+          telefone?: string | null
+          cpf?: string | null
+          tipo_chave?: string | null
+          chave_pix?: string | null
+          banco?: string | null
+          agencia?: string | null
+          conta?: string | null
+        }
+      }
     }
   }
 }
