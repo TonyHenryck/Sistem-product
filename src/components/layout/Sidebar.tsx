@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
-const ITENS = [{ rota: '/colaboradores', rotulo: 'Colaboradores' }]
+const ITENS = [
+  { rota: '/colaboradores', rotulo: 'Colaboradores' },
+  { rota: '/escala', rotulo: 'Escala' },
+]
 
 export function Sidebar() {
   const [recolhida, setRecolhida] = useState(false)

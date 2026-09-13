@@ -344,6 +344,195 @@ export interface Database {
           atualizado_em?: string
         }
       }
+      falta: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          colaborador_id: string
+          tipo:
+            | 'Falta injustificada'
+            | 'Atestado médico'
+            | 'Falta abonada'
+            | 'Atraso'
+            | 'Saída antecipada'
+            | 'Suspensão'
+          dias: number | null
+          tempo_perdido: string | null
+          atestado: 'Não se aplica' | 'Sim' | 'Não' | null
+          descontar: boolean
+          perde_dsr: boolean
+          notificado: boolean
+          obs: string | null
+          arquivo_local: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          colaborador_id: string
+          tipo:
+            | 'Falta injustificada'
+            | 'Atestado médico'
+            | 'Falta abonada'
+            | 'Atraso'
+            | 'Saída antecipada'
+            | 'Suspensão'
+          dias?: number | null
+          tempo_perdido?: string | null
+          atestado?: 'Não se aplica' | 'Sim' | 'Não' | null
+          descontar?: boolean
+          perde_dsr?: boolean
+          notificado?: boolean
+          obs?: string | null
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          data?: string
+          colaborador_id?: string
+          tipo?:
+            | 'Falta injustificada'
+            | 'Atestado médico'
+            | 'Falta abonada'
+            | 'Atraso'
+            | 'Saída antecipada'
+            | 'Suspensão'
+          dias?: number | null
+          tempo_perdido?: string | null
+          atestado?: 'Não se aplica' | 'Sim' | 'Não' | null
+          descontar?: boolean
+          perde_dsr?: boolean
+          notificado?: boolean
+          obs?: string | null
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+      }
+      troca_turno: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          data_trocada: string
+          folgou_id: string
+          assumiu_id: string
+          motivo: string | null
+          data_devolucao: string | null
+          status: 'Devolução pendente' | 'Concluída' | 'Cancelada'
+          formalizada: boolean
+          autorizado_por: string | null
+          obs: string | null
+          arquivo_local: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          data_trocada: string
+          folgou_id: string
+          assumiu_id: string
+          motivo?: string | null
+          data_devolucao?: string | null
+          status?: 'Devolução pendente' | 'Concluída' | 'Cancelada'
+          formalizada?: boolean
+          autorizado_por?: string | null
+          obs?: string | null
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          data_trocada?: string
+          folgou_id?: string
+          assumiu_id?: string
+          motivo?: string | null
+          data_devolucao?: string | null
+          status?: 'Devolução pendente' | 'Concluída' | 'Cancelada'
+          formalizada?: boolean
+          autorizado_por?: string | null
+          obs?: string | null
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+      }
+      ferias_afastamento: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          colaborador_id: string
+          tipo:
+            | 'Férias'
+            | 'Abono pecuniário'
+            | 'Licença médica'
+            | 'Licença maternidade'
+            | 'Licença não remunerada'
+            | 'Suspensão de contrato'
+          inicio: string
+          fim: string | null
+          aquisitivo_de: string | null
+          aquisitivo_ate: string | null
+          status: 'Programada' | 'Em curso' | 'Concluída' | 'Cancelada'
+          aviso_em: string | null
+          obs: string | null
+          arquivo_local: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          colaborador_id: string
+          tipo:
+            | 'Férias'
+            | 'Abono pecuniário'
+            | 'Licença médica'
+            | 'Licença maternidade'
+            | 'Licença não remunerada'
+            | 'Suspensão de contrato'
+          inicio: string
+          fim?: string | null
+          aquisitivo_de?: string | null
+          aquisitivo_ate?: string | null
+          status?: 'Programada' | 'Em curso' | 'Concluída' | 'Cancelada'
+          aviso_em?: string | null
+          obs?: string | null
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          colaborador_id?: string
+          tipo?:
+            | 'Férias'
+            | 'Abono pecuniário'
+            | 'Licença médica'
+            | 'Licença maternidade'
+            | 'Licença não remunerada'
+            | 'Suspensão de contrato'
+          inicio?: string
+          fim?: string | null
+          aquisitivo_de?: string | null
+          aquisitivo_ate?: string | null
+          status?: 'Programada' | 'Em curso' | 'Concluída' | 'Cancelada'
+          aviso_em?: string | null
+          obs?: string | null
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+      }
     }
   }
 }

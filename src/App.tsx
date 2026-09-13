@@ -6,6 +6,7 @@ import { Login } from './pages/Login'
 import { Home } from './pages/Home'
 import { ColaboradoresLista } from './pages/colaboradores/ColaboradoresLista'
 import { ColaboradorFicha } from './pages/colaboradores/ColaboradorFicha'
+import { Escala } from './pages/escala/Escala'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
               <Route path="/colaboradores" element={<ColaboradoresLista />} />
               <Route path="/colaboradores/novo" element={<ColaboradorFicha />} />
               <Route path="/colaboradores/:id" element={<ColaboradorFicha />} />
+              <Route path="/escala" element={<Escala />} />
             </Route>
           </Route>
         </Routes>
