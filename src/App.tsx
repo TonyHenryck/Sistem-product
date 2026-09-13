@@ -10,6 +10,7 @@ import { Escala } from './pages/escala/Escala'
 import { Diarias } from './pages/diarias/Diarias'
 import { Faltas } from './pages/faltas/Faltas'
 import { Trocas } from './pages/trocas/Trocas'
+import { Advertencias } from './pages/advertencias/Advertencias'
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
               <Route path="/diarias" element={<Diarias />} />
               <Route path="/faltas" element={<Faltas />} />
               <Route path="/trocas" element={<Trocas />} />
+              <Route path="/advertencias" element={<Advertencias />} />
             </Route>
           </Route>
         </Routes>

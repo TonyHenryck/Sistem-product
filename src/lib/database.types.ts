@@ -694,6 +694,50 @@ export interface Database {
           conta?: string | null
         }
       }
+      advertencia: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          colaborador_id: string
+          tipo: 'Verbal' | 'Escrita' | 'Suspensão' | null
+          motivo: string | null
+          descricao: string | null
+          testemunha: string | null
+          assinada: boolean
+          arquivo_local: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          colaborador_id: string
+          tipo?: 'Verbal' | 'Escrita' | 'Suspensão' | null
+          motivo?: string | null
+          descricao?: string | null
+          testemunha?: string | null
+          assinada?: boolean
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          data?: string
+          colaborador_id?: string
+          tipo?: 'Verbal' | 'Escrita' | 'Suspensão' | null
+          motivo?: string | null
+          descricao?: string | null
+          testemunha?: string | null
+          assinada?: boolean
+          arquivo_local?: string | null
+          criado_em?: string
+        }
+      }
     }
   }
 }
