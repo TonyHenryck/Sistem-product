@@ -8,6 +8,7 @@ export interface Vinculo {
   unidade: {
     id: string
     nome: string
+    empresa_id: string
   }
 }
 
@@ -33,7 +34,7 @@ async function buscarVinculos(usuarioId: string): Promise<Vinculo[]> {
 
   const { data: unidades } = await supabase
     .from('unidade')
-    .select('id, nome')
+    .select('id, nome, empresa_id')
     .in('id', unidadeIds)
 
   return vinculos.map((vinculo) => ({
@@ -41,6 +42,7 @@ async function buscarVinculos(usuarioId: string): Promise<Vinculo[]> {
     unidade: unidades?.find((u) => u.id === vinculo.unidade_id) ?? {
       id: vinculo.unidade_id,
       nome: '',
+      empresa_id: '',
     },
   }))
 }

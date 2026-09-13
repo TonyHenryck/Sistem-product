@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
+
+const ITENS = [{ rota: '/colaboradores', rotulo: 'Colaboradores' }]
 
 export function Sidebar() {
   const [recolhida, setRecolhida] = useState(false)
@@ -17,7 +20,17 @@ export function Sidebar() {
       </button>
 
       <nav className="flex-1 p-2 text-sm text-slate-600">
-        {!recolhida && <p className="px-2 py-1 text-slate-400">Menu em construcao</p>}
+        {ITENS.map((item) => (
+          <NavLink
+            key={item.rota}
+            to={item.rota}
+            className={({ isActive }) =>
+              `block rounded px-2 py-1.5 ${isActive ? 'bg-slate-100 font-medium text-slate-800' : 'hover:bg-slate-50'}`
+            }
+          >
+            {recolhida ? item.rotulo.slice(0, 1) : item.rotulo}
+          </NavLink>
+        ))}
       </nav>
     </aside>
   )

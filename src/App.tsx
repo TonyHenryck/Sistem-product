@@ -4,6 +4,8 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
 import { Login } from './pages/Login'
 import { Home } from './pages/Home'
+import { ColaboradoresLista } from './pages/colaboradores/ColaboradoresLista'
+import { ColaboradorFicha } from './pages/colaboradores/ColaboradorFicha'
 
 export default function App() {
   return (
@@ -14,6 +16,9 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/colaboradores" element={<ColaboradoresLista />} />
+              <Route path="/colaboradores/novo" element={<ColaboradorFicha />} />
+              <Route path="/colaboradores/:id" element={<ColaboradorFicha />} />
             </Route>
           </Route>
         </Routes>
