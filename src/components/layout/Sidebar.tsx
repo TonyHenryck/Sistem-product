@@ -11,6 +11,7 @@ const ITENS = [
   { rota: '/faltas', rotulo: 'Faltas' },
   { rota: '/trocas', rotulo: 'Trocas' },
   { rota: '/advertencias', rotulo: 'Advertências' },
+  { rota: '/ponto', rotulo: 'Ponto' },
 ]
 
 export function Sidebar() {

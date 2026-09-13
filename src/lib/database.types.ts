@@ -764,6 +764,48 @@ export interface Database {
           vence_em?: string | null
         }
       }
+      ponto_competencia: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          colaborador_id: string
+          competencia: string
+          regime: 'Plantão' | 'Comercial' | 'Misto' | null
+          horas_trabalhadas: string | null
+          saldo_sistema: string | null
+          saldo_conferido: string | null
+          divergencia: string | null
+          obs: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          colaborador_id: string
+          competencia: string
+          regime?: 'Plantão' | 'Comercial' | 'Misto' | null
+          horas_trabalhadas?: string | null
+          saldo_sistema?: string | null
+          saldo_conferido?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          colaborador_id?: string
+          competencia?: string
+          regime?: 'Plantão' | 'Comercial' | 'Misto' | null
+          horas_trabalhadas?: string | null
+          saldo_sistema?: string | null
+          saldo_conferido?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+      }
     }
   }
 }
