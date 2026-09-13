@@ -27,11 +27,11 @@ const dia = v => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
 const num = v => (v === '' || v == null || isNaN(Number(v)) ? null : Number(v));
 const sim = v => v === 'Sim' || v === true;
 
-async function inserir(tabela, linhas) {
+async function inserir(tabela, linhas, colunaId = 'id') {
   if (!linhas.length) return [];
   const out = [];
   for (let i = 0; i < linhas.length; i += 200) {
-    const { data, error } = await db.from(tabela).insert(linhas.slice(i, i + 200)).select('id');
+    const { data, error } = await db.from(tabela).insert(linhas.slice(i, i + 200)).select(colunaId);
     if (error) { console.error(`${tabela}:`, error.message); return out; }
     out.push(...data);
   }
@@ -141,7 +141,7 @@ async function main() {
       conta: c.conta || null,
       titular: c.titular || null
     }))
-    .filter(r => r.colaborador_id));
+    .filter(r => r.colaborador_id), 'colaborador_id');
 
   // ---------- 4. movimento ----------
   await inserir('diaria', (D.diarias || []).map(d => ({
