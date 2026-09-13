@@ -13,6 +13,7 @@ import { Trocas } from './pages/trocas/Trocas'
 import { Advertencias } from './pages/advertencias/Advertencias'
 import { Vencimentos } from './pages/vencimentos/Vencimentos'
 import { Ponto } from './pages/ponto/Ponto'
+import { Fopag } from './pages/fopag/Fopag'
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
               <Route path="/faltas" element={<Faltas />} />
               <Route path="/trocas" element={<Trocas />} />
               <Route path="/ponto" element={<Ponto />} />
+              <Route path="/fopag" element={<Fopag />} />
               <Route path="/advertencias" element={<Advertencias />} />
             </Route>
           </Route>

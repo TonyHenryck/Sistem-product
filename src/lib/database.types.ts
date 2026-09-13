@@ -806,6 +806,98 @@ export interface Database {
           criado_em?: string
         }
       }
+      envio_fopag: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          competencia: string
+          status: 'Em preparação' | 'Enviado' | 'Confirmado pela matriz' | 'Devolvido para ajuste'
+          data_envio: string | null
+          enviado_por: string | null
+          destinatario: string | null
+          obs: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          competencia: string
+          status?: 'Em preparação' | 'Enviado' | 'Confirmado pela matriz' | 'Devolvido para ajuste'
+          data_envio?: string | null
+          enviado_por?: string | null
+          destinatario?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          competencia?: string
+          status?: 'Em preparação' | 'Enviado' | 'Confirmado pela matriz' | 'Devolvido para ajuste'
+          data_envio?: string | null
+          enviado_por?: string | null
+          destinatario?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+      }
+      pendencia_pagamento: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          competencia: string
+          colaborador_id: string | null
+          colaborador_nome: string | null
+          vinculo: 'CLT' | 'Prestador' | null
+          motivo: string | null
+          referencia: string | null
+          qtd: number | null
+          valor_unit: number | null
+          valor_total: number | null
+          status: 'Em aberto' | 'Aguardando valor' | 'Enviado à matriz' | 'Pago'
+          dados_pagamento: string | null
+          obs: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          competencia: string
+          colaborador_id?: string | null
+          colaborador_nome?: string | null
+          vinculo?: 'CLT' | 'Prestador' | null
+          motivo?: string | null
+          referencia?: string | null
+          qtd?: number | null
+          valor_unit?: number | null
+          status?: 'Em aberto' | 'Aguardando valor' | 'Enviado à matriz' | 'Pago'
+          dados_pagamento?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          competencia?: string
+          colaborador_id?: string | null
+          colaborador_nome?: string | null
+          vinculo?: 'CLT' | 'Prestador' | null
+          motivo?: string | null
+          referencia?: string | null
+          qtd?: number | null
+          valor_unit?: number | null
+          status?: 'Em aberto' | 'Aguardando valor' | 'Enviado à matriz' | 'Pago'
+          dados_pagamento?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+      }
     }
   }
 }
