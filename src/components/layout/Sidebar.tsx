@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../auth/useAuth'
+import { contarVencimentosUrgentes } from '../../lib/vencimentos'
 
 const ITENS = [
   { rota: '/colaboradores', rotulo: 'Colaboradores' },
   { rota: '/escala', rotulo: 'Escala' },
+  { rota: '/vencimentos', rotulo: 'Vencimentos' },
   { rota: '/diarias', rotulo: 'Diárias' },
   { rota: '/faltas', rotulo: 'Faltas' },
   { rota: '/trocas', rotulo: 'Trocas' },
@@ -12,6 +15,14 @@ const ITENS = [
 
 export function Sidebar() {
   const [recolhida, setRecolhida] = useState(false)
+  const { vinculos } = useAuth()
+  const unidade = vinculos[0]?.unidade
+  const [contagemVencimentos, setContagemVencimentos] = useState(0)
+
+  useEffect(() => {
+    if (!unidade) return
+    contarVencimentosUrgentes(unidade.id).then(setContagemVencimentos)
+  }, [unidade])
 
   return (
     <aside
@@ -32,10 +43,15 @@ export function Sidebar() {
             key={item.rota}
             to={item.rota}
             className={({ isActive }) =>
-              `block rounded px-2 py-1.5 ${isActive ? 'bg-slate-100 font-medium text-slate-800' : 'hover:bg-slate-50'}`
+              `flex items-center justify-between rounded px-2 py-1.5 ${isActive ? 'bg-slate-100 font-medium text-slate-800' : 'hover:bg-slate-50'}`
             }
           >
-            {recolhida ? item.rotulo.slice(0, 1) : item.rotulo}
+            <span>{recolhida ? item.rotulo.slice(0, 1) : item.rotulo}</span>
+            {item.rota === '/vencimentos' && contagemVencimentos > 0 && (
+              <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
+                {contagemVencimentos}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

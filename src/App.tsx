@@ -11,6 +11,7 @@ import { Diarias } from './pages/diarias/Diarias'
 import { Faltas } from './pages/faltas/Faltas'
 import { Trocas } from './pages/trocas/Trocas'
 import { Advertencias } from './pages/advertencias/Advertencias'
+import { Vencimentos } from './pages/vencimentos/Vencimentos'
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
               <Route path="/colaboradores/novo" element={<ColaboradorFicha />} />
               <Route path="/colaboradores/:id" element={<ColaboradorFicha />} />
               <Route path="/escala" element={<Escala />} />
+              <Route path="/vencimentos" element={<Vencimentos />} />
               <Route path="/diarias" element={<Diarias />} />
               <Route path="/faltas" element={<Faltas />} />
               <Route path="/trocas" element={<Trocas />} />

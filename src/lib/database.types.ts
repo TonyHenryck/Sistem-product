@@ -738,6 +738,32 @@ export interface Database {
           criado_em?: string
         }
       }
+      v_vencimento: {
+        Row: {
+          colaborador_id: string
+          empresa_id: string
+          unidade_id: string
+          nome: string
+          item: string
+          vence_em: string | null
+        }
+        Insert: {
+          colaborador_id: string
+          empresa_id: string
+          unidade_id: string
+          nome: string
+          item: string
+          vence_em?: string | null
+        }
+        Update: {
+          colaborador_id?: string
+          empresa_id?: string
+          unidade_id?: string
+          nome?: string
+          item?: string
+          vence_em?: string | null
+        }
+      }
     }
   }
 }
