@@ -14,6 +14,8 @@ import { Advertencias } from './pages/advertencias/Advertencias'
 import { Vencimentos } from './pages/vencimentos/Vencimentos'
 import { Ponto } from './pages/ponto/Ponto'
 import { Fopag } from './pages/fopag/Fopag'
+import { Almoxarifado } from './pages/almoxarifado/Almoxarifado'
+import { Estoque } from './pages/estoque/Estoque'
 
 export default function App() {
   return (
@@ -34,6 +36,8 @@ export default function App() {
               <Route path="/trocas" element={<Trocas />} />
               <Route path="/ponto" element={<Ponto />} />
               <Route path="/fopag" element={<Fopag />} />
+              <Route path="/almoxarifado" element={<Almoxarifado />} />
+              <Route path="/estoque" element={<Estoque />} />
               <Route path="/advertencias" element={<Advertencias />} />
             </Route>
           </Route>

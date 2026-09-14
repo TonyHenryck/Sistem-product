@@ -898,6 +898,261 @@ export interface Database {
           criado_em?: string
         }
       }
+      item_estoque: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          nome: string
+          categoria: string | null
+          unidade_medida: string | null
+          qtd_atual: number
+          minimo: number
+          local: string | null
+          obs: string | null
+          ativo: boolean
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          nome: string
+          categoria?: string | null
+          unidade_medida?: string | null
+          qtd_atual?: number
+          minimo?: number
+          local?: string | null
+          obs?: string | null
+          ativo?: boolean
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          nome?: string
+          categoria?: string | null
+          unidade_medida?: string | null
+          qtd_atual?: number
+          minimo?: number
+          local?: string | null
+          obs?: string | null
+          ativo?: boolean
+        }
+      }
+      produto: {
+        Row: {
+          id: string
+          empresa_id: string
+          codigo: string | null
+          nome: string
+          categoria: string | null
+          unidade_medida: string | null
+          ativo: boolean
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          codigo?: string | null
+          nome: string
+          categoria?: string | null
+          unidade_medida?: string | null
+          ativo?: boolean
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          codigo?: string | null
+          nome?: string
+          categoria?: string | null
+          unidade_medida?: string | null
+          ativo?: boolean
+        }
+      }
+      movimento_estoque: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          produto_id: string
+          data: string
+          tipo: 'Entrada' | 'Saída' | 'Ajuste' | 'Perda' | 'Transferência'
+          qtd: number
+          local: string | null
+          responsavel: string | null
+          setor: string | null
+          origem: string | null
+          origem_id: string | null
+          obs: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          produto_id: string
+          data: string
+          tipo: 'Entrada' | 'Saída' | 'Ajuste' | 'Perda' | 'Transferência'
+          qtd: number
+          local?: string | null
+          responsavel?: string | null
+          setor?: string | null
+          origem?: string | null
+          origem_id?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          produto_id?: string
+          data?: string
+          tipo?: 'Entrada' | 'Saída' | 'Ajuste' | 'Perda' | 'Transferência'
+          qtd?: number
+          local?: string | null
+          responsavel?: string | null
+          setor?: string | null
+          origem?: string | null
+          origem_id?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+      }
+      contagem: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          local: string | null
+          responsavel: string | null
+          status: 'Em andamento' | 'Fechada' | 'Cancelada'
+          fechada_em: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          local?: string | null
+          responsavel?: string | null
+          status?: 'Em andamento' | 'Fechada' | 'Cancelada'
+          fechada_em?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          data?: string
+          local?: string | null
+          responsavel?: string | null
+          status?: 'Em andamento' | 'Fechada' | 'Cancelada'
+          fechada_em?: string | null
+          criado_em?: string
+        }
+      }
+      contagem_item: {
+        Row: {
+          id: string
+          contagem_id: string
+          produto_id: string
+          qtd_sistema: number | null
+          qtd_contada: number | null
+          diferenca: number | null
+        }
+        Insert: {
+          id?: string
+          contagem_id: string
+          produto_id: string
+          qtd_sistema?: number | null
+          qtd_contada?: number | null
+        }
+        Update: {
+          id?: string
+          contagem_id?: string
+          produto_id?: string
+          qtd_sistema?: number | null
+          qtd_contada?: number | null
+        }
+      }
+      requisicao: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          setor: string | null
+          solicitante_id: string | null
+          produto_id: string | null
+          item_nome: string | null
+          qtd_pedida: number
+          urgencia: 'Normal' | 'Para hoje' | 'Urgente' | null
+          status: 'Solicitada' | 'Atendida' | 'Atendida em parte' | 'Negada'
+          qtd_entregue: number | null
+          entregue_por_id: string | null
+          obs: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          setor?: string | null
+          solicitante_id?: string | null
+          produto_id?: string | null
+          item_nome?: string | null
+          qtd_pedida: number
+          urgencia?: 'Normal' | 'Para hoje' | 'Urgente' | null
+          status?: 'Solicitada' | 'Atendida' | 'Atendida em parte' | 'Negada'
+          qtd_entregue?: number | null
+          entregue_por_id?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          data?: string
+          setor?: string | null
+          solicitante_id?: string | null
+          produto_id?: string | null
+          item_nome?: string | null
+          qtd_pedida?: number
+          urgencia?: 'Normal' | 'Para hoje' | 'Urgente' | null
+          status?: 'Solicitada' | 'Atendida' | 'Atendida em parte' | 'Negada'
+          qtd_entregue?: number | null
+          entregue_por_id?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+      }
+      v_saldo_produto: {
+        Row: {
+          unidade_id: string
+          produto_id: string
+          nome: string
+          unidade_medida: string | null
+          saldo: number | null
+        }
+        Insert: {
+          unidade_id: string
+          produto_id: string
+          nome: string
+          unidade_medida?: string | null
+          saldo?: number | null
+        }
+        Update: {
+          unidade_id?: string
+          produto_id?: string
+          nome?: string
+          unidade_medida?: string | null
+          saldo?: number | null
+        }
+      }
     }
   }
 }
