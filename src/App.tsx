@@ -16,6 +16,7 @@ import { Ponto } from './pages/ponto/Ponto'
 import { Fopag } from './pages/fopag/Fopag'
 import { Almoxarifado } from './pages/almoxarifado/Almoxarifado'
 import { Estoque } from './pages/estoque/Estoque'
+import { NotaFiscal } from './pages/notaFiscal/NotaFiscal'
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/fopag" element={<Fopag />} />
               <Route path="/almoxarifado" element={<Almoxarifado />} />
               <Route path="/estoque" element={<Estoque />} />
+              <Route path="/nota-fiscal" element={<NotaFiscal />} />
               <Route path="/advertencias" element={<Advertencias />} />
             </Route>
           </Route>

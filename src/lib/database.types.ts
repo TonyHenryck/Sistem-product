@@ -1153,6 +1153,164 @@ export interface Database {
           saldo?: number | null
         }
       }
+      cat_categoria_custo: {
+        Row: {
+          id: string
+          empresa_id: string
+          nome: string
+          tipo: 'Fixo' | 'Variável' | null
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          nome: string
+          tipo?: 'Fixo' | 'Variável' | null
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          nome?: string
+          tipo?: 'Fixo' | 'Variável' | null
+        }
+      }
+      custo_lancamento: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          competencia: string
+          categoria_id: string | null
+          tipo: 'Fixo' | 'Variável' | null
+          descricao: string
+          valor: number
+          recorrente: boolean
+          origem: string | null
+          origem_id: string | null
+          obs: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          competencia: string
+          categoria_id?: string | null
+          tipo?: 'Fixo' | 'Variável' | null
+          descricao: string
+          valor: number
+          recorrente?: boolean
+          origem?: string | null
+          origem_id?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          competencia?: string
+          categoria_id?: string | null
+          tipo?: 'Fixo' | 'Variável' | null
+          descricao?: string
+          valor?: number
+          recorrente?: boolean
+          origem?: string | null
+          origem_id?: string | null
+          obs?: string | null
+          criado_em?: string
+        }
+      }
+      nota_fiscal: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          chave_acesso: string | null
+          numero: string | null
+          serie: string | null
+          emitente_cnpj: string | null
+          emitente_nome: string | null
+          data_emissao: string | null
+          valor_total: number | null
+          origem_arquivo: 'xml' | 'pdf' | 'foto' | 'manual' | null
+          status: 'Pendente conferência' | 'Conferida' | 'Rejeitada'
+          conferida_por: string | null
+          conferida_em: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          chave_acesso?: string | null
+          numero?: string | null
+          serie?: string | null
+          emitente_cnpj?: string | null
+          emitente_nome?: string | null
+          data_emissao?: string | null
+          valor_total?: number | null
+          origem_arquivo?: 'xml' | 'pdf' | 'foto' | 'manual' | null
+          status?: 'Pendente conferência' | 'Conferida' | 'Rejeitada'
+          conferida_por?: string | null
+          conferida_em?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          chave_acesso?: string | null
+          numero?: string | null
+          serie?: string | null
+          emitente_cnpj?: string | null
+          emitente_nome?: string | null
+          data_emissao?: string | null
+          valor_total?: number | null
+          origem_arquivo?: 'xml' | 'pdf' | 'foto' | 'manual' | null
+          status?: 'Pendente conferência' | 'Conferida' | 'Rejeitada'
+          conferida_por?: string | null
+          conferida_em?: string | null
+          criado_em?: string
+        }
+      }
+      nota_item: {
+        Row: {
+          id: string
+          nota_id: string
+          produto_id: string | null
+          codigo_fornecedor: string | null
+          descricao: string
+          ncm: string | null
+          unidade_medida: string | null
+          qtd: number | null
+          valor_unit: number | null
+          valor_total: number | null
+        }
+        Insert: {
+          id?: string
+          nota_id: string
+          produto_id?: string | null
+          codigo_fornecedor?: string | null
+          descricao: string
+          ncm?: string | null
+          unidade_medida?: string | null
+          qtd?: number | null
+          valor_unit?: number | null
+          valor_total?: number | null
+        }
+        Update: {
+          id?: string
+          nota_id?: string
+          produto_id?: string | null
+          codigo_fornecedor?: string | null
+          descricao?: string
+          ncm?: string | null
+          unidade_medida?: string | null
+          qtd?: number | null
+          valor_unit?: number | null
+          valor_total?: number | null
+        }
+      }
     }
   }
 }

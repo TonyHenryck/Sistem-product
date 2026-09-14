@@ -15,6 +15,7 @@ const ITENS = [
   { rota: '/fopag', rotulo: 'FOPAG' },
   { rota: '/almoxarifado', rotulo: 'Almoxarifado' },
   { rota: '/estoque', rotulo: 'Estoque' },
+  { rota: '/nota-fiscal', rotulo: 'Nota fiscal' },
 ]
 
 export function Sidebar() {
