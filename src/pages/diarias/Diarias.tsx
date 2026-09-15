@@ -8,6 +8,7 @@ import {
   buscarValorPadrao,
   cancelarDiaria,
   criarDiaria,
+  excluirDiaria,
   listarDiarias,
   type Diaria,
 } from '../../lib/diarias'
@@ -196,6 +197,13 @@ export function Diarias() {
 
   async function cancelar(d: Diaria) {
     await cancelarDiaria(d.id)
+    recarregar()
+  }
+
+  async function excluir(d: Diaria) {
+    if (!confirm(`Excluir de vez a diária de ${formatarData(d.data)}? Isso não pode ser desfeito.`)) return
+    await excluirDiaria(d.id)
+    if (editandoId === d.id) cancelarEdicao()
     recarregar()
   }
 
@@ -515,16 +523,21 @@ export function Diarias() {
                 <td className="px-3 py-2 text-slate-600">{formatarMoeda(d.valor)}</td>
                 <td className="px-3 py-2 text-slate-600">{d.status}</td>
                 <td className="px-3 py-2">
-                  {d.status === 'Registrado' && (
-                    <div className="flex gap-3 text-xs">
-                      <button onClick={() => editar(d)} className="text-slate-600 hover:underline">
-                        Editar
-                      </button>
-                      <button onClick={() => cancelar(d)} className="text-red-600 hover:underline">
-                        Cancelar
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex gap-3 text-xs">
+                    {d.status === 'Registrado' && (
+                      <>
+                        <button onClick={() => editar(d)} className="text-slate-600 hover:underline">
+                          Editar
+                        </button>
+                        <button onClick={() => cancelar(d)} className="text-amber-700 hover:underline">
+                          Cancelar
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => excluir(d)} className="text-red-600 hover:underline">
+                      Excluir
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

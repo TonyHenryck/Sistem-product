@@ -98,3 +98,8 @@ export async function cancelarDiaria(id: string): Promise<void> {
   const { error } = await supabase.from('diaria').update({ status: 'Cancelado' }).eq('id', id)
   if (error) throw error
 }
+
+export async function excluirDiaria(id: string): Promise<void> {
+  const { error } = await supabase.from('diaria').delete().eq('id', id)
+  if (error) throw error
+}
