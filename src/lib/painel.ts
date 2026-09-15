@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { buscarColaboradoresParaEscala, buscarExcecoesDoMes, gerarEscalaMes } from './escala'
+import type { Database } from './database.types'
 
 export interface CustoMes {
   competencia: string
@@ -13,6 +14,47 @@ export interface AbsenteismoMes {
   atestados: number
   atrasos: number
   diasPerdidos: number
+}
+
+export type TipoFalta = Database['public']['Tables']['falta']['Row']['tipo']
+
+export const TIPOS_FALTA: TipoFalta[] = [
+  'Falta injustificada',
+  'Atestado médico',
+  'Falta abonada',
+  'Atraso',
+  'Saída antecipada',
+  'Suspensão',
+]
+
+export interface RankingFaltaColaborador {
+  colaboradorId: string
+  nome: string
+  funcao: string
+  total: number
+  diasPerdidos: number
+  porTipo: Record<TipoFalta, number>
+}
+
+export interface FaltaPorFuncao {
+  funcao: string
+  total: number
+  diasPerdidos: number
+  porTipo: Record<TipoFalta, number>
+}
+
+function tipoVazio(): Record<TipoFalta, number> {
+  return Object.fromEntries(TIPOS_FALTA.map((t) => [t, 0])) as Record<TipoFalta, number>
+}
+
+export type PeriodoIndicador = 'mes' | '3m' | '6m'
+
+export function intervaloPeriodo(periodo: PeriodoIndicador): { inicio: string; fim: string } {
+  const hoje = new Date()
+  const mesesAtras = periodo === 'mes' ? 0 : periodo === '3m' ? 2 : 5
+  const inicio = new Date(hoje.getFullYear(), hoje.getMonth() - mesesAtras, 1).toISOString().slice(0, 10)
+  const fim = hoje.toISOString().slice(0, 10)
+  return { inicio, fim }
 }
 
 export async function buscarHeadcount(unidadeId: string): Promise<number> {
@@ -81,4 +123,59 @@ export async function contarFurosEscalaMes(unidadeId: string, ano: number, mes: 
   }
 
   return furos
+}
+
+export async function buscarIndicadoresFaltas(
+  unidadeId: string,
+  empresaId: string,
+  inicio: string,
+  fim: string,
+): Promise<{ ranking: RankingFaltaColaborador[]; porFuncao: FaltaPorFuncao[] }> {
+  const [{ data: faltas, error }, { data: colaboradores }, { data: funcoes }] = await Promise.all([
+    supabase.from('falta').select('colaborador_id, tipo, dias').eq('unidade_id', unidadeId).gte('data', inicio).lte('data', fim),
+    supabase.from('colaborador').select('id, nome, funcao_id').eq('unidade_id', unidadeId),
+    supabase.from('cat_funcao').select('id, nome').eq('empresa_id', empresaId),
+  ])
+  if (error) throw error
+
+  const mapaColaborador = new Map((colaboradores ?? []).map((c) => [c.id, c]))
+  const mapaFuncao = new Map((funcoes ?? []).map((f) => [f.id, f.nome]))
+
+  const porColaborador = new Map<string, RankingFaltaColaborador>()
+  const porFuncaoMap = new Map<string, FaltaPorFuncao>()
+
+  for (const f of faltas ?? []) {
+    const colaborador = mapaColaborador.get(f.colaborador_id)
+    const nomeFuncao = (colaborador?.funcao_id && mapaFuncao.get(colaborador.funcao_id)) || 'Sem função'
+    const dias = f.dias ?? 0
+    const tipo = f.tipo as TipoFalta
+
+    if (!porColaborador.has(f.colaborador_id)) {
+      porColaborador.set(f.colaborador_id, {
+        colaboradorId: f.colaborador_id,
+        nome: colaborador?.nome ?? '—',
+        funcao: nomeFuncao,
+        total: 0,
+        diasPerdidos: 0,
+        porTipo: tipoVazio(),
+      })
+    }
+    const registroColaborador = porColaborador.get(f.colaborador_id)!
+    registroColaborador.total += 1
+    registroColaborador.diasPerdidos += dias
+    registroColaborador.porTipo[tipo] += 1
+
+    if (!porFuncaoMap.has(nomeFuncao)) {
+      porFuncaoMap.set(nomeFuncao, { funcao: nomeFuncao, total: 0, diasPerdidos: 0, porTipo: tipoVazio() })
+    }
+    const registroFuncao = porFuncaoMap.get(nomeFuncao)!
+    registroFuncao.total += 1
+    registroFuncao.diasPerdidos += dias
+    registroFuncao.porTipo[tipo] += 1
+  }
+
+  return {
+    ranking: [...porColaborador.values()].sort((a, b) => b.total - a.total),
+    porFuncao: [...porFuncaoMap.values()].sort((a, b) => b.total - a.total),
+  }
 }
