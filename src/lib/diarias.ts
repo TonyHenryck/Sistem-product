@@ -4,6 +4,8 @@ import type { Catalogo } from './colaboradores'
 
 export type Diaria = Database['public']['Tables']['diaria']['Row']
 export type DiariaInsert = Database['public']['Tables']['diaria']['Insert']
+export type DiariaUpdate = Database['public']['Tables']['diaria']['Update']
+export type DiariaBeneficiario = Database['public']['Tables']['diaria_beneficiario']['Row']
 export type DiariaBeneficiarioInsert = Database['public']['Tables']['diaria_beneficiario']['Insert']
 
 export async function buscarValorPadrao(
@@ -62,4 +64,37 @@ export async function criarDiaria(
   }
 
   return data
+}
+
+export async function buscarBeneficiario(diariaId: string): Promise<DiariaBeneficiario | null> {
+  const { data, error } = await supabase
+    .from('diaria_beneficiario')
+    .select('*')
+    .eq('diaria_id', diariaId)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function atualizarDiaria(
+  id: string,
+  dados: DiariaUpdate,
+  beneficiario?: Omit<DiariaBeneficiarioInsert, 'diaria_id' | 'empresa_id'>,
+): Promise<Diaria> {
+  const { data, error } = await supabase.from('diaria').update(dados).eq('id', id).select().single()
+  if (error) throw error
+
+  if (beneficiario && !dados.cobriu_id && dados.empresa_id) {
+    const { error: erroBenef } = await supabase
+      .from('diaria_beneficiario')
+      .upsert({ diaria_id: id, empresa_id: dados.empresa_id, ...beneficiario }, { onConflict: 'diaria_id' })
+    if (erroBenef) throw erroBenef
+  }
+
+  return data
+}
+
+export async function cancelarDiaria(id: string): Promise<void> {
+  const { error } = await supabase.from('diaria').update({ status: 'Cancelado' }).eq('id', id)
+  if (error) throw error
 }

@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { buscarCatalogos, listarColaboradoresAtivos, listarNomesColaboradores, type Catalogo } from '../../lib/colaboradores'
-import { buscarMotivosAusencia, buscarValorPadrao, criarDiaria, listarDiarias, type Diaria } from '../../lib/diarias'
+import {
+  atualizarDiaria,
+  buscarBeneficiario,
+  buscarMotivosAusencia,
+  buscarValorPadrao,
+  cancelarDiaria,
+  criarDiaria,
+  listarDiarias,
+  type Diaria,
+} from '../../lib/diarias'
 import { formatarData } from '../../utils/data'
 import { formatarMoeda } from '../../utils/moeda'
 
@@ -48,6 +57,7 @@ export function Diarias() {
   const [form, setForm] = useState(vazio)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+  const [editandoId, setEditandoId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!unidade) return
@@ -98,46 +108,95 @@ export function Diarias() {
     setSalvando(true)
     setErro(null)
     try {
-      await criarDiaria(
-        {
-          empresa_id: unidade.empresa_id,
-          unidade_id: unidade.id,
-          local_id: form.localId || null,
-          data: form.data,
-          turno: form.turno || null,
-          faltante_id: form.faltanteExterno ? null : form.faltanteId,
-          faltante_nome: form.faltanteExterno ? form.faltanteNome : null,
-          motivo_id: form.motivoId || null,
-          atestado: form.atestado || null,
-          cobriu_id: form.cobriuExterno ? null : form.cobriuId,
-          cobriu_nome: form.cobriuExterno ? form.cobriuNome : null,
-          vinculo_cobriu: form.vinculoCobriu || null,
-          funcao_exercida: form.funcaoExercida || null,
-          valor: form.valor ? Number(form.valor) : null,
-          forma_pagamento: form.formaPagamento || null,
-          recibo_assinado: form.reciboAssinado,
-          autorizado_por: form.autorizadoPor || null,
-          obs: form.obs || null,
-        },
-        form.cobriuExterno
-          ? {
-              nome: form.cobriuNome,
-              telefone: form.telefoneBenef || null,
-              cpf: form.cpfBenef || null,
-              chave_pix: form.chavePixBenef || null,
-              banco: form.bancoBenef || null,
-              agencia: form.agenciaBenef || null,
-              conta: form.contaBenef || null,
-            }
-          : undefined,
-      )
+      const dados = {
+        empresa_id: unidade.empresa_id,
+        unidade_id: unidade.id,
+        local_id: form.localId || null,
+        data: form.data,
+        turno: form.turno || null,
+        faltante_id: form.faltanteExterno ? null : form.faltanteId,
+        faltante_nome: form.faltanteExterno ? form.faltanteNome : null,
+        motivo_id: form.motivoId || null,
+        atestado: form.atestado || null,
+        cobriu_id: form.cobriuExterno ? null : form.cobriuId,
+        cobriu_nome: form.cobriuExterno ? form.cobriuNome : null,
+        vinculo_cobriu: form.vinculoCobriu || null,
+        funcao_exercida: form.funcaoExercida || null,
+        valor: form.valor ? Number(form.valor) : null,
+        forma_pagamento: form.formaPagamento || null,
+        recibo_assinado: form.reciboAssinado,
+        autorizado_por: form.autorizadoPor || null,
+        obs: form.obs || null,
+      }
+      const beneficiario = form.cobriuExterno
+        ? {
+            nome: form.cobriuNome,
+            telefone: form.telefoneBenef || null,
+            cpf: form.cpfBenef || null,
+            chave_pix: form.chavePixBenef || null,
+            banco: form.bancoBenef || null,
+            agencia: form.agenciaBenef || null,
+            conta: form.contaBenef || null,
+          }
+        : undefined
+
+      if (editandoId) {
+        await atualizarDiaria(editandoId, dados, beneficiario)
+      } else {
+        await criarDiaria(dados, beneficiario)
+      }
       setForm(vazio)
+      setEditandoId(null)
       recarregar()
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao salvar.')
     } finally {
       setSalvando(false)
     }
+  }
+
+  async function editar(d: Diaria) {
+    setErro(null)
+    const beneficiario = d.cobriu_id ? null : await buscarBeneficiario(d.id)
+    setForm({
+      data: d.data,
+      localId: d.local_id ?? '',
+      turno: d.turno ?? '',
+      faltanteExterno: !d.faltante_id,
+      faltanteId: d.faltante_id ?? '',
+      faltanteNome: d.faltante_nome ?? '',
+      motivoId: d.motivo_id ?? '',
+      atestado: d.atestado ?? '',
+      cobriuExterno: !d.cobriu_id,
+      cobriuId: d.cobriu_id ?? '',
+      cobriuNome: d.cobriu_nome ?? '',
+      vinculoCobriu: d.vinculo_cobriu ?? '',
+      funcaoExercida: d.funcao_exercida ?? '',
+      telefoneBenef: beneficiario?.telefone ?? '',
+      cpfBenef: beneficiario?.cpf ?? '',
+      chavePixBenef: beneficiario?.chave_pix ?? '',
+      bancoBenef: beneficiario?.banco ?? '',
+      agenciaBenef: beneficiario?.agencia ?? '',
+      contaBenef: beneficiario?.conta ?? '',
+      valor: d.valor != null ? String(d.valor) : '',
+      formaPagamento: d.forma_pagamento ?? '',
+      reciboAssinado: d.recibo_assinado,
+      autorizadoPor: d.autorizado_por ?? '',
+      obs: d.obs ?? '',
+    })
+    setEditandoId(d.id)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function cancelarEdicao() {
+    setForm(vazio)
+    setEditandoId(null)
+    setErro(null)
+  }
+
+  async function cancelar(d: Diaria) {
+    await cancelarDiaria(d.id)
+    recarregar()
   }
 
   return (
@@ -396,13 +455,23 @@ export function Diarias() {
 
         {erro && <p className="mt-3 text-sm text-red-600">{erro}</p>}
 
-        <button
-          onClick={salvar}
-          disabled={salvando}
-          className="mt-4 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
-        >
-          {salvando ? 'Salvando...' : 'Registrar'}
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={salvar}
+            disabled={salvando}
+            className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+          >
+            {salvando ? 'Salvando...' : editandoId ? 'Salvar alterações' : 'Registrar'}
+          </button>
+          {editandoId && (
+            <button
+              onClick={cancelarEdicao}
+              className="rounded border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              Cancelar edição
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded border border-slate-200 bg-white">
@@ -415,19 +484,20 @@ export function Diarias() {
               <th className="px-3 py-2 font-medium">Cobriu</th>
               <th className="px-3 py-2 font-medium">Valor</th>
               <th className="px-3 py-2 font-medium">Status</th>
+              <th className="px-3 py-2 font-medium">Ações</th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-3 py-4 text-center text-slate-400">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && diarias.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-3 py-4 text-center text-slate-400">
                   Nenhuma diária registrada.
                 </td>
               </tr>
@@ -444,6 +514,18 @@ export function Diarias() {
                 </td>
                 <td className="px-3 py-2 text-slate-600">{formatarMoeda(d.valor)}</td>
                 <td className="px-3 py-2 text-slate-600">{d.status}</td>
+                <td className="px-3 py-2">
+                  {d.status === 'Registrado' && (
+                    <div className="flex gap-3 text-xs">
+                      <button onClick={() => editar(d)} className="text-slate-600 hover:underline">
+                        Editar
+                      </button>
+                      <button onClick={() => cancelar(d)} className="text-red-600 hover:underline">
+                        Cancelar
+                      </button>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
