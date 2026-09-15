@@ -27,6 +27,7 @@ export interface Database {
           ativo?: boolean
           criado_em?: string
         }
+        Relationships: []
       }
       unidade: {
         Row: {
@@ -56,6 +57,7 @@ export interface Database {
           ativo?: boolean
           criado_em?: string
         }
+        Relationships: []
       }
       usuario_unidade: {
         Row: {
@@ -73,6 +75,7 @@ export interface Database {
           unidade_id?: string
           papel?: 'operador' | 'gestor' | 'admin' | 'leitura'
         }
+        Relationships: []
       }
       local_operacional: {
         Row: {
@@ -93,6 +96,7 @@ export interface Database {
           nome?: string
           ativo?: boolean
         }
+        Relationships: []
       }
       cat_beneficio: {
         Row: {
@@ -113,6 +117,7 @@ export interface Database {
           nome?: string
           ativo?: boolean
         }
+        Relationships: []
       }
       cat_funcao: {
         Row: {
@@ -136,6 +141,7 @@ export interface Database {
           area?: string | null
           ativo?: boolean
         }
+        Relationships: []
       }
       cat_escala: {
         Row: {
@@ -162,6 +168,7 @@ export interface Database {
           trabalha_dia_par?: boolean | null
           ativo?: boolean
         }
+        Relationships: []
       }
       colaborador: {
         Row: {
@@ -305,6 +312,7 @@ export interface Database {
           criado_em?: string
           atualizado_em?: string
         }
+        Relationships: []
       }
       colaborador_dado_sensivel: {
         Row: {
@@ -343,6 +351,7 @@ export interface Database {
           titular?: string | null
           atualizado_em?: string
         }
+        Relationships: []
       }
       falta: {
         Row: {
@@ -414,6 +423,7 @@ export interface Database {
           arquivo_local?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       troca_turno: {
         Row: {
@@ -464,6 +474,7 @@ export interface Database {
           arquivo_local?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       ferias_afastamento: {
         Row: {
@@ -532,6 +543,7 @@ export interface Database {
           arquivo_local?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       config_regra: {
         Row: {
@@ -561,6 +573,7 @@ export interface Database {
           descricao?: string | null
           atualizado_em?: string
         }
+        Relationships: []
       }
       cat_motivo_ausencia: {
         Row: {
@@ -581,6 +594,7 @@ export interface Database {
           nome?: string
           ativo?: boolean
         }
+        Relationships: []
       }
       diaria: {
         Row: {
@@ -655,6 +669,7 @@ export interface Database {
           criado_por?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       diaria_beneficiario: {
         Row: {
@@ -693,6 +708,7 @@ export interface Database {
           agencia?: string | null
           conta?: string | null
         }
+        Relationships: []
       }
       advertencia: {
         Row: {
@@ -737,6 +753,7 @@ export interface Database {
           arquivo_local?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       v_vencimento: {
         Row: {
@@ -763,6 +780,7 @@ export interface Database {
           item?: string
           vence_em?: string | null
         }
+        Relationships: []
       }
       ponto_competencia: {
         Row: {
@@ -805,6 +823,7 @@ export interface Database {
           obs?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       envio_fopag: {
         Row: {
@@ -843,6 +862,7 @@ export interface Database {
           obs?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       pendencia_pagamento: {
         Row: {
@@ -897,6 +917,7 @@ export interface Database {
           obs?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       item_estoque: {
         Row: {
@@ -938,6 +959,7 @@ export interface Database {
           obs?: string | null
           ativo?: boolean
         }
+        Relationships: []
       }
       produto: {
         Row: {
@@ -967,6 +989,7 @@ export interface Database {
           unidade_medida?: string | null
           ativo?: boolean
         }
+        Relationships: []
       }
       movimento_estoque: {
         Row: {
@@ -1017,6 +1040,7 @@ export interface Database {
           obs?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       contagem: {
         Row: {
@@ -1052,6 +1076,7 @@ export interface Database {
           fechada_em?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       contagem_item: {
         Row: {
@@ -1076,6 +1101,7 @@ export interface Database {
           qtd_sistema?: number | null
           qtd_contada?: number | null
         }
+        Relationships: []
       }
       requisicao: {
         Row: {
@@ -1129,6 +1155,7 @@ export interface Database {
           obs?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       v_saldo_produto: {
         Row: {
@@ -1152,6 +1179,7 @@ export interface Database {
           unidade_medida?: string | null
           saldo?: number | null
         }
+        Relationships: []
       }
       cat_categoria_custo: {
         Row: {
@@ -1172,6 +1200,7 @@ export interface Database {
           nome?: string
           tipo?: 'Fixo' | 'Variável' | null
         }
+        Relationships: []
       }
       custo_lancamento: {
         Row: {
@@ -1219,6 +1248,7 @@ export interface Database {
           obs?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       nota_fiscal: {
         Row: {
@@ -1272,6 +1302,7 @@ export interface Database {
           conferida_em?: string | null
           criado_em?: string
         }
+        Relationships: []
       }
       nota_item: {
         Row: {
@@ -1310,6 +1341,7 @@ export interface Database {
           valor_unit?: number | null
           valor_total?: number | null
         }
+        Relationships: []
       }
       v_custo_mes: {
         Row: {
@@ -1333,6 +1365,7 @@ export interface Database {
           custo_variavel?: number | null
           custo_total?: number | null
         }
+        Relationships: []
       }
       v_absenteismo_mes: {
         Row: {
@@ -1359,7 +1392,12 @@ export interface Database {
           atrasos?: number | null
           dias_perdidos?: number | null
         }
+        Relationships: []
       }
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }
