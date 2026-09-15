@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/useAuth'
 import { contarVencimentosUrgentes } from '../../lib/vencimentos'
 
 const ITENS = [
+  { rota: '/', rotulo: 'Painel' },
   { rota: '/colaboradores', rotulo: 'Colaboradores' },
   { rota: '/escala', rotulo: 'Escala' },
   { rota: '/vencimentos', rotulo: 'Vencimentos' },
@@ -47,6 +48,7 @@ export function Sidebar() {
           <NavLink
             key={item.rota}
             to={item.rota}
+            end={item.rota === '/'}
             className={({ isActive }) =>
               `flex items-center justify-between rounded px-2 py-1.5 ${isActive ? 'bg-slate-100 font-medium text-slate-800' : 'hover:bg-slate-50'}`
             }

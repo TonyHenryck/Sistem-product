@@ -1311,6 +1311,55 @@ export interface Database {
           valor_total?: number | null
         }
       }
+      v_custo_mes: {
+        Row: {
+          unidade_id: string
+          competencia: string
+          custo_fixo: number | null
+          custo_variavel: number | null
+          custo_total: number | null
+        }
+        Insert: {
+          unidade_id: string
+          competencia: string
+          custo_fixo?: number | null
+          custo_variavel?: number | null
+          custo_total?: number | null
+        }
+        Update: {
+          unidade_id?: string
+          competencia?: string
+          custo_fixo?: number | null
+          custo_variavel?: number | null
+          custo_total?: number | null
+        }
+      }
+      v_absenteismo_mes: {
+        Row: {
+          unidade_id: string
+          competencia: string
+          faltas_injustificadas: number | null
+          atestados: number | null
+          atrasos: number | null
+          dias_perdidos: number | null
+        }
+        Insert: {
+          unidade_id: string
+          competencia: string
+          faltas_injustificadas?: number | null
+          atestados?: number | null
+          atrasos?: number | null
+          dias_perdidos?: number | null
+        }
+        Update: {
+          unidade_id?: string
+          competencia?: string
+          faltas_injustificadas?: number | null
+          atestados?: number | null
+          atrasos?: number | null
+          dias_perdidos?: number | null
+        }
+      }
     }
   }
 }
