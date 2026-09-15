@@ -2,6 +2,7 @@
   "name": "Sistema RH/DP",
   "short_name": "RH/DP",
   "description": "Gestão de RH, DP e almoxarifado da unidade",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
