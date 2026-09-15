@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
+import { excluirAnexo, enviarAnexo, listarAnexos, urlAnexo, type Anexo } from '../../lib/anexos'
 import { listarProdutos, type Produto } from '../../lib/almoxarifado'
 import { parseNFeXml } from '../../lib/nfeXml'
 import {
@@ -15,6 +16,8 @@ import {
 } from '../../lib/notaFiscal'
 import { formatarData } from '../../utils/data'
 import { formatarMoeda } from '../../utils/moeda'
+
+const ENTIDADE_NOTA = 'nota_fiscal'
 
 const STATUS_CLASSE: Record<NotaFiscalRow['status'], string> = {
   'Pendente conferência': 'bg-amber-100 text-amber-800',
@@ -43,7 +46,11 @@ export function NotaFiscal() {
   const [categoriaId, setCategoriaId] = useState('')
   const [confirmando, setConfirmando] = useState(false)
 
+  const [anexos, setAnexos] = useState<Anexo[]>([])
+  const [enviandoAnexo, setEnviandoAnexo] = useState(false)
+
   const inputRef = useRef<HTMLInputElement>(null)
+  const anexoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!unidade) return
@@ -65,7 +72,10 @@ export function NotaFiscal() {
 
     for (const arquivo of Array.from(arquivos)) {
       if (!arquivo.name.toLowerCase().endsWith('.xml')) {
-        setMensagem({ tipo: 'erro', texto: `"${arquivo.name}": PDF e foto ainda não são suportados, envie o XML da NFe.` })
+        setMensagem({
+          tipo: 'erro',
+          texto: `"${arquivo.name}": pra importar preciso do XML da NFe. PDF e foto (romaneio, etc.) podem ser anexados depois de abrir a nota na lista.`,
+        })
         continue
       }
 
@@ -93,9 +103,14 @@ export function NotaFiscal() {
     processarArquivos(e.dataTransfer.files)
   }
 
-  async function abrirConferencia(nota: NotaFiscalRow) {
+  async function selecionarNota(nota: NotaFiscalRow) {
     setSelecionada(nota)
     setCategoriaId('')
+    setItens([])
+    carregarAnexos(nota.id)
+
+    if (nota.status !== 'Pendente conferência') return
+
     const dados = await listarItensNota(nota.id)
 
     const produtosNorm = produtos.map((p) => ({ ...p, norm: normalizar(p.nome) }))
@@ -112,6 +127,35 @@ export function NotaFiscal() {
       }),
     )
     setItens(comSugestao)
+  }
+
+  function carregarAnexos(notaId: string) {
+    listarAnexos(ENTIDADE_NOTA, notaId).then(setAnexos)
+  }
+
+  async function enviarAnexoNota(arquivo: File | undefined) {
+    if (!unidade || !selecionada || !session || !arquivo) return
+    setEnviandoAnexo(true)
+    setMensagem(null)
+    try {
+      await enviarAnexo(unidade.empresa_id, ENTIDADE_NOTA, selecionada.id, arquivo, session.user.id)
+      carregarAnexos(selecionada.id)
+    } catch (e) {
+      setMensagem({ tipo: 'erro', texto: e instanceof Error ? e.message : 'Erro ao enviar anexo.' })
+    } finally {
+      setEnviandoAnexo(false)
+      if (anexoInputRef.current) anexoInputRef.current.value = ''
+    }
+  }
+
+  async function abrirAnexo(anexo: Anexo) {
+    const url = await urlAnexo(anexo.storage_path)
+    window.open(url, '_blank', 'noopener')
+  }
+
+  async function removerAnexo(anexo: Anexo) {
+    await excluirAnexo(anexo)
+    if (selecionada) carregarAnexos(selecionada.id)
   }
 
   async function mudarProdutoItem(itemId: string, produtoId: string) {
@@ -163,7 +207,7 @@ export function NotaFiscal() {
       >
         Arraste o XML da NFe aqui, ou clique para escolher o arquivo.
         <br />
-        <span className="text-xs text-slate-400">PDF e foto ficam para depois.</span>
+        <span className="text-xs text-slate-400">PDF e foto podem ser anexados depois, na nota já importada.</span>
         <input
           ref={inputRef}
           type="file"
@@ -208,10 +252,10 @@ export function NotaFiscal() {
               {notas.map((n) => (
                 <tr
                   key={n.id}
-                  onClick={() => n.status === 'Pendente conferência' && abrirConferencia(n)}
-                  className={`border-b border-slate-100 last:border-0 ${
-                    n.status === 'Pendente conferência' ? 'cursor-pointer hover:bg-slate-50' : ''
-                  } ${selecionada?.id === n.id ? 'bg-slate-50' : ''}`}
+                  onClick={() => selecionarNota(n)}
+                  className={`cursor-pointer border-b border-slate-100 last:border-0 hover:bg-slate-50 ${
+                    selecionada?.id === n.id ? 'bg-slate-50' : ''
+                  }`}
                 >
                   <td className="px-3 py-2">{n.numero ?? '—'}</td>
                   <td className="px-3 py-2 text-slate-600">{n.emitente_nome ?? '—'}</td>
@@ -227,7 +271,7 @@ export function NotaFiscal() {
 
         <div>
           {!selecionada ? (
-            <p className="text-sm text-slate-400">Clique numa nota pendente pra conferir.</p>
+            <p className="text-sm text-slate-400">Clique numa nota pra ver detalhes e anexos.</p>
           ) : (
             <div className="rounded border border-slate-200 bg-white p-4">
               <p className="mb-1 text-sm font-medium text-slate-700">
@@ -237,64 +281,101 @@ export function NotaFiscal() {
                 {formatarData(selecionada.data_emissao)} · {formatarMoeda(selecionada.valor_total)}
               </p>
 
-              <table className="mb-3 w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 text-left text-slate-500">
-                    <th className="py-1 font-medium">Descrição (NF)</th>
-                    <th className="py-1 font-medium">Qtd.</th>
-                    <th className="py-1 font-medium">Produto do catálogo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {itens.map((item) => (
-                    <tr key={item.id} className="border-b border-slate-100 last:border-0">
-                      <td className="py-1">{item.descricao}</td>
-                      <td className="py-1 text-slate-600">{item.qtd}</td>
-                      <td className="py-1">
-                        <select
-                          value={item.produto_id ?? ''}
-                          onChange={(e) => mudarProdutoItem(item.id, e.target.value)}
-                          className={`${inputCls} ${!item.produto_id ? 'border-red-300' : ''}`}
-                        >
-                          <option value="">Selecione</option>
-                          {produtos.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.nome}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {selecionada.status === 'Pendente conferência' && (
+                <>
+                  <table className="mb-3 w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-left text-slate-500">
+                        <th className="py-1 font-medium">Descrição (NF)</th>
+                        <th className="py-1 font-medium">Qtd.</th>
+                        <th className="py-1 font-medium">Produto do catálogo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {itens.map((item) => (
+                        <tr key={item.id} className="border-b border-slate-100 last:border-0">
+                          <td className="py-1">{item.descricao}</td>
+                          <td className="py-1 text-slate-600">{item.qtd}</td>
+                          <td className="py-1">
+                            <select
+                              value={item.produto_id ?? ''}
+                              onChange={(e) => mudarProdutoItem(item.id, e.target.value)}
+                              className={`${inputCls} ${!item.produto_id ? 'border-red-300' : ''}`}
+                            >
+                              <option value="">Selecione</option>
+                              {produtos.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.nome}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
 
-              <div className="mb-3">
-                <label className="mb-1 block text-xs text-slate-500">Categoria do lançamento de custo</label>
-                <select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)} className={inputCls}>
-                  <option value="">—</option>
-                  {categorias.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div className="mb-3">
+                    <label className="mb-1 block text-xs text-slate-500">Categoria do lançamento de custo</label>
+                    <select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)} className={inputCls}>
+                      <option value="">—</option>
+                      {categorias.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nome}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div className="flex gap-2">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={confirmar}
+                      disabled={confirmando}
+                      className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+                    >
+                      {confirmando ? 'Confirmando...' : 'Confirmar conferência'}
+                    </button>
+                    <button
+                      onClick={rejeitar}
+                      className="rounded border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                    >
+                      Rejeitar
+                    </button>
+                  </div>
+                </>
+              )}
+
+              <div className="mt-4 border-t border-slate-100 pt-3">
+                <p className="mb-2 text-xs font-medium text-slate-500">
+                  Anexos (romaneio, comprovante...)
+                </p>
+                {anexos.length === 0 && <p className="mb-2 text-xs text-slate-400">Nenhum anexo.</p>}
+                <ul className="mb-2 space-y-1">
+                  {anexos.map((a) => (
+                    <li key={a.id} className="flex items-center justify-between text-sm">
+                      <button onClick={() => abrirAnexo(a)} className="truncate text-left text-slate-700 hover:underline">
+                        {a.nome_arquivo}
+                      </button>
+                      <button onClick={() => removerAnexo(a)} className="ml-2 shrink-0 text-xs text-red-600 hover:underline">
+                        Remover
+                      </button>
+                    </li>
+                  ))}
+                </ul>
                 <button
-                  onClick={confirmar}
-                  disabled={confirmando}
-                  className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+                  onClick={() => anexoInputRef.current?.click()}
+                  disabled={enviandoAnexo}
+                  className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-60"
                 >
-                  {confirmando ? 'Confirmando...' : 'Confirmar conferência'}
+                  {enviandoAnexo ? 'Enviando...' : '+ Anexar arquivo (PDF, JPG, PNG)'}
                 </button>
-                <button
-                  onClick={rejeitar}
-                  className="rounded border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50"
-                >
-                  Rejeitar
-                </button>
+                <input
+                  ref={anexoInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={(e) => enviarAnexoNota(e.target.files?.[0])}
+                />
               </div>
             </div>
           )}

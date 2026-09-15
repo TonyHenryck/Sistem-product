@@ -1343,6 +1343,45 @@ export interface Database {
         }
         Relationships: []
       }
+      anexo: {
+        Row: {
+          id: string
+          empresa_id: string
+          entidade: string
+          entidade_id: string
+          nome_arquivo: string
+          storage_path: string
+          mime: string | null
+          tamanho_bytes: number | null
+          enviado_por: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          entidade: string
+          entidade_id: string
+          nome_arquivo: string
+          storage_path: string
+          mime?: string | null
+          tamanho_bytes?: number | null
+          enviado_por?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          entidade?: string
+          entidade_id?: string
+          nome_arquivo?: string
+          storage_path?: string
+          mime?: string | null
+          tamanho_bytes?: number | null
+          enviado_por?: string | null
+          criado_em?: string
+        }
+        Relationships: []
+      }
       v_custo_mes: {
         Row: {
           unidade_id: string
