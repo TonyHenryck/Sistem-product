@@ -110,6 +110,26 @@ export async function importarSaldosSistema(
     .from('ponto_competencia')
     .upsert(registros, { onConflict: 'colaborador_id,competencia' })
   if (error) throw error
+
+  // Preenche o saldo conferido com o do sistema pra quem ainda nao foi conferido -
+  // evita digitar de novo o mesmo numero pra quem bate certinho. So mexe em quem
+  // ainda esta em branco; quem ja foi conferido manualmente nao e sobrescrito.
+  const colaboradorIds = linhas.map((l) => l.colaboradorId)
+  const { data: semConferencia, error: erroBusca } = await supabase
+    .from('ponto_competencia')
+    .select('id, saldo_sistema')
+    .eq('competencia', competencia)
+    .in('colaborador_id', colaboradorIds)
+    .is('saldo_conferido', null)
+  if (erroBusca) throw erroBusca
+
+  if (semConferencia && semConferencia.length > 0) {
+    await Promise.all(
+      semConferencia
+        .filter((r) => r.saldo_sistema)
+        .map((r) => supabase.from('ponto_competencia').update({ saldo_conferido: r.saldo_sistema }).eq('id', r.id)),
+    )
+  }
 }
 
 export async function listarPontoCompetencia(

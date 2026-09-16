@@ -33,6 +33,7 @@ export function Ponto() {
   const [registros, setRegistros] = useState<PontoCompetencia[]>([])
   const [carregando, setCarregando] = useState(true)
   const [soDivergencias, setSoDivergencias] = useState(false)
+  const [busca, setBusca] = useState('')
   const [edicoes, setEdicoes] = useState<Record<string, string>>({})
 
   const arquivoRef = useRef<HTMLInputElement>(null)
@@ -131,7 +132,10 @@ export function Ponto() {
     return Boolean(r.divergencia) && r.divergencia !== '00:00:00'
   }
 
-  const linhasTabela = soDivergencias ? registros.filter(temDivergencia) : registros
+  const buscaNorm = busca.trim().toLowerCase()
+  const linhasTabela = registros
+    .filter((r) => !soDivergencias || temDivergencia(r))
+    .filter((r) => !buscaNorm || (nomes.get(r.colaborador_id) ?? '').toLowerCase().includes(buscaNorm))
 
   const inputCls =
     'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
@@ -234,16 +238,24 @@ export function Ponto() {
         )}
       </div>
 
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-medium text-slate-700">Competência {competencia}</p>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex items-center gap-4">
           <input
-            type="checkbox"
-            checked={soDivergencias}
-            onChange={(e) => setSoDivergencias(e.target.checked)}
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar colaborador..."
+            className="rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
           />
-          Mostrar só divergências
-        </label>
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={soDivergencias}
+              onChange={(e) => setSoDivergencias(e.target.checked)}
+            />
+            Mostrar só divergências
+          </label>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded border border-slate-200 bg-white">
