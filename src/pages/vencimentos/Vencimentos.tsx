@@ -25,6 +25,7 @@ export function Vencimentos() {
 
   const [vencimentos, setVencimentos] = useState<Vencimento[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [filtroTipo, setFiltroTipo] = useState<string | null>(null)
 
   useEffect(() => {
     if (!unidade) return
@@ -36,6 +37,17 @@ export function Vencimentos() {
 
   const hoje = useMemo(() => new Date().toISOString().slice(0, 10), [])
 
+  const urgentes = useMemo(
+    () => vencimentos.filter((v) => calcularUrgencia(v.venceEm, hoje) !== null),
+    [vencimentos, hoje],
+  )
+
+  const contagemPorTipo = useMemo(() => {
+    const mapa = new Map<string, number>()
+    for (const v of urgentes) mapa.set(v.item, (mapa.get(v.item) ?? 0) + 1)
+    return [...mapa.entries()].sort((a, b) => b[1] - a[1])
+  }, [urgentes])
+
   const grupos = useMemo(() => {
     const mapa = new Map<Urgencia, Vencimento[]>([
       ['vencido', []],
@@ -43,12 +55,13 @@ export function Vencimentos() {
       ['60', []],
     ])
     for (const v of vencimentos) {
+      if (filtroTipo && v.item !== filtroTipo) continue
       const urgencia = calcularUrgencia(v.venceEm, hoje)
       if (urgencia) mapa.get(urgencia)!.push(v)
     }
     for (const lista of mapa.values()) lista.sort((a, b) => a.venceEm.localeCompare(b.venceEm))
     return mapa
-  }, [vencimentos, hoje])
+  }, [vencimentos, hoje, filtroTipo])
 
   return (
     <div>
@@ -57,7 +70,35 @@ export function Vencimentos() {
       {carregando ? (
         <p className="text-slate-500">Carregando...</p>
       ) : (
-        <div className="space-y-6">
+        <>
+          {urgentes.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => setFiltroTipo(null)}
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  filtroTipo === null
+                    ? 'bg-slate-800 text-white'
+                    : 'border border-slate-300 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Todos ({urgentes.length})
+              </button>
+              {contagemPorTipo.map(([tipo, n]) => (
+                <button
+                  key={tipo}
+                  onClick={() => setFiltroTipo(tipo)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    filtroTipo === tipo
+                      ? 'bg-slate-800 text-white'
+                      : 'border border-slate-300 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {tipo} ({n})
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="space-y-6">
           {GRUPOS.map((grupo) => {
             const itens = grupos.get(grupo.chave) ?? []
             return (
@@ -86,7 +127,8 @@ export function Vencimentos() {
               </div>
             )
           })}
-        </div>
+          </div>
+        </>
       )}
     </div>
   )
