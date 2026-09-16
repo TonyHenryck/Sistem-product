@@ -52,31 +52,44 @@ export interface LinhaImportada {
   saldoIntervalo: string | null
 }
 
-export function processarTexto(
-  texto: string,
+export interface NomeSaldo {
+  nome: string
+  saldoTexto: string
+}
+
+export function casarComColaboradores(
+  linhas: NomeSaldo[],
   colaboradores: { id: string; nome: string }[],
 ): LinhaImportada[] {
   const mapaNomes = new Map(colaboradores.map((c) => [normalizar(c.nome), c.id]))
 
-  const linhas = texto
+  return linhas.map(({ nome, saldoTexto }) => ({
+    nomeOriginal: nome,
+    colaboradorId: mapaNomes.get(normalizar(nome)) ?? null,
+    saldoTexto,
+    saldoIntervalo: parseSaldo(saldoTexto),
+  }))
+}
+
+export function processarTexto(
+  texto: string,
+  colaboradores: { id: string; nome: string }[],
+): LinhaImportada[] {
+  const linhasTexto = texto
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean)
 
-  const separador = linhas[0]?.includes('\t') ? '\t' : linhas[0]?.includes(';') ? ';' : ','
+  const separador = linhasTexto[0]?.includes('\t') ? '\t' : linhasTexto[0]?.includes(';') ? ';' : ','
 
-  return linhas.map((linha) => {
+  const linhas: NomeSaldo[] = linhasTexto.map((linha) => {
     const idx = linha.lastIndexOf(separador)
     const nome = idx >= 0 ? linha.slice(0, idx).trim() : linha.trim()
     const saldoTexto = idx >= 0 ? linha.slice(idx + 1).trim() : ''
-
-    return {
-      nomeOriginal: nome,
-      colaboradorId: mapaNomes.get(normalizar(nome)) ?? null,
-      saldoTexto,
-      saldoIntervalo: parseSaldo(saldoTexto),
-    }
+    return { nome, saldoTexto }
   })
+
+  return casarComColaboradores(linhas, colaboradores)
 }
 
 export async function importarSaldosSistema(

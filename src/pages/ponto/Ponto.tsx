@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { listarNomesColaboradores, type Catalogo } from '../../lib/colaboradores'
+import { lerFolhaPonto } from '../../lib/folhaPonto'
 import {
   atualizarSaldoConferido,
+  casarComColaboradores,
   formatarIntervalo,
   importarSaldosSistema,
   listarPontoCompetencia,
@@ -34,6 +36,8 @@ export function Ponto() {
   const [edicoes, setEdicoes] = useState<Record<string, string>>({})
 
   const arquivoRef = useRef<HTMLInputElement>(null)
+  const arquivoFolhaRef = useRef<HTMLInputElement>(null)
+  const [lendoFolha, setLendoFolha] = useState(false)
 
   useEffect(() => {
     if (!unidade) return
@@ -65,6 +69,26 @@ export function Ponto() {
     const leitor = new FileReader()
     leitor.onload = () => setTexto(String(leitor.result ?? ''))
     leitor.readAsText(arquivo, 'utf-8')
+  }
+
+  async function lerFolha(e: ChangeEvent<HTMLInputElement>) {
+    const arquivo = e.target.files?.[0]
+    if (!arquivo) return
+    setErro(null)
+    setLendoFolha(true)
+    try {
+      const linhas = await lerFolhaPonto(arquivo)
+      if (linhas.length === 0) {
+        setErro('Não encontrei nenhum "Saldo do Banco de Horas" nesse arquivo.')
+        return
+      }
+      setPreview(casarComColaboradores(linhas, colaboradores))
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao ler a folha de ponto.')
+    } finally {
+      setLendoFolha(false)
+      if (arquivoFolhaRef.current) arquivoFolhaRef.current.value = ''
+    }
   }
 
   async function confirmarImportacao() {
@@ -149,6 +173,23 @@ export function Ponto() {
           >
             Analisar
           </button>
+        </div>
+
+        <div className="mt-3 border-t border-slate-100 pt-3">
+          <p className="mb-1 text-sm font-medium text-slate-700">Ou importar folha de ponto (Excel)</p>
+          <p className="mb-2 text-xs text-slate-400">
+            Arquivo .xls/.xlsx exportado pelo FACEPONTO (um bloco por colaborador). Pega o "Saldo do
+            Banco de Horas" de cada um automaticamente.
+          </p>
+          <input
+            ref={arquivoFolhaRef}
+            type="file"
+            accept=".xls,.xlsx"
+            onChange={lerFolha}
+            disabled={lendoFolha}
+            className="text-xs"
+          />
+          {lendoFolha && <span className="ml-2 text-xs text-slate-400">Lendo arquivo...</span>}
         </div>
 
         {preview && (
