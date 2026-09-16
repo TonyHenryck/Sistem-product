@@ -1,7 +1,6 @@
 import * as XLSX from 'xlsx'
-import type { NomeSaldo } from './ponto'
+import { normalizar, type NomeSaldo } from './ponto'
 
-const ROTULO_COLABORADOR = /^colaborador:?$/i
 const ROTULO_SALDO_BANCO = /^saldo do banco de horas:?$/i
 
 function primeiroValorApos(celulas: string[], indice: number): string | null {
@@ -12,20 +11,27 @@ function primeiroValorApos(celulas: string[], indice: number): string | null {
 }
 
 // Extrai pares (colaborador, saldo do banco de horas) de uma folha de ponto do
-// FACEPONTO: um bloco por colaborador, com rótulo e valor lado a lado na mesma
-// linha (ex: "Colaborador" | "FULANO DA SILVA"). Não tenta ler os batimentos
-// diários, só o saldo final de cada bloco.
-export function extrairSaldosFolhaPonto(linhas: unknown[][]): NomeSaldo[] {
+// FACEPONTO: um bloco por colaborador, com os batimentos diários e, no fim,
+// "Saldo do Banco de Horas". Não existe um rótulo confiável marcando o início
+// de cada bloco (o rótulo "Colaborador" aparece só uma vez, como cabeçalho),
+// então o início do bloco é reconhecido pelo nome bater com um colaborador já
+// cadastrado no sistema.
+export function extrairSaldosFolhaPonto(
+  linhas: unknown[][],
+  colaboradores: { id: string; nome: string }[],
+): NomeSaldo[] {
+  const nomesConhecidos = new Map(colaboradores.map((c) => [normalizar(c.nome), c.nome]))
+
   const resultado: NomeSaldo[] = []
   let nomeAtual: string | null = null
 
   for (const linhaBruta of linhas) {
     const celulas = linhaBruta.map((c) => (c == null ? '' : String(c).trim()))
 
-    const idxColaborador = celulas.findIndex((c) => ROTULO_COLABORADOR.test(c))
-    if (idxColaborador >= 0) {
-      nomeAtual = primeiroValorApos(celulas, idxColaborador)
-      continue
+    for (const celula of celulas) {
+      if (!celula) continue
+      const conhecido = nomesConhecidos.get(normalizar(celula))
+      if (conhecido) nomeAtual = conhecido
     }
 
     const idxSaldo = celulas.findIndex((c) => ROTULO_SALDO_BANCO.test(c))
@@ -41,7 +47,10 @@ export function extrairSaldosFolhaPonto(linhas: unknown[][]): NomeSaldo[] {
   return resultado
 }
 
-export async function lerFolhaPonto(arquivo: File): Promise<NomeSaldo[]> {
+export async function lerFolhaPonto(
+  arquivo: File,
+  colaboradores: { id: string; nome: string }[],
+): Promise<NomeSaldo[]> {
   const buffer = await arquivo.arrayBuffer()
   const pasta = XLSX.read(buffer, { type: 'array' })
 
@@ -49,7 +58,7 @@ export async function lerFolhaPonto(arquivo: File): Promise<NomeSaldo[]> {
   for (const nomeAba of pasta.SheetNames) {
     const aba = pasta.Sheets[nomeAba]
     const linhas = XLSX.utils.sheet_to_json<unknown[]>(aba, { header: 1, defval: '' })
-    encontrados.push(...extrairSaldosFolhaPonto(linhas))
+    encontrados.push(...extrairSaldosFolhaPonto(linhas, colaboradores))
   }
   return encontrados
 }

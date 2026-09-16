@@ -3,7 +3,7 @@ import type { Database } from './database.types'
 
 export type PontoCompetencia = Database['public']['Tables']['ponto_competencia']['Row']
 
-function normalizar(texto: string): string {
+export function normalizar(texto: string): string {
   return texto
     .trim()
     .toLowerCase()

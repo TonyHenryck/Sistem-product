@@ -77,7 +77,7 @@ export function Ponto() {
     setErro(null)
     setLendoFolha(true)
     try {
-      const linhas = await lerFolhaPonto(arquivo)
+      const linhas = await lerFolhaPonto(arquivo, colaboradores)
       if (linhas.length === 0) {
         setErro('Não encontrei nenhum "Saldo do Banco de Horas" nesse arquivo.')
         return
