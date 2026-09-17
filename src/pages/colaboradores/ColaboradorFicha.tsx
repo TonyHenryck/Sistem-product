@@ -39,6 +39,7 @@ export function ColaboradorFicha() {
     escalas: [],
     locais: [],
     beneficios: [],
+    jornadas: [],
   })
   const [form, setForm] = useState<ColaboradorUpdate>({ vinculo: 'CLT' })
   const [aba, setAba] = useState<Aba>('gerais')
@@ -281,6 +282,19 @@ export function ColaboradorFicha() {
                   {catalogos.escalas.map((e) => (
                     <option key={e.id} value={e.id}>
                       {e.nome}
+                    </option>
+                  ))}
+                </select>
+              }
+            />
+            <Campo
+              label="Jornada de trabalho"
+              input={
+                <select {...campo('jornada_id')} className={inputCls}>
+                  <option value="">—</option>
+                  {catalogos.jornadas.map((j) => (
+                    <option key={j.id} value={j.id}>
+                      {j.nome}
                     </option>
                   ))}
                 </select>

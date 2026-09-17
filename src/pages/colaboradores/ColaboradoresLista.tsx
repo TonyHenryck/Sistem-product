@@ -17,6 +17,7 @@ export function ColaboradoresLista() {
     escalas: [],
     locais: [],
     beneficios: [],
+    jornadas: [],
   })
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([])
   const [carregando, setCarregando] = useState(true)

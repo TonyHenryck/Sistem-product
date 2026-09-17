@@ -17,6 +17,7 @@ export interface Catalogos {
   escalas: Catalogo[]
   locais: Catalogo[]
   beneficios: Catalogo[]
+  jornadas: Catalogo[]
 }
 
 export interface FiltrosColaborador {
@@ -45,11 +46,12 @@ export async function listarNomesColaboradores(unidadeId: string): Promise<Catal
 }
 
 export async function buscarCatalogos(empresaId: string, unidadeId: string): Promise<Catalogos> {
-  const [funcoes, escalas, locais, beneficios] = await Promise.all([
+  const [funcoes, escalas, locais, beneficios, jornadas] = await Promise.all([
     supabase.from('cat_funcao').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
     supabase.from('cat_escala').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
     supabase.from('local_operacional').select('id, nome').eq('unidade_id', unidadeId).eq('ativo', true),
     supabase.from('cat_beneficio').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
+    supabase.from('cat_jornada').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
   ])
 
   return {
@@ -57,6 +59,7 @@ export async function buscarCatalogos(empresaId: string, unidadeId: string): Pro
     escalas: escalas.data ?? [],
     locais: locais.data ?? [],
     beneficios: beneficios.data ?? [],
+    jornadas: jornadas.data ?? [],
   }
 }
 

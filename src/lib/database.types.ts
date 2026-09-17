@@ -170,6 +170,33 @@ export interface Database {
         }
         Relationships: []
       }
+      cat_jornada: {
+        Row: {
+          id: string
+          empresa_id: string
+          nome: string
+          carga_mensal: number | null
+          carga_semanal: number | null
+          ativo: boolean
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          nome: string
+          carga_mensal?: number | null
+          carga_semanal?: number | null
+          ativo?: boolean
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          nome?: string
+          carga_mensal?: number | null
+          carga_semanal?: number | null
+          ativo?: boolean
+        }
+        Relationships: []
+      }
       colaborador: {
         Row: {
           id: string
@@ -184,6 +211,7 @@ export interface Database {
           area: string | null
           registro_conselho: string | null
           escala_id: string | null
+          jornada_id: string | null
           turno: 'Diurno' | 'Noturno' | null
           horario_id: string | null
           vinculo: 'CLT' | 'Prestador'
@@ -231,6 +259,7 @@ export interface Database {
           area?: string | null
           registro_conselho?: string | null
           escala_id?: string | null
+          jornada_id?: string | null
           turno?: 'Diurno' | 'Noturno' | null
           horario_id?: string | null
           vinculo?: 'CLT' | 'Prestador'
@@ -278,6 +307,7 @@ export interface Database {
           area?: string | null
           registro_conselho?: string | null
           escala_id?: string | null
+          jornada_id?: string | null
           turno?: 'Diurno' | 'Noturno' | null
           horario_id?: string | null
           vinculo?: 'CLT' | 'Prestador'

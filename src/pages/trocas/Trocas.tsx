@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { listarColaboradoresAtivos, listarNomesColaboradores, type Catalogo } from '../../lib/colaboradores'
 import {
@@ -150,6 +150,16 @@ export function Trocas() {
   const inputCls =
     'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
 
+  const gruposPorDupla = useMemo(() => {
+    const mapa = new Map<string, Troca[]>()
+    for (const t of trocas) {
+      const chave = [t.folgou_id, t.assumiu_id].sort().join('|')
+      if (!mapa.has(chave)) mapa.set(chave, [])
+      mapa.get(chave)!.push(t)
+    }
+    return [...mapa.values()]
+  }, [trocas])
+
   return (
     <div>
       <h1 className="mb-4 text-lg font-semibold text-slate-800">Trocas de turno</h1>
@@ -293,48 +303,60 @@ export function Trocas() {
                 </td>
               </tr>
             )}
-            {trocas.map((t) => (
-              <tr
-                key={t.id}
-                className={`border-b border-slate-100 last:border-0 ${
-                  t.status === 'Devolução pendente' ? 'bg-amber-50' : ''
-                }`}
-              >
-                <td className="px-3 py-2">{formatarData(t.data_trocada)}</td>
-                <td className="px-3 py-2">{nomes.get(t.folgou_id) ?? '—'}</td>
-                <td className="px-3 py-2">{nomes.get(t.assumiu_id) ?? '—'}</td>
-                <td className="px-3 py-2 text-slate-600">{formatarData(t.data_devolucao)}</td>
-                <td className="px-3 py-2">
-                  <span
-                    className={`rounded px-2 py-0.5 text-xs ${
-                      t.status === 'Devolução pendente'
-                        ? 'bg-amber-100 font-medium text-amber-800'
-                        : t.status === 'Concluída'
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-slate-100 text-slate-500'
+            {gruposPorDupla.map((grupo) => (
+              <Fragment key={grupo[0].id}>
+                {grupo.length > 1 && (
+                  <tr key={`cabecalho-${grupo[0].id}`} className="bg-slate-50">
+                    <td colSpan={6} className="px-3 py-1.5 text-xs font-medium text-slate-500">
+                      {nomes.get(grupo[0].folgou_id) ?? '—'} ↔ {nomes.get(grupo[0].assumiu_id) ?? '—'} · {grupo.length}{' '}
+                      trocas entre os dois
+                    </td>
+                  </tr>
+                )}
+                {grupo.map((t) => (
+                  <tr
+                    key={t.id}
+                    className={`border-b border-slate-100 last:border-0 ${
+                      t.status === 'Devolução pendente' ? 'bg-amber-50' : ''
                     }`}
                   >
-                    {t.status}
-                  </span>
-                </td>
-                <td className="px-3 py-2">
-                  <div className="flex gap-3 text-xs">
-                    {t.status === 'Devolução pendente' && (
-                      <>
-                        <button onClick={() => editar(t)} className="text-slate-600 hover:underline">
-                          Editar
+                    <td className="px-3 py-2">{formatarData(t.data_trocada)}</td>
+                    <td className="px-3 py-2">{nomes.get(t.folgou_id) ?? '—'}</td>
+                    <td className="px-3 py-2">{nomes.get(t.assumiu_id) ?? '—'}</td>
+                    <td className="px-3 py-2 text-slate-600">{formatarData(t.data_devolucao)}</td>
+                    <td className="px-3 py-2">
+                      <span
+                        className={`rounded px-2 py-0.5 text-xs ${
+                          t.status === 'Devolução pendente'
+                            ? 'bg-amber-100 font-medium text-amber-800'
+                            : t.status === 'Concluída'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        {t.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex gap-3 text-xs">
+                        {t.status === 'Devolução pendente' && (
+                          <>
+                            <button onClick={() => editar(t)} className="text-slate-600 hover:underline">
+                              Editar
+                            </button>
+                            <button onClick={() => cancelar(t)} className="text-amber-700 hover:underline">
+                              Cancelar
+                            </button>
+                          </>
+                        )}
+                        <button onClick={() => excluir(t)} className="text-red-600 hover:underline">
+                          Excluir
                         </button>
-                        <button onClick={() => cancelar(t)} className="text-amber-700 hover:underline">
-                          Cancelar
-                        </button>
-                      </>
-                    )}
-                    <button onClick={() => excluir(t)} className="text-red-600 hover:underline">
-                      Excluir
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </Fragment>
             ))}
           </tbody>
         </table>
