@@ -109,6 +109,27 @@ export async function desligarColaborador(
   if (error) throw error
 }
 
+// Registro cadastrado por engano ou que nao e um colaborador de fato.
+// Nao apaga a linha (historico como falta, ponto e troca referenciam o id) -
+// so tira o registro da lista ativa.
+export async function excluirColaborador(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('colaborador')
+    .update({ ativo: false, motivo_saida: 'Registro excluído (cadastro incorreto)' })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function criarJornada(dados: {
+  empresa_id: string
+  nome: string
+  carga_mensal: number | null
+  carga_semanal: number | null
+}): Promise<void> {
+  const { error } = await supabase.from('cat_jornada').insert(dados)
+  if (error) throw error
+}
+
 export async function buscarDadoSensivel(colaboradorId: string): Promise<DadoSensivel | null> {
   const { data, error } = await supabase
     .from('colaborador_dado_sensivel')

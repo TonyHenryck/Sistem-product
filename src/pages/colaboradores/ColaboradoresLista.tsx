@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
 import {
   buscarCatalogos,
+  excluirColaborador,
   listarColaboradores,
   type Catalogos,
   type Colaborador,
@@ -27,19 +28,33 @@ export function ColaboradoresLista() {
   const [localId, setLocalId] = useState('')
   const [area, setArea] = useState('')
   const [incluirDesligados, setIncluirDesligados] = useState(false)
+  const [busca, setBusca] = useState('')
 
   useEffect(() => {
     if (!unidade) return
     buscarCatalogos(unidade.empresa_id, unidade.id).then(setCatalogos)
   }, [unidade])
 
-  useEffect(() => {
+  function recarregar() {
     if (!unidade) return
     setCarregando(true)
     listarColaboradores(unidade.id, { funcaoId, escalaId, localId, area, incluirDesligados })
       .then(setColaboradores)
       .finally(() => setCarregando(false))
-  }, [unidade, funcaoId, escalaId, localId, area, incluirDesligados])
+  }
+
+  useEffect(recarregar, [unidade, funcaoId, escalaId, localId, area, incluirDesligados])
+
+  const buscaNorm = busca.trim().toLowerCase()
+  const colaboradoresFiltrados = busca
+    ? colaboradores.filter((c) => c.nome.toLowerCase().includes(buscaNorm))
+    : colaboradores
+
+  async function excluir(id: string) {
+    if (!confirm('Excluir este registro? Ele some da lista de colaboradores (não é um cadastro válido).')) return
+    await excluirColaborador(id)
+    recarregar()
+  }
 
   const nomeFuncao = useMemo(
     () => new Map(catalogos.funcoes.map((f) => [f.id, f.nome])),
@@ -67,6 +82,16 @@ export function ColaboradoresLista() {
       </div>
 
       <div className="mb-4 flex flex-wrap items-end gap-3">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500">Pesquisar nome</label>
+          <input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Digite o nome..."
+            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+          />
+        </div>
+
         <div>
           <label className="mb-1 block text-xs text-slate-500">Função</label>
           <select
@@ -145,26 +170,27 @@ export function ColaboradoresLista() {
               <th className="px-3 py-2 font-medium">Local</th>
               <th className="px-3 py-2 font-medium">Escala</th>
               <th className="px-3 py-2 font-medium">Status</th>
+              <th className="px-3 py-2 font-medium">Ações</th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-3 py-4 text-center text-slate-400">
                   Carregando...
                 </td>
               </tr>
             )}
 
-            {!carregando && colaboradores.length === 0 && (
+            {!carregando && colaboradoresFiltrados.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-3 py-4 text-center text-slate-400">
                   Nenhum colaborador encontrado.
                 </td>
               </tr>
             )}
 
-            {colaboradores.map((c) => (
+            {colaboradoresFiltrados.map((c) => (
               <tr key={c.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                 <td className="px-3 py-2">
                   <Link to={`/colaboradores/${c.id}`} className="text-slate-800 hover:underline">
@@ -189,6 +215,14 @@ export function ColaboradoresLista() {
                   >
                     {c.ativo ? 'Ativo' : 'Desligado'}
                   </span>
+                </td>
+                <td className="px-3 py-2">
+                  <button
+                    onClick={() => excluir(c.id)}
+                    className="text-xs text-red-600 hover:underline"
+                  >
+                    Excluir
+                  </button>
                 </td>
               </tr>
             ))}

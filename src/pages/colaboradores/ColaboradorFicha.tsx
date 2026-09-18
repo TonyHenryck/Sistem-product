@@ -7,7 +7,9 @@ import {
   buscarColaborador,
   buscarDadoSensivel,
   criarColaborador,
+  criarJornada,
   desligarColaborador,
+  excluirColaborador,
   salvarDadoSensivel,
   type Catalogos,
   type ColaboradorUpdate,
@@ -53,6 +55,10 @@ export function ColaboradorFicha() {
   const [mostrarDesligar, setMostrarDesligar] = useState(false)
   const [desligamento, setDesligamento] = useState('')
   const [motivoSaida, setMotivoSaida] = useState('')
+
+  const [mostrarNovaJornada, setMostrarNovaJornada] = useState(false)
+  const [novaJornada, setNovaJornada] = useState({ nome: '', cargaMensal: '', cargaSemanal: '' })
+  const [salvandoJornada, setSalvandoJornada] = useState(false)
 
   useEffect(() => {
     if (!unidade) return
@@ -145,6 +151,32 @@ export function ColaboradorFicha() {
     navigate('/colaboradores')
   }
 
+  async function excluir() {
+    if (!id) return
+    if (!confirm('Excluir este registro? Use isso só para cadastro feito por engano, não para desligamento real.')) return
+    await excluirColaborador(id)
+    navigate('/colaboradores')
+  }
+
+  async function salvarNovaJornada() {
+    if (!unidade || !novaJornada.nome) return
+    setSalvandoJornada(true)
+    try {
+      await criarJornada({
+        empresa_id: unidade.empresa_id,
+        nome: novaJornada.nome,
+        carga_mensal: novaJornada.cargaMensal ? Number(novaJornada.cargaMensal) : null,
+        carga_semanal: novaJornada.cargaSemanal ? Number(novaJornada.cargaSemanal) : null,
+      })
+      const catalogosAtualizados = await buscarCatalogos(unidade.empresa_id, unidade.id)
+      setCatalogos(catalogosAtualizados)
+      setNovaJornada({ nome: '', cargaMensal: '', cargaSemanal: '' })
+      setMostrarNovaJornada(false)
+    } finally {
+      setSalvandoJornada(false)
+    }
+  }
+
   if (carregando) return <p className="text-slate-500">Carregando...</p>
 
   return (
@@ -154,12 +186,20 @@ export function ColaboradorFicha() {
           {modoNovo ? 'Novo colaborador' : form.nome}
         </h1>
         {!modoNovo && form.ativo && (
-          <button
-            onClick={() => setMostrarDesligar((v) => !v)}
-            className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
-          >
-            Desligar
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setMostrarDesligar((v) => !v)}
+              className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+            >
+              Desligar
+            </button>
+            <button
+              onClick={excluir}
+              className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+            >
+              Excluir
+            </button>
+          </div>
         )}
       </div>
 
@@ -290,14 +330,64 @@ export function ColaboradorFicha() {
             <Campo
               label="Jornada de trabalho"
               input={
-                <select {...campo('jornada_id')} className={inputCls}>
-                  <option value="">—</option>
-                  {catalogos.jornadas.map((j) => (
-                    <option key={j.id} value={j.id}>
-                      {j.nome}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <div className="flex gap-2">
+                    <select {...campo('jornada_id')} className={inputCls}>
+                      <option value="">—</option>
+                      {catalogos.jornadas.map((j) => (
+                        <option key={j.id} value={j.id}>
+                          {j.nome}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setMostrarNovaJornada((v) => !v)}
+                      className="shrink-0 rounded border border-slate-300 px-2 text-sm text-slate-600 hover:bg-slate-50"
+                    >
+                      + Nova
+                    </button>
+                  </div>
+                  {mostrarNovaJornada && (
+                    <div className="mt-2 flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-slate-50 p-2">
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Nome</label>
+                        <input
+                          value={novaJornada.nome}
+                          onChange={(e) => setNovaJornada((v) => ({ ...v, nome: e.target.value }))}
+                          placeholder="ex: 12x36"
+                          className={inputCls}
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Carga mensal (h)</label>
+                        <input
+                          type="number"
+                          value={novaJornada.cargaMensal}
+                          onChange={(e) => setNovaJornada((v) => ({ ...v, cargaMensal: e.target.value }))}
+                          className={`${inputCls} w-24`}
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Carga semanal (h)</label>
+                        <input
+                          type="number"
+                          value={novaJornada.cargaSemanal}
+                          onChange={(e) => setNovaJornada((v) => ({ ...v, cargaSemanal: e.target.value }))}
+                          className={`${inputCls} w-24`}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={salvarNovaJornada}
+                        disabled={salvandoJornada || !novaJornada.nome}
+                        className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
+                      >
+                        {salvandoJornada ? 'Salvando...' : 'Cadastrar'}
+                      </button>
+                    </div>
+                  )}
+                </div>
               }
             />
             <Campo
