@@ -37,6 +37,7 @@ export async function importarNFe(
   empresaId: string,
   unidadeId: string,
   nfe: NFeParseada,
+  origemArquivo: 'xml' | 'pdf' = 'xml',
 ): Promise<ResultadoImportacao> {
   const { data: nota, error } = await supabase
     .from('nota_fiscal')
@@ -50,7 +51,7 @@ export async function importarNFe(
       emitente_nome: nfe.emitenteNome,
       data_emissao: nfe.dataEmissao,
       valor_total: nfe.valorTotal,
-      origem_arquivo: 'xml',
+      origem_arquivo: origemArquivo,
     })
     .select()
     .single()

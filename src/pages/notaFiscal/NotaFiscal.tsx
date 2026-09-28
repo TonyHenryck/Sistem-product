@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/useAuth'
 import { excluirAnexo, enviarAnexo, listarAnexos, urlAnexo, type Anexo } from '../../lib/anexos'
 import { listarProdutos, type Produto } from '../../lib/almoxarifado'
 import { parseNFeXml } from '../../lib/nfeXml'
+import { parseNFePdf } from '../../lib/pdfNFe'
 import {
   buscarCategoriasCusto,
   confirmarConferencia,
@@ -71,17 +72,20 @@ export function NotaFiscal() {
     if (!unidade || !arquivos) return
 
     for (const arquivo of Array.from(arquivos)) {
-      if (!arquivo.name.toLowerCase().endsWith('.xml')) {
+      const nomeMinusculo = arquivo.name.toLowerCase()
+      const ehXml = nomeMinusculo.endsWith('.xml')
+      const ehPdf = nomeMinusculo.endsWith('.pdf')
+
+      if (!ehXml && !ehPdf) {
         setMensagem({
           tipo: 'erro',
-          texto: `"${arquivo.name}": pra importar preciso do XML da NFe. PDF e foto (romaneio, etc.) podem ser anexados depois de abrir a nota na lista.`,
+          texto: `"${arquivo.name}": pra importar preciso do XML ou do PDF (DANFE) da NFe. Foto e romaneio podem ser anexados depois de abrir a nota na lista.`,
         })
         continue
       }
 
       setImportando(true)
-      const texto = await arquivo.text()
-      const resultado = parseNFeXml(texto)
+      const resultado = ehXml ? parseNFeXml(await arquivo.text()) : await parseNFePdf(arquivo)
 
       if ('erro' in resultado) {
         setMensagem({ tipo: 'erro', texto: `"${arquivo.name}": ${resultado.erro}` })
@@ -89,7 +93,7 @@ export function NotaFiscal() {
         continue
       }
 
-      const importado = await importarNFe(unidade.empresa_id, unidade.id, resultado)
+      const importado = await importarNFe(unidade.empresa_id, unidade.id, resultado, ehXml ? 'xml' : 'pdf')
       setMensagem({ tipo: importado.ok ? 'ok' : 'erro', texto: importado.mensagem })
       setImportando(false)
     }
@@ -205,13 +209,16 @@ export function NotaFiscal() {
           arrastando ? 'border-slate-500 bg-slate-50' : 'border-slate-300 text-slate-500'
         }`}
       >
-        Arraste o XML da NFe aqui, ou clique para escolher o arquivo.
+        Arraste o XML ou o PDF (DANFE) da NFe aqui, ou clique para escolher o arquivo.
         <br />
-        <span className="text-xs text-slate-400">PDF e foto podem ser anexados depois, na nota já importada.</span>
+        <span className="text-xs text-slate-400">
+          O XML é mais confiável. Pelo PDF os itens são lidos automaticamente, mas confira as quantidades antes de
+          confirmar. Foto e romaneio podem ser anexados depois, na nota já importada.
+        </span>
         <input
           ref={inputRef}
           type="file"
-          accept=".xml"
+          accept=".xml,.pdf"
           multiple
           className="hidden"
           onChange={(e) => processarArquivos(e.target.files)}
