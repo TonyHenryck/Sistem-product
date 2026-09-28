@@ -37,7 +37,7 @@ export async function importarNFe(
   empresaId: string,
   unidadeId: string,
   nfe: NFeParseada,
-  origemArquivo: 'xml' | 'pdf' = 'xml',
+  origemArquivo: 'xml' | 'pdf' | 'manual' = 'xml',
 ): Promise<ResultadoImportacao> {
   const { data: nota, error } = await supabase
     .from('nota_fiscal')
