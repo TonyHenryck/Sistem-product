@@ -172,23 +172,44 @@ function camposDaLinha(linha: Linha, bucket: (x: number) => string): Record<stri
   return campos
 }
 
-function finalizarItem(
-  campos: Record<string, string>,
-  descricaoKey: string,
-  unidKey: string | undefined,
-  totalKey: string | undefined,
-): ItemNFe {
-  const descricao = (campos[descricaoKey] ?? '').trim()
-  const fusao = (unidKey ? (campos[unidKey] ?? '') : '').trim()
-  const m = REGEX_UNID_QTD_VLR.exec(fusao)
-  const valorTotalTexto = (totalKey ? (campos[totalKey] ?? '') : '').trim()
+interface ColunasChave {
+  descricaoKey: string
+  unidKey: string | undefined
+  qtdKey: string | undefined
+  vlrUnitKey: string | undefined
+  totalKey: string | undefined
+}
+
+function finalizarItem(campos: Record<string, string>, chaves: ColunasChave): ItemNFe {
+  const descricao = (campos[chaves.descricaoKey] ?? '').trim()
+  const valorTotalTexto = (chaves.totalKey ? (campos[chaves.totalKey] ?? '') : '').trim()
+
+  // caso comum: UND, QTD e V.UN. vem em colunas separadas
+  let unidadeMedida = (chaves.unidKey ? (campos[chaves.unidKey] ?? '') : '').trim() || null
+  let qtd = chaves.qtdKey ? numeroPtBr((campos[chaves.qtdKey] ?? '').trim()) : null
+  let valorUnit = chaves.vlrUnitKey ? numeroPtBr((campos[chaves.vlrUnitKey] ?? '').trim()) : null
+
+  // outros DANFEs colam os tres num campo so (ex: "KG5,000016,90") - tenta separar
+  if (qtd == null || valorUnit == null) {
+    for (const chave of [chaves.unidKey, chaves.qtdKey, chaves.vlrUnitKey]) {
+      if (!chave) continue
+      const m = REGEX_UNID_QTD_VLR.exec((campos[chave] ?? '').trim())
+      if (m) {
+        unidadeMedida = m[1]
+        qtd = numeroPtBr(m[2])
+        valorUnit = numeroPtBr(m[3])
+        break
+      }
+    }
+  }
+
   return {
     codigoFornecedor: null,
     descricao: descricao || 'Item sem descrição',
     ncm: null,
-    unidadeMedida: m ? m[1] : null,
-    qtd: m ? numeroPtBr(m[2]) : null,
-    valorUnit: m ? numeroPtBr(m[3]) : null,
+    unidadeMedida,
+    qtd,
+    valorUnit,
     valorTotal: numeroPtBr(valorTotalTexto),
   }
 }
@@ -198,10 +219,9 @@ function coletarItens(
   headerIdx: number,
   passo: 1 | -1,
   bucket: (x: number) => string,
-  descricaoKey: string,
-  unidKey: string | undefined,
-  totalKey: string | undefined,
+  chaves: ColunasChave,
 ): ItemNFe[] {
+  const { descricaoKey } = chaves
   let i = headerIdx + passo
   let semDescricao = 0
   let achouAlgum = false
@@ -240,7 +260,7 @@ function coletarItens(
   if (atual) grupos.push(atual)
 
   return grupos
-    .map((g) => finalizarItem(g, descricaoKey, unidKey, totalKey))
+    .map((g) => finalizarItem(g, chaves))
     .filter((it) => it.qtd != null || it.valorUnit != null)
 }
 
@@ -317,14 +337,19 @@ export async function parseNFePdf(arquivo: File): Promise<NFeParseada | { erro: 
     }
 
     const descricaoKey = colunas.find((c) => c.nome.includes('DESCRICAODOPRODUTO'))?.nome
-    const unidKey = colunas.find((c) => c.nome.includes('UNID'))?.nome
-    const totalKey = colunas.find((c) => c.nome.includes('TOTAL'))?.nome
     if (!descricaoKey) {
       return { erro: 'Não consegui separar as colunas da tabela de itens desse PDF.' }
     }
+    const chaves: ColunasChave = {
+      descricaoKey,
+      unidKey: colunas.find((c) => c.nome.includes('UND') || c.nome.includes('UNID'))?.nome,
+      qtdKey: colunas.find((c) => c.nome.includes('QTD') || c.nome.includes('QUANT'))?.nome,
+      vlrUnitKey: colunas.find((c) => c.nome.includes('UNIT') || c.nome.includes('V.UN'))?.nome,
+      totalKey: colunas.find((c) => c.nome.includes('TOTAL'))?.nome,
+    }
 
-    const itensFrente = coletarItens(linhas, headerIdx, 1, bucket, descricaoKey, unidKey, totalKey)
-    const itensTras = coletarItens(linhas, headerIdx, -1, bucket, descricaoKey, unidKey, totalKey)
+    const itensFrente = coletarItens(linhas, headerIdx, 1, bucket, chaves)
+    const itensTras = coletarItens(linhas, headerIdx, -1, bucket, chaves)
     const itens = itensFrente.length >= itensTras.length ? itensFrente : itensTras
 
     if (itens.length === 0) {
@@ -335,10 +360,15 @@ export async function parseNFePdf(arquivo: File): Promise<NFeParseada | { erro: 
       .map((l) => mesclarCelulas(l.celulas).map((c) => c.texto).join(' '))
       .join('\n')
 
-    const chaveDigits = textoCompleto.replace(/\D/g, ' ').match(/\d{44}/)
-    const numero = /N[ºo]\s*:?\s*(\d{3,9})/i.exec(textoCompleto)?.[1] ?? null
+    // a chave de acesso e sempre impressa em 11 blocos de 4 digitos separados por espaco
+    const chaveMatch = /(?:\d{4}[ \t]+){10}\d{4}/.exec(textoCompleto)
+    const chaveDigits = chaveMatch ? [chaveMatch[0].replace(/[ \t]/g, '')] : null
+    const numero = /N[ºo]\s*[.:]?\s*(\d{3,9})/i.exec(textoCompleto)?.[1] ?? null
     const serie = /S[ée]rie\s*:?\s*(\d{1,3})/i.exec(textoCompleto)?.[1] ?? null
-    const emitenteNome = /RECEBEMOS DE\s*(.+?)\s*(?:OS|DOS) PRODUTOS/i.exec(textoCompleto)?.[1]?.trim() ?? null
+    const emitenteNome =
+      /RECEBEMOS DE\s*(.+?)\s*(?:OS|DOS) PRODUTOS/i.exec(textoCompleto)?.[1]?.trim() ??
+      /Documento\s+Aux[ií]\S*.*\n(.+?)\s*\nNota\s+Fiscal/i.exec(textoCompleto)?.[1]?.trim() ??
+      null
 
     const cnpjs = [...new Set([...textoCompleto.matchAll(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/g)].map((m) => m[0]))]
     const linhaComData = linhas.find((l) => {
@@ -350,12 +380,14 @@ export async function parseNFePdf(arquivo: File): Promise<NFeParseada | { erro: 
           mesclarCelulas(linhaComData.celulas).map((c) => c.texto).join(' '),
         )?.[0]
       : null
-    const emitenteCnpj = cnpjs.find((c) => c !== destinatarioCnpj) ?? cnpjs[0] ?? null
+    const emitenteCnpj = cnpjs.find((c) => c !== destinatarioCnpj) ?? null
 
     const valorTotalTexto = /VALOR TOTAL:\s*R\$\s*([\d.,]+)/i.exec(textoCompleto)?.[1]
     const valorTotal = valorTotalTexto ? numeroPtBr(valorTotalTexto) : null
 
-    const emissaoMatch = /EMISS[ÃA]O:\s*(\d{2})-(\d{2})-(\d{4})/i.exec(textoCompleto)
+    const emissaoTraco = /EMISS[ÃA]O:\s*(\d{2})-(\d{2})-(\d{4})/i.exec(textoCompleto)
+    const emissaoBarra = /DATA DA EMISS[ÃA]O[\s\S]{0,120}?(\d{2})\/(\d{2})\/(\d{4})/i.exec(textoCompleto)
+    const emissaoMatch = emissaoTraco ?? emissaoBarra
     const dataEmissao = emissaoMatch ? `${emissaoMatch[3]}-${emissaoMatch[2]}-${emissaoMatch[1]}` : null
 
     return {
