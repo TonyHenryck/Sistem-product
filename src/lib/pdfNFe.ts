@@ -23,12 +23,12 @@ async function inflate(bytes: Uint8Array): Promise<Uint8Array> {
 
 function extrairObjetos(texto: string): Map<number, ObjInfo> {
   const objs = new Map<number, ObjInfo>()
-  const re = /(\d+)\s+\d+\s+obj([\s\S]*?)endobj/gd
-  let m: (RegExpExecArray & { indices: Array<[number, number]> }) | null
-  while ((m = re.exec(texto) as (RegExpExecArray & { indices: Array<[number, number]> }) | null)) {
+  const re = /(\d+)\s+\d+\s+obj([\s\S]*?)endobj/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(texto))) {
     const num = Number(m[1])
     const body = m[2]
-    const [bodyStart] = m.indices[2]
+    const bodyStart = m.index + (m[0].length - body.length - 'endobj'.length)
     const idxStreamRel = body.indexOf('stream')
     if (idxStreamRel < 0) {
       objs.set(num, { header: body, streamRange: null })
