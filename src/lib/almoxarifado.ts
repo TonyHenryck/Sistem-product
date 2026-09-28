@@ -10,6 +10,7 @@ export type ContagemInsert = Database['public']['Tables']['contagem']['Insert']
 export type ContagemItem = Database['public']['Tables']['contagem_item']['Row']
 export type Requisicao = Database['public']['Tables']['requisicao']['Row']
 export type RequisicaoInsert = Database['public']['Tables']['requisicao']['Insert']
+export type CategoriaProduto = Database['public']['Tables']['cat_categoria_produto']['Row']
 
 // ---------- produto / saldo ----------
 
@@ -22,6 +23,27 @@ export async function listarProdutos(empresaId: string): Promise<Produto[]> {
     .order('nome')
   if (error) throw error
   return data ?? []
+}
+
+export async function listarCategoriasProduto(empresaId: string): Promise<CategoriaProduto[]> {
+  const { data, error } = await supabase
+    .from('cat_categoria_produto')
+    .select('*')
+    .eq('empresa_id', empresaId)
+    .eq('ativo', true)
+    .order('nome')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function criarCategoriaProduto(empresaId: string, nome: string): Promise<CategoriaProduto> {
+  const { data, error } = await supabase
+    .from('cat_categoria_produto')
+    .insert({ empresa_id: empresaId, nome })
+    .select()
+    .single()
+  if (error) throw error
+  return data
 }
 
 export async function criarProduto(dados: ProdutoInsert): Promise<Produto> {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type DragEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { excluirAnexo, enviarAnexo, listarAnexos, urlAnexo, type Anexo } from '../../lib/anexos'
 import { listarProdutos, type Produto } from '../../lib/almoxarifado'
-import { parseNFeXml } from '../../lib/nfeXml'
+import { parseNFeXml, type ItemNFe } from '../../lib/nfeXml'
 import { parseNFePdf } from '../../lib/pdfNFe'
 import {
   buscarCategoriasCusto,
@@ -49,6 +49,13 @@ export function NotaFiscal() {
 
   const [anexos, setAnexos] = useState<Anexo[]>([])
   const [enviandoAnexo, setEnviandoAnexo] = useState(false)
+
+  const [mostrarManual, setMostrarManual] = useState(false)
+  const [formManual, setFormManual] = useState({ emitenteNome: '', numero: '', serie: '', dataEmissao: '' })
+  const [itensManual, setItensManual] = useState<{ descricao: string; unidadeMedida: string; qtd: string; valorUnit: string }[]>(
+    [{ descricao: '', unidadeMedida: '', qtd: '', valorUnit: '' }],
+  )
+  const [salvandoManual, setSalvandoManual] = useState(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const anexoInputRef = useRef<HTMLInputElement>(null)
@@ -105,6 +112,85 @@ export function NotaFiscal() {
     e.preventDefault()
     setArrastando(false)
     processarArquivos(e.dataTransfer.files)
+  }
+
+  function atualizarItemManual(idx: number, campo: 'descricao' | 'unidadeMedida' | 'qtd' | 'valorUnit', valor: string) {
+    setItensManual((atual) => atual.map((it, i) => (i === idx ? { ...it, [campo]: valor } : it)))
+  }
+
+  function adicionarItemManual() {
+    setItensManual((atual) => [...atual, { descricao: '', unidadeMedida: '', qtd: '', valorUnit: '' }])
+  }
+
+  function removerItemManual(idx: number) {
+    setItensManual((atual) => (atual.length > 1 ? atual.filter((_, i) => i !== idx) : atual))
+  }
+
+  function fecharManual() {
+    setMostrarManual(false)
+    setFormManual({ emitenteNome: '', numero: '', serie: '', dataEmissao: '' })
+    setItensManual([{ descricao: '', unidadeMedida: '', qtd: '', valorUnit: '' }])
+  }
+
+  async function salvarManual() {
+    if (!unidade || !formManual.emitenteNome.trim()) {
+      setMensagem({ tipo: 'erro', texto: 'Informe pelo menos o nome do fornecedor.' })
+      return
+    }
+
+    const itens: ItemNFe[] = itensManual
+      .filter((it) => it.descricao.trim())
+      .map((it) => {
+        const qtd = it.qtd ? Number(it.qtd.replace(',', '.')) : null
+        const valorUnit = it.valorUnit ? Number(it.valorUnit.replace(',', '.')) : null
+        return {
+          codigoFornecedor: null,
+          descricao: it.descricao.trim(),
+          ncm: null,
+          unidadeMedida: it.unidadeMedida.trim() || null,
+          qtd: qtd != null && !Number.isNaN(qtd) ? qtd : null,
+          valorUnit: valorUnit != null && !Number.isNaN(valorUnit) ? valorUnit : null,
+          valorTotal:
+            qtd != null && valorUnit != null && !Number.isNaN(qtd) && !Number.isNaN(valorUnit)
+              ? Math.round(qtd * valorUnit * 100) / 100
+              : null,
+        }
+      })
+
+    if (itens.length === 0) {
+      setMensagem({ tipo: 'erro', texto: 'Adicione pelo menos um item.' })
+      return
+    }
+
+    setSalvandoManual(true)
+    setMensagem(null)
+    try {
+      const valorTotal = itens.reduce((soma, it) => soma + (it.valorTotal ?? 0), 0)
+      const resultado = await importarNFe(
+        unidade.empresa_id,
+        unidade.id,
+        {
+          chaveAcesso: null,
+          numero: formManual.numero.trim() || null,
+          serie: formManual.serie.trim() || null,
+          emitenteCnpj: null,
+          emitenteNome: formManual.emitenteNome.trim(),
+          dataEmissao: formManual.dataEmissao || null,
+          valorTotal: valorTotal || null,
+          itens,
+        },
+        'manual',
+      )
+      setMensagem({ tipo: resultado.ok ? 'ok' : 'erro', texto: resultado.mensagem })
+      if (resultado.ok) {
+        fecharManual()
+        recarregar()
+      }
+    } catch (e) {
+      setMensagem({ tipo: 'erro', texto: e instanceof Error ? e.message : 'Erro ao lançar nota.' })
+    } finally {
+      setSalvandoManual(false)
+    }
   }
 
   async function selecionarNota(nota: NotaFiscalRow) {
@@ -224,6 +310,121 @@ export function NotaFiscal() {
           onChange={(e) => processarArquivos(e.target.files)}
         />
       </div>
+
+      <div className="mb-4">
+        <button
+          onClick={() => (mostrarManual ? fecharManual() : setMostrarManual(true))}
+          className="text-sm text-slate-600 hover:underline"
+        >
+          {mostrarManual ? 'Cancelar lançamento manual' : '+ Lançar nota manualmente (sem XML/PDF)'}
+        </button>
+      </div>
+
+      {mostrarManual && (
+        <div className="mb-4 rounded border border-slate-200 bg-white p-4">
+          <p className="mb-3 text-sm font-medium text-slate-700">Lançar nota manualmente</p>
+          <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="col-span-2">
+              <label className="mb-1 block text-xs text-slate-500">Fornecedor / Remetente</label>
+              <input
+                value={formManual.emitenteNome}
+                onChange={(e) => setFormManual((f) => ({ ...f, emitenteNome: e.target.value }))}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-slate-500">Número</label>
+              <input
+                value={formManual.numero}
+                onChange={(e) => setFormManual((f) => ({ ...f, numero: e.target.value }))}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-slate-500">Série</label>
+              <input
+                value={formManual.serie}
+                onChange={(e) => setFormManual((f) => ({ ...f, serie: e.target.value }))}
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-slate-500">Data de emissão</label>
+              <input
+                type="date"
+                value={formManual.dataEmissao}
+                onChange={(e) => setFormManual((f) => ({ ...f, dataEmissao: e.target.value }))}
+                className={inputCls}
+              />
+            </div>
+          </div>
+
+          <table className="mb-2 w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 text-left text-slate-500">
+                <th className="py-1 font-medium">Descrição</th>
+                <th className="py-1 font-medium">Unidade</th>
+                <th className="py-1 font-medium">Qtd.</th>
+                <th className="py-1 font-medium">Valor unit.</th>
+                <th className="py-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {itensManual.map((item, idx) => (
+                <tr key={idx} className="border-b border-slate-100 last:border-0">
+                  <td className="py-1 pr-2">
+                    <input
+                      value={item.descricao}
+                      onChange={(e) => atualizarItemManual(idx, 'descricao', e.target.value)}
+                      className={inputCls}
+                    />
+                  </td>
+                  <td className="w-20 py-1 pr-2">
+                    <input
+                      value={item.unidadeMedida}
+                      onChange={(e) => atualizarItemManual(idx, 'unidadeMedida', e.target.value)}
+                      placeholder="kg, un..."
+                      className={inputCls}
+                    />
+                  </td>
+                  <td className="w-24 py-1 pr-2">
+                    <input
+                      value={item.qtd}
+                      onChange={(e) => atualizarItemManual(idx, 'qtd', e.target.value)}
+                      className={inputCls}
+                    />
+                  </td>
+                  <td className="w-28 py-1 pr-2">
+                    <input
+                      value={item.valorUnit}
+                      onChange={(e) => atualizarItemManual(idx, 'valorUnit', e.target.value)}
+                      className={inputCls}
+                    />
+                  </td>
+                  <td className="w-8 py-1">
+                    <button onClick={() => removerItemManual(idx)} className="text-xs text-red-600 hover:underline">
+                      ✕
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button onClick={adicionarItemManual} className="mb-4 text-xs text-slate-600 hover:underline">
+            + Adicionar item
+          </button>
+
+          <div>
+            <button
+              onClick={salvarManual}
+              disabled={salvandoManual}
+              className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+            >
+              {salvandoManual ? 'Salvando...' : 'Lançar nota'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {importando && <p className="mb-3 text-sm text-slate-500">Processando...</p>}
       {mensagem && (

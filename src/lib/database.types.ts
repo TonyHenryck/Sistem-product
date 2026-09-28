@@ -998,6 +998,7 @@ export interface Database {
           codigo: string | null
           nome: string
           categoria: string | null
+          categoria_id: string | null
           unidade_medida: string | null
           ativo: boolean
         }
@@ -1007,6 +1008,7 @@ export interface Database {
           codigo?: string | null
           nome: string
           categoria?: string | null
+          categoria_id?: string | null
           unidade_medida?: string | null
           ativo?: boolean
         }
@@ -1016,9 +1018,16 @@ export interface Database {
           codigo?: string | null
           nome?: string
           categoria?: string | null
+          categoria_id?: string | null
           unidade_medida?: string | null
           ativo?: boolean
         }
+        Relationships: []
+      }
+      cat_categoria_produto: {
+        Row: { id: string; empresa_id: string; nome: string; ativo: boolean }
+        Insert: { id?: string; empresa_id: string; nome: string; ativo?: boolean }
+        Update: { id?: string; empresa_id?: string; nome?: string; ativo?: boolean }
         Relationships: []
       }
       movimento_estoque: {
