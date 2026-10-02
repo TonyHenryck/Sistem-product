@@ -1,7 +1,9 @@
-import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
 import { mensagemErro } from '../../utils/erro'
+import { formatarData } from '../../utils/data'
+import { excluirAnexo, enviarAnexo, listarAnexos, urlAnexo, type Anexo } from '../../lib/anexos'
 import {
   atualizarColaborador,
   buscarCatalogos,
@@ -11,12 +13,16 @@ import {
   criarHorario,
   criarJornada,
   desligarColaborador,
+  enviarFoto,
   excluirColaborador,
   salvarDadoSensivel,
+  urlFoto,
   type Catalogos,
   type ColaboradorUpdate,
   type DadoSensivelInsert,
 } from '../../lib/colaboradores'
+
+const ENTIDADE_COLABORADOR = 'colaborador'
 
 type Aba = 'gerais' | 'cargo' | 'beneficios' | 'endereco' | 'bancario'
 
@@ -31,7 +37,7 @@ const ABAS: { chave: Aba; rotulo: string }[] = [
 export function ColaboradorFicha() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { vinculos } = useAuth()
+  const { vinculos, session } = useAuth()
   const vinculo = vinculos[0]
   const unidade = vinculo?.unidade
   const ehGestor = vinculo?.papel === 'gestor' || vinculo?.papel === 'admin'
@@ -54,6 +60,16 @@ export function ColaboradorFicha() {
 
   const [dadoBancario, setDadoBancario] = useState<DadoSensivelInsert | null>(null)
   const [bancarioCarregado, setBancarioCarregado] = useState(false)
+
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null)
+  const [enviandoFoto, setEnviandoFoto] = useState(false)
+  const [erroFoto, setErroFoto] = useState<string | null>(null)
+  const fotoInputRef = useRef<HTMLInputElement>(null)
+
+  const [anexos, setAnexos] = useState<Anexo[]>([])
+  const [enviandoAnexo, setEnviandoAnexo] = useState(false)
+  const [erroAnexo, setErroAnexo] = useState<string | null>(null)
+  const anexoInputRef = useRef<HTMLInputElement>(null)
 
   const [mostrarDesligar, setMostrarDesligar] = useState(false)
   const [desligamento, setDesligamento] = useState('')
@@ -81,6 +97,63 @@ export function ColaboradorFicha() {
       setCarregando(false)
     })
   }, [id, modoNovo])
+
+  useEffect(() => {
+    if (!form.foto_path) {
+      setFotoUrl(null)
+      return
+    }
+    urlFoto(form.foto_path).then(setFotoUrl)
+  }, [form.foto_path])
+
+  useEffect(() => {
+    if (modoNovo || !id) return
+    listarAnexos(ENTIDADE_COLABORADOR, id).then(setAnexos)
+  }, [id, modoNovo])
+
+  async function enviarFotoColaborador(arquivo: File | undefined) {
+    if (!arquivo || !id || !unidade) return
+    setEnviandoFoto(true)
+    setErroFoto(null)
+    try {
+      const caminho = await enviarFoto(id, unidade.empresa_id, arquivo)
+      setForm((atual) => ({ ...atual, foto_path: caminho }))
+    } catch (e) {
+      setErroFoto(mensagemErro(e, 'Erro ao enviar foto.'))
+    } finally {
+      setEnviandoFoto(false)
+      if (fotoInputRef.current) fotoInputRef.current.value = ''
+    }
+  }
+
+  function carregarAnexos() {
+    if (id) listarAnexos(ENTIDADE_COLABORADOR, id).then(setAnexos)
+  }
+
+  async function enviarAnexoColaborador(arquivo: File | undefined) {
+    if (!arquivo || !id || !unidade || !session) return
+    setEnviandoAnexo(true)
+    setErroAnexo(null)
+    try {
+      await enviarAnexo(unidade.empresa_id, ENTIDADE_COLABORADOR, id, arquivo, session.user.id)
+      carregarAnexos()
+    } catch (e) {
+      setErroAnexo(mensagemErro(e, 'Erro ao enviar anexo.'))
+    } finally {
+      setEnviandoAnexo(false)
+      if (anexoInputRef.current) anexoInputRef.current.value = ''
+    }
+  }
+
+  async function abrirAnexo(anexo: Anexo) {
+    const url = await urlAnexo(anexo.storage_path)
+    window.open(url, '_blank')
+  }
+
+  async function removerAnexo(anexo: Anexo) {
+    await excluirAnexo(anexo)
+    carregarAnexos()
+  }
 
   function campo<K extends keyof ColaboradorUpdate>(chave: K) {
     return {
@@ -208,14 +281,62 @@ export function ColaboradorFicha() {
 
   if (carregando) return <p className="text-slate-500">Carregando...</p>
 
+  const nomeFuncao = catalogos.funcoes.find((f) => f.id === form.funcao_id)?.nome
+  const nomeLocal = form.atende_multiplos
+    ? 'Múltiplos locais'
+    : catalogos.locais.find((l) => l.id === form.local_id)?.nome
+
   return (
     <div className="max-w-3xl">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-slate-800">
-          {modoNovo ? 'Novo colaborador' : form.nome}
-        </h1>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => fotoInputRef.current?.click()}
+              disabled={modoNovo || enviandoFoto}
+              className="group h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100 disabled:cursor-not-allowed"
+            >
+              {fotoUrl ? (
+                <img src={fotoUrl} alt={form.nome || ''} className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-lg font-medium text-slate-400">
+                  {(form.nome || '?').charAt(0).toUpperCase()}
+                </span>
+              )}
+              {!modoNovo && (
+                <span className="absolute inset-0 hidden items-center justify-center bg-black/40 text-[10px] text-white group-hover:flex">
+                  {enviandoFoto ? '...' : 'Alterar'}
+                </span>
+              )}
+            </button>
+            <input
+              ref={fotoInputRef}
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              className="hidden"
+              onChange={(e) => enviarFotoColaborador(e.target.files?.[0])}
+            />
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold text-slate-800">
+              {modoNovo ? 'Novo colaborador' : form.nome}
+            </h1>
+            {!modoNovo && (nomeFuncao || nomeLocal) && (
+              <p className="text-sm text-slate-500">{[nomeFuncao, nomeLocal].filter(Boolean).join(' · ')}</p>
+            )}
+            {!modoNovo && (form.admissao || form.telefone) && (
+              <p className="text-xs text-slate-400">
+                {form.admissao && `Admitido em ${formatarData(form.admissao)}`}
+                {form.admissao && form.telefone && ' · '}
+                {form.telefone}
+              </p>
+            )}
+            {erroFoto && <p className="mt-1 text-xs text-red-600">{erroFoto}</p>}
+          </div>
+        </div>
         {!modoNovo && (
-          <div className="flex gap-2">
+          <div className="flex shrink-0 gap-2">
             <Link
               to={`/colaboradores/${id}/escala-individual`}
               className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
@@ -241,6 +362,40 @@ export function ColaboradorFicha() {
           </div>
         )}
       </div>
+
+      {!modoNovo && (
+        <div className="mb-4 rounded border border-slate-200 bg-white p-4">
+          <p className="mb-2 text-xs font-medium text-slate-500">Documentos (ASO, contrato...)</p>
+          {anexos.length === 0 && <p className="mb-2 text-xs text-slate-400">Nenhum documento.</p>}
+          <ul className="mb-2 space-y-1">
+            {anexos.map((a) => (
+              <li key={a.id} className="flex items-center justify-between text-sm">
+                <button onClick={() => abrirAnexo(a)} className="truncate text-left text-slate-700 hover:underline">
+                  {a.nome_arquivo}
+                </button>
+                <button onClick={() => removerAnexo(a)} className="ml-2 shrink-0 text-xs text-red-600 hover:underline">
+                  Remover
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => anexoInputRef.current?.click()}
+            disabled={enviandoAnexo}
+            className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+          >
+            {enviandoAnexo ? 'Enviando...' : '+ Anexar documento (PDF, JPG, PNG)'}
+          </button>
+          <input
+            ref={anexoInputRef}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            className="hidden"
+            onChange={(e) => enviarAnexoColaborador(e.target.files?.[0])}
+          />
+          {erroAnexo && <p className="mt-1 text-xs text-red-600">{erroAnexo}</p>}
+        </div>
+      )}
 
       {mostrarDesligar && (
         <div className="mb-4 rounded border border-red-200 bg-red-50 p-4">

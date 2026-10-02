@@ -274,6 +274,7 @@ export interface Database {
           bairro: string | null
           cidade: string | null
           uf: string | null
+          foto_path: string | null
           ativo: boolean
           desligamento: string | null
           motivo_saida: string | null
@@ -322,6 +323,7 @@ export interface Database {
           bairro?: string | null
           cidade?: string | null
           uf?: string | null
+          foto_path?: string | null
           ativo?: boolean
           desligamento?: string | null
           motivo_saida?: string | null
@@ -370,6 +372,7 @@ export interface Database {
           bairro?: string | null
           cidade?: string | null
           uf?: string | null
+          foto_path?: string | null
           ativo?: boolean
           desligamento?: string | null
           motivo_saida?: string | null

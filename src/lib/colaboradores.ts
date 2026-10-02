@@ -153,6 +153,38 @@ export async function criarHorario(empresaId: string, horaInicio: string, horaFi
   return { id: data.id, nome: data.descricao }
 }
 
+const BUCKET_FOTO = 'avatares'
+const EXTENSOES_FOTO_ACEITAS = ['.jpg', '.jpeg', '.png', '.webp']
+const TAMANHO_MAXIMO_FOTO = 5 * 1024 * 1024
+
+export async function enviarFoto(colaboradorId: string, empresaId: string, arquivo: File): Promise<string> {
+  const nome = arquivo.name.toLowerCase()
+  if (!EXTENSOES_FOTO_ACEITAS.some((ext) => nome.endsWith(ext))) {
+    throw new Error('Formato não aceito. Envie JPG, PNG ou WEBP.')
+  }
+  if (arquivo.size > TAMANHO_MAXIMO_FOTO) {
+    throw new Error('Imagem maior que 5 MB.')
+  }
+
+  const caminho = `${empresaId}/${colaboradorId}/${Date.now()}_${arquivo.name}`
+
+  const { error: erroUpload } = await supabase.storage.from(BUCKET_FOTO).upload(caminho, arquivo)
+  if (erroUpload) throw erroUpload
+
+  const { error } = await supabase.from('colaborador').update({ foto_path: caminho }).eq('id', colaboradorId)
+  if (error) {
+    await supabase.storage.from(BUCKET_FOTO).remove([caminho])
+    throw error
+  }
+  return caminho
+}
+
+export async function urlFoto(fotoPath: string): Promise<string> {
+  const { data, error } = await supabase.storage.from(BUCKET_FOTO).createSignedUrl(fotoPath, 3600)
+  if (error) throw error
+  return data.signedUrl
+}
+
 export async function buscarDadoSensivel(colaboradorId: string): Promise<DadoSensivel | null> {
   const { data, error } = await supabase
     .from('colaborador_dado_sensivel')
