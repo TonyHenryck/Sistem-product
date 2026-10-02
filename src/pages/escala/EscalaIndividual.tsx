@@ -68,15 +68,19 @@ export function EscalaIndividual() {
   const [editandoCoordenador, setEditandoCoordenador] = useState(false)
   const [formCoordenador, setFormCoordenador] = useState({ nome: '', cargo: 'Coordenadora Regional' })
   const [salvandoCoordenador, setSalvandoCoordenador] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
-    buscarDetalheColaboradorEscala(id).then(setColaborador)
+    buscarDetalheColaboradorEscala(id)
+      .then(setColaborador)
+      .catch((e) => setErro(mensagemErro(e, 'Erro ao carregar colaborador.')))
   }, [id])
 
   useEffect(() => {
     if (!colaborador) return
     setCarregando(true)
+    setErro(null)
     Promise.all([
       buscarEscalaIndividualMes(colaborador, ano, mes),
       buscarCoordenador(colaborador.empresaId, colaborador.unidadeId),
@@ -86,6 +90,7 @@ export function EscalaIndividual() {
         setResumo(escalaDados.resumo)
         setCoordenador(coord)
       })
+      .catch((e) => setErro(mensagemErro(e, 'Erro ao carregar a escala do mês.')))
       .finally(() => setCarregando(false))
   }, [colaborador, ano, mes])
 
@@ -117,10 +122,21 @@ export function EscalaIndividual() {
     }
   }
 
-  if (!colaborador || carregando) {
+  if (!colaborador && !erro) {
     return (
       <div className="p-6">
         <p className="text-slate-500">Carregando...</p>
+      </div>
+    )
+  }
+
+  if (!colaborador) {
+    return (
+      <div className="p-6">
+        <Link to={`/colaboradores/${id}`} className="text-sm text-slate-600 hover:underline">
+          ‹ Voltar pro colaborador
+        </Link>
+        <p className="mt-3 text-sm text-red-600">{erro}</p>
       </div>
     )
   }
@@ -136,7 +152,7 @@ export function EscalaIndividual() {
             ‹
           </button>
           <span className="w-32 text-center text-sm font-medium text-slate-700">
-            {MESES[mes - 1]} {ano}
+            {carregando ? 'Carregando...' : `${MESES[mes - 1]} ${ano}`}
           </span>
           <button onClick={() => mudarMes(1)} className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-white">
             ›
@@ -149,6 +165,10 @@ export function EscalaIndividual() {
           </button>
         </div>
       </div>
+
+      {erro && (
+        <p className="mx-auto mb-4 max-w-[860px] px-4 text-sm text-red-600 print:hidden">{erro}</p>
+      )}
 
       <div className="mx-auto max-w-[860px] bg-white p-8 shadow print:shadow-none print:p-0">
         <div className="mb-4 flex items-center gap-4 border-b-[3px] border-[#1F3864] pb-3">
@@ -329,4 +349,11 @@ export function EscalaIndividual() {
       </div>
     </div>
   )
+}
+
+// Erro do Supabase (PostgrestError) e um objeto comum, nao uma instancia de Error.
+function mensagemErro(e: unknown, fallback: string): string {
+  if (e instanceof Error) return e.message
+  if (e && typeof e === 'object' && 'message' in e && typeof e.message === 'string') return e.message
+  return fallback
 }
