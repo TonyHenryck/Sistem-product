@@ -17,6 +17,7 @@ export interface DiaColaborador {
   cor: string
   turno: 'Diurno' | 'Noturno' | null
   situacao: Situacao
+  localId: string | null
 }
 
 function diasDoMes(ano: number, mes: number): string[] {
@@ -159,6 +160,7 @@ export function gerarEscalaMes(
         cor: colaborador.escala?.cor ?? '#94a3b8',
         turno: colaborador.turno,
         situacao,
+        localId: colaborador.local_id,
       })
     }
 

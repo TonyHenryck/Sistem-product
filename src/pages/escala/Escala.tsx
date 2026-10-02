@@ -14,6 +14,8 @@ const MESES = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ]
 
+const ROTULO_MULTIPLOS = 'Múltiplos'
+
 function montarSemanas(ano: number, mes: number): (string | null)[][] {
   const primeiroDiaSemana = new Date(ano, mes - 1, 1).getDay()
   const totalDias = new Date(ano, mes, 0).getDate()
@@ -29,6 +31,13 @@ function montarSemanas(ano: number, mes: number): (string | null)[][] {
   return semanas
 }
 
+function formatarDataLonga(dataISO: string): string {
+  const [ano, mes, dia] = dataISO.split('-').map(Number)
+  const data = new Date(ano, mes - 1, dia)
+  const diaSemana = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'][data.getDay()]
+  return `${dia} de ${MESES[mes - 1].toLowerCase()} · ${diaSemana}`
+}
+
 export function Escala() {
   const { vinculos } = useAuth()
   const unidade = vinculos[0]?.unidade
@@ -38,6 +47,7 @@ export function Escala() {
   const [mes, setMes] = useState(hoje.getMonth() + 1)
   const [localId, setLocalId] = useState('')
   const [locais, setLocais] = useState<Catalogo[]>([])
+  const [diaSelecionado, setDiaSelecionado] = useState<string | null>(null)
 
   const [colaboradores, setColaboradores] = useState<ColaboradorEscala[]>([])
   const [excecoes, setExcecoes] = useState<Awaited<ReturnType<typeof buscarExcecoesDoMes>>>({
@@ -55,6 +65,7 @@ export function Escala() {
   useEffect(() => {
     if (!unidade) return
     setCarregando(true)
+    setDiaSelecionado(null)
     Promise.all([
       buscarColaboradoresParaEscala(unidade.id, localId || null),
       buscarExcecoesDoMes(unidade.id, ano, mes),
@@ -73,6 +84,24 @@ export function Escala() {
 
   const semanas = useMemo(() => montarSemanas(ano, mes), [ano, mes])
 
+  const nomeLocal = useMemo(() => new Map(locais.map((l) => [l.id, l.nome])), [locais])
+
+  function rotuloLocal(id: string | null): string {
+    if (!id) return ROTULO_MULTIPLOS
+    return nomeLocal.get(id) ?? '—'
+  }
+
+  function resumoPorLocal(dia: DiaColaborador[]): { rotulo: string; total: number }[] {
+    const contagem = new Map<string, number>()
+    for (const c of dia) {
+      const rotulo = rotuloLocal(c.localId)
+      contagem.set(rotulo, (contagem.get(rotulo) ?? 0) + 1)
+    }
+    return [...contagem.entries()]
+      .map(([rotulo, total]) => ({ rotulo, total }))
+      .sort((a, b) => b.total - a.total)
+  }
+
   function mudarMes(delta: number) {
     let novoMes = mes + delta
     let novoAno = ano
@@ -81,6 +110,18 @@ export function Escala() {
     setMes(novoMes)
     setAno(novoAno)
   }
+
+  const diaDetalhe = diaSelecionado ? (escalaDoMes.get(diaSelecionado) ?? []) : []
+  const gruposDetalhe = useMemo(() => {
+    const porLocal = new Map<string, DiaColaborador[]>()
+    for (const c of diaDetalhe) {
+      const rotulo = rotuloLocal(c.localId)
+      if (!porLocal.has(rotulo)) porLocal.set(rotulo, [])
+      porLocal.get(rotulo)!.push(c)
+    }
+    return [...porLocal.entries()].sort((a, b) => b[1].length - a[1].length)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diaDetalhe])
 
   return (
     <div>
@@ -123,80 +164,135 @@ export function Escala() {
 
       {localId === '' && (
         <p className="mb-3 text-xs text-slate-400">
-          Selecione um local específico para ver furos de escala (dias sem ninguém trabalhando).
+          Cada dia mostra quantas pessoas por local. Clique num dia pra ver os nomes. Selecione um local
+          específico pra ver furos de escala (dias sem ninguém trabalhando).
         </p>
       )}
 
       {carregando ? (
         <p className="text-slate-500">Carregando...</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] table-fixed border-collapse text-sm">
-            <thead>
-              <tr>
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((d) => (
-                  <th key={d} className="pb-2 text-left text-xs font-medium text-slate-400">
-                    {d}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {semanas.map((semana, i) => (
-                <tr key={i}>
-                  {semana.map((dataISO, j) => {
-                    const dia = dataISO ? escalaDoMes.get(dataISO) ?? [] : []
-                    const furo = Boolean(dataISO) && localId !== '' && dia.length === 0
-
-                    return (
-                      <td
-                        key={j}
-                        className={`h-28 w-[14.28%] align-top border border-slate-100 p-1.5 ${
-                          furo ? 'bg-red-50' : dataISO ? 'bg-white' : 'bg-slate-50'
-                        }`}
-                      >
-                        {dataISO && (
-                          <>
-                            <div className="mb-1 text-xs text-slate-400">
-                              {Number(dataISO.slice(8, 10))}
-                            </div>
-                            {furo && (
-                              <div className="mb-1 text-[11px] font-medium text-red-600">
-                                Furo de escala
-                              </div>
-                            )}
-                            <div className="space-y-0.5">
-                              {dia.map((c: DiaColaborador) => (
-                                <div
-                                  key={c.colaboradorId}
-                                  className={`flex items-center gap-1 truncate text-[11px] ${
-                                    c.situacao === 'falta' ? 'text-red-600 line-through' : 'text-slate-700'
-                                  }`}
-                                  title={`${c.nome}${c.turno ? ` — ${c.turno}` : ''}${
-                                    c.situacao === 'cobrindo' ? ' (cobrindo troca)' : ''
-                                  }${c.situacao === 'falta' ? ' (falta)' : ''}`}
-                                >
-                                  <span
-                                    className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                    style={{ backgroundColor: c.cor }}
-                                  />
-                                  <span className="truncate">
-                                    {c.nome}
-                                    {c.turno === 'Noturno' ? ' (N)' : ''}
-                                    {c.situacao === 'cobrindo' ? ' ↔' : ''}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </td>
-                    )
-                  })}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] table-fixed border-collapse text-sm">
+              <thead>
+                <tr>
+                  {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((d) => (
+                    <th key={d} className="pb-2 text-left text-xs font-medium text-slate-400">
+                      {d}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {semanas.map((semana, i) => (
+                  <tr key={i}>
+                    {semana.map((dataISO, j) => {
+                      const dia = dataISO ? escalaDoMes.get(dataISO) ?? [] : []
+                      const furo = Boolean(dataISO) && localId !== '' && dia.length === 0
+                      const selecionado = dataISO === diaSelecionado
+                      const resumo = resumoPorLocal(dia)
+
+                      return (
+                        <td
+                          key={j}
+                          onClick={() => dataISO && setDiaSelecionado(dataISO)}
+                          className={`h-24 w-[14.28%] align-top border p-1.5 ${dataISO ? 'cursor-pointer' : ''} ${
+                            selecionado
+                              ? 'border-slate-800 border-2 bg-slate-50'
+                              : furo
+                                ? 'border-slate-100 bg-red-50'
+                                : dataISO
+                                  ? 'border-slate-100 bg-white hover:bg-slate-50'
+                                  : 'border-slate-100 bg-slate-50'
+                          }`}
+                        >
+                          {dataISO && (
+                            <>
+                              <div className="mb-1 flex items-center justify-between">
+                                <span className="text-xs text-slate-400">{Number(dataISO.slice(8, 10))}</span>
+                                {dia.length > 0 && (
+                                  <span className="rounded-full bg-slate-200 px-1.5 text-[10px] font-medium text-slate-600">
+                                    {dia.length}
+                                  </span>
+                                )}
+                              </div>
+                              {furo ? (
+                                <div className="text-[11px] font-medium text-red-600">Furo de escala</div>
+                              ) : (
+                                <div className="space-y-0.5">
+                                  {resumo.slice(0, 3).map((r) => (
+                                    <div key={r.rotulo} className="truncate text-[11px] text-slate-600">
+                                      {r.rotulo} <span className="font-medium text-slate-800">{r.total}</span>
+                                    </div>
+                                  ))}
+                                  {resumo.length > 3 && (
+                                    <div className="text-[11px] text-slate-400">+{resumo.length - 3} local(is)</div>
+                                  )}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="rounded border border-slate-200 bg-white p-4">
+            {!diaSelecionado ? (
+              <p className="text-sm text-slate-400">Clique num dia do calendário pra ver quem trabalha.</p>
+            ) : (
+              <>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-medium text-slate-700">{formatarDataLonga(diaSelecionado)}</p>
+                  <button
+                    onClick={() => setDiaSelecionado(null)}
+                    className="text-xs text-slate-400 hover:text-slate-600"
+                  >
+                    Fechar
+                  </button>
+                </div>
+
+                {diaDetalhe.length === 0 && (
+                  <p className="text-sm text-slate-400">Ninguém escalado neste dia.</p>
+                )}
+
+                <div className="space-y-4">
+                  {gruposDetalhe.map(([rotulo, pessoas]) => (
+                    <div key={rotulo}>
+                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                        {rotulo} · {pessoas.length}
+                      </p>
+                      <div className="space-y-1">
+                        {pessoas.map((c) => (
+                          <div
+                            key={c.colaboradorId}
+                            className={`flex items-center gap-2 text-sm ${
+                              c.situacao === 'falta' ? 'text-red-600 line-through' : 'text-slate-700'
+                            }`}
+                          >
+                            <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: c.cor }} />
+                            <span className="truncate">{c.nome}</span>
+                            {c.turno === 'Noturno' && (
+                              <span className="shrink-0 text-xs text-slate-400">Noturno</span>
+                            )}
+                            {c.situacao === 'cobrindo' && (
+                              <span className="shrink-0 text-xs text-sky-600">↔ cobrindo troca</span>
+                            )}
+                            {c.situacao === 'falta' && <span className="shrink-0 text-xs">falta</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
