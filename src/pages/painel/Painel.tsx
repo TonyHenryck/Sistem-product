@@ -126,7 +126,7 @@ export function Painel() {
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-800">Painel</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-800">Operação do mês</h1>
 
       {erro && (
         <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>

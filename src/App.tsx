@@ -4,6 +4,10 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import { AppLayout } from './components/layout/AppLayout'
 import { Login } from './pages/Login'
 import { Painel } from './pages/painel/Painel'
+import { QuadroPessoal } from './pages/painel/QuadroPessoal'
+import { LinhaDoTempo } from './pages/painel/LinhaDoTempo'
+import { HistoricoComparativo } from './pages/painel/HistoricoComparativo'
+import { DiarioBordo } from './pages/diarioBordo/DiarioBordo'
 import { ColaboradoresLista } from './pages/colaboradores/ColaboradoresLista'
 import { ColaboradorFicha } from './pages/colaboradores/ColaboradorFicha'
 import { Escala } from './pages/escala/Escala'
@@ -29,6 +33,10 @@ export default function App() {
             <Route path="/colaboradores/:id/escala-individual" element={<EscalaIndividual />} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<Painel />} />
+              <Route path="/painel/quadro-pessoal" element={<QuadroPessoal />} />
+              <Route path="/painel/linha-do-tempo" element={<LinhaDoTempo />} />
+              <Route path="/painel/historico-comparativo" element={<HistoricoComparativo />} />
+              <Route path="/diario-rh" element={<DiarioBordo />} />
               <Route path="/colaboradores" element={<ColaboradoresLista />} />
               <Route path="/colaboradores/novo" element={<ColaboradorFicha />} />
               <Route path="/colaboradores/:id" element={<ColaboradorFicha />} />

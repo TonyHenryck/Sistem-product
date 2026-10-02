@@ -824,6 +824,51 @@ export interface Database {
         }
         Relationships: []
       }
+      diario_bordo: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          tipo: string | null
+          titulo: string
+          para_quem: string | null
+          descricao: string | null
+          evidencia: string | null
+          resultado: string | null
+          criado_por: string | null
+          criado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          data: string
+          tipo?: string | null
+          titulo: string
+          para_quem?: string | null
+          descricao?: string | null
+          evidencia?: string | null
+          resultado?: string | null
+          criado_por?: string | null
+          criado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          data?: string
+          tipo?: string | null
+          titulo?: string
+          para_quem?: string | null
+          descricao?: string | null
+          evidencia?: string | null
+          resultado?: string | null
+          criado_por?: string | null
+          criado_em?: string
+        }
+        Relationships: []
+      }
       v_vencimento: {
         Row: {
           colaborador_id: string
