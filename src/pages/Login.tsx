@@ -23,14 +23,25 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-lg bg-white p-8 shadow-sm">
-        <span className="mb-4 flex h-10 w-10 items-center justify-center rounded bg-brand-700 text-sm font-semibold text-white">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950">
+      {/* Fundo PROVISORIO so pra testar o efeito de vidro - trocar antes de ir pra producao. */}
+      <img
+        src="/login-bg-provisorio.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full scale-110 object-cover blur-sm"
+      />
+      <div className="absolute inset-0 bg-slate-950/50" />
+
+      <form
+        onSubmit={handleSubmit}
+        className="relative w-full max-w-sm rounded-lg border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-xl"
+      >
+        <span className="mb-4 flex h-10 w-10 items-center justify-center rounded bg-brand-600 text-sm font-semibold text-white">
           RH
         </span>
-        <h1 className="mb-6 text-xl font-semibold text-slate-800">Entrar</h1>
+        <h1 className="mb-6 text-xl font-semibold text-white">Entrar</h1>
 
-        <label className="mb-1 block text-sm text-slate-600" htmlFor="email">
+        <label className="mb-1 block text-sm text-slate-200" htmlFor="email">
           E-mail
         </label>
         <input
@@ -39,10 +50,10 @@ export function Login() {
           required
           value={email}
           onChange={(evento) => setEmail(evento.target.value)}
-          className="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="mb-4 w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
         />
 
-        <label className="mb-1 block text-sm text-slate-600" htmlFor="senha">
+        <label className="mb-1 block text-sm text-slate-200" htmlFor="senha">
           Senha
         </label>
         <input
@@ -51,15 +62,15 @@ export function Login() {
           required
           value={senha}
           onChange={(evento) => setSenha(evento.target.value)}
-          className="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="mb-4 w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
         />
 
-        {erro && <p className="mb-4 text-sm text-red-600">{erro}</p>}
+        {erro && <p className="mb-4 text-sm text-red-300">{erro}</p>}
 
         <button
           type="submit"
           disabled={enviando}
-          className="w-full rounded bg-brand-700 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+          className="w-full rounded bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {enviando ? 'Entrando...' : 'Entrar'}
         </button>
