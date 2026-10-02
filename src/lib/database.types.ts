@@ -227,6 +227,12 @@ export interface Database {
         }
         Relationships: []
       }
+      cat_feriado: {
+        Row: { id: string; empresa_id: string; data: string; nome: string }
+        Insert: { id?: string; empresa_id: string; data: string; nome: string }
+        Update: { id?: string; empresa_id?: string; data?: string; nome?: string }
+        Relationships: []
+      }
       colaborador: {
         Row: {
           id: string

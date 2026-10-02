@@ -20,7 +20,7 @@ export interface DiaColaborador {
   localId: string | null
 }
 
-function diasDoMes(ano: number, mes: number): string[] {
+export function diasDoMes(ano: number, mes: number): string[] {
   const dias: string[] = []
   const ultimoDia = new Date(ano, mes, 0).getDate()
   for (let d = 1; d <= ultimoDia; d++) {
@@ -29,7 +29,7 @@ function diasDoMes(ano: number, mes: number): string[] {
   return dias
 }
 
-function ehDomingo(dataISO: string): boolean {
+export function ehDomingo(dataISO: string): boolean {
   return new Date(`${dataISO}T00:00:00`).getDay() === 0
 }
 
@@ -37,10 +37,59 @@ function ehDiaPar(dataISO: string): boolean {
   return Number(dataISO.slice(8, 10)) % 2 === 0
 }
 
+export function diasNoMes(ano: number, mes: number): number {
+  return new Date(ano, mes, 0).getDate()
+}
+
+// A escala PAR/IMPAR e um rodizio continuo (trabalha um dia, folga no outro, sempre).
+// O numero do dia reinicia em 1 a cada mes, entao pra manter o rodizio real sem
+// ninguem trabalhar dois dias seguidos (ex: dia 31 e depois dia 1), PAR e IMPAR
+// invertem de nome no mes seguinte quando o mes atual tem numero IMPAR de dias
+// (31 ou fevereiro bissexto com 29). Quando o mes tem numero PAR de dias (30 ou 28),
+// o rodizio continua do jeito que ja esta, sem inverter.
+//
+// EPOCA abaixo e o mes de referencia onde "PAR" ja significa de fato "trabalha
+// dia par do mes" (sem inversao acumulada) - outubro/2026, confirmado que a
+// escala nao virou vindo de setembro/2026 (30 dias, par).
+const EPOCA_ANO = 2026
+const EPOCA_MES = 10
+
+export function escalaInvertidaNoMes(ano: number, mes: number): boolean {
+  let invertido = false
+  if (ano > EPOCA_ANO || (ano === EPOCA_ANO && mes > EPOCA_MES)) {
+    let a = EPOCA_ANO
+    let m = EPOCA_MES
+    while (a < ano || (a === ano && m < mes)) {
+      if (diasNoMes(a, m) % 2 === 1) invertido = !invertido
+      m++
+      if (m > 12) { m = 1; a++ }
+    }
+  } else if (ano < EPOCA_ANO || (ano === EPOCA_ANO && mes < EPOCA_MES)) {
+    let a = ano
+    let m = mes
+    while (a < EPOCA_ANO || (a === EPOCA_ANO && m < EPOCA_MES)) {
+      if (diasNoMes(a, m) % 2 === 1) invertido = !invertido
+      m++
+      if (m > 12) { m = 1; a++ }
+    }
+  }
+  return invertido
+}
+
+// true = a pessoa trabalha em dia PAR do mes de fato (depois de aplicar a inversao)
+export function trabalhaDiaParNoMes(nominalmentePar: boolean, ano: number, mes: number): boolean {
+  const invertido = escalaInvertidaNoMes(ano, mes)
+  return invertido ? !nominalmentePar : nominalmentePar
+}
+
 function trabalhaNoDiaBase(escala: ColaboradorEscala['escala'], dataISO: string): boolean {
   if (!escala) return false
-  if (escala.trabalha_dia_par === true) return ehDiaPar(dataISO)
-  if (escala.trabalha_dia_par === false) return !ehDiaPar(dataISO)
+  if (escala.trabalha_dia_par === true || escala.trabalha_dia_par === false) {
+    const ano = Number(dataISO.slice(0, 4))
+    const mes = Number(dataISO.slice(5, 7))
+    const trabalhaParDeFato = trabalhaDiaParNoMes(escala.trabalha_dia_par, ano, mes)
+    return trabalhaParDeFato === ehDiaPar(dataISO)
+  }
   if (escala.nome.toUpperCase() === 'DIARISTA') return !ehDomingo(dataISO)
   return false
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
 import {
   atualizarColaborador,
@@ -213,20 +213,30 @@ export function ColaboradorFicha() {
         <h1 className="text-lg font-semibold text-slate-800">
           {modoNovo ? 'Novo colaborador' : form.nome}
         </h1>
-        {!modoNovo && form.ativo && (
+        {!modoNovo && (
           <div className="flex gap-2">
-            <button
-              onClick={() => setMostrarDesligar((v) => !v)}
-              className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
-            >
-              Desligar
-            </button>
-            <button
-              onClick={excluir}
+            <Link
+              to={`/colaboradores/${id}/escala-individual`}
               className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
             >
-              Excluir
-            </button>
+              Escala do mês
+            </Link>
+            {form.ativo && (
+              <>
+                <button
+                  onClick={() => setMostrarDesligar((v) => !v)}
+                  className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+                >
+                  Desligar
+                </button>
+                <button
+                  onClick={excluir}
+                  className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+                >
+                  Excluir
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

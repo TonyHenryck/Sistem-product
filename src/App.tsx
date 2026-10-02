@@ -7,6 +7,7 @@ import { Painel } from './pages/painel/Painel'
 import { ColaboradoresLista } from './pages/colaboradores/ColaboradoresLista'
 import { ColaboradorFicha } from './pages/colaboradores/ColaboradorFicha'
 import { Escala } from './pages/escala/Escala'
+import { EscalaIndividual } from './pages/escala/EscalaIndividual'
 import { Diarias } from './pages/diarias/Diarias'
 import { Faltas } from './pages/faltas/Faltas'
 import { Trocas } from './pages/trocas/Trocas'
@@ -25,6 +26,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
+            <Route path="/colaboradores/:id/escala-individual" element={<EscalaIndividual />} />
             <Route element={<AppLayout />}>
               <Route path="/" element={<Painel />} />
               <Route path="/colaboradores" element={<ColaboradoresLista />} />
