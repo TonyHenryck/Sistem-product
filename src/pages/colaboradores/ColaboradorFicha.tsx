@@ -147,7 +147,7 @@ export function ColaboradorFicha() {
         await salvarDadoSensivel(dadoBancario)
       }
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro ao salvar.')
+      setErro(mensagemErro(e, 'Erro ao salvar.'))
     } finally {
       setSalvando(false)
     }
@@ -182,7 +182,7 @@ export function ColaboradorFicha() {
       setNovaJornada({ nome: '', cargaMensal: '', cargaSemanal: '' })
       setMostrarNovaJornada(false)
     } catch (e) {
-      setErroJornada(e instanceof Error ? e.message : 'Erro ao cadastrar jornada.')
+      setErroJornada(mensagemErro(e, 'Erro ao cadastrar jornada.'))
     } finally {
       setSalvandoJornada(false)
     }
@@ -199,7 +199,7 @@ export function ColaboradorFicha() {
       setNovoHorario({ inicio: '', fim: '' })
       setMostrarNovoHorario(false)
     } catch (e) {
-      setErroHorario(e instanceof Error ? e.message : 'Erro ao cadastrar horário.')
+      setErroHorario(mensagemErro(e, 'Erro ao cadastrar horário.'))
     } finally {
       setSalvandoHorario(false)
     }
@@ -596,4 +596,12 @@ function Campo({ label, input, className }: { label: string; input: ReactNode; c
       {input}
     </div>
   )
+}
+
+// Erro do Supabase (PostgrestError) e um objeto comum, nao uma instancia de Error -
+// sem isso a mensagem real do banco (RLS, nome duplicado, etc.) nunca aparecia.
+function mensagemErro(e: unknown, fallback: string): string {
+  if (e instanceof Error) return e.message
+  if (e && typeof e === 'object' && 'message' in e && typeof e.message === 'string') return e.message
+  return fallback
 }
