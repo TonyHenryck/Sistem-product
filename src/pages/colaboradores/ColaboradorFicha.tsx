@@ -24,14 +24,22 @@ import {
 
 const ENTIDADE_COLABORADOR = 'colaborador'
 
-type Aba = 'gerais' | 'cargo' | 'beneficios' | 'endereco' | 'bancario'
+type Aba = 'gerais' | 'cargo' | 'beneficios' | 'endereco' | 'veiculo' | 'bancario'
 
 const ABAS: { chave: Aba; rotulo: string }[] = [
   { chave: 'gerais', rotulo: 'Dados gerais' },
   { chave: 'cargo', rotulo: 'Cargo e escala' },
   { chave: 'beneficios', rotulo: 'Benefícios' },
   { chave: 'endereco', rotulo: 'Endereço' },
+  { chave: 'veiculo', rotulo: 'Veículo' },
   { chave: 'bancario', rotulo: 'Dado bancário' },
+]
+
+const MEIOS_TRANSPORTE: NonNullable<ColaboradorUpdate['meio_transporte']>[] = [
+  'Moto',
+  'Carro',
+  'Aplicativo',
+  'Transporte público',
 ]
 
 export function ColaboradorFicha() {
@@ -710,6 +718,25 @@ export function ColaboradorFicha() {
             <Campo label="Endereço" className="col-span-2" input={<input {...campo('endereco')} className={inputCls} />} />
             <Campo label="Bairro" input={<input {...campo('bairro')} className={inputCls} />} />
             <Campo label="UF" input={<input {...campo('uf')} maxLength={2} className={inputCls} />} />
+          </div>
+        )}
+
+        {aba === 'veiculo' && (
+          <div className="grid grid-cols-2 gap-4">
+            <Campo
+              label="Meio de transporte"
+              className="col-span-2"
+              input={
+                <select {...campo('meio_transporte')} className={inputCls}>
+                  <option value="">—</option>
+                  {MEIOS_TRANSPORTE.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              }
+            />
           </div>
         )}
 

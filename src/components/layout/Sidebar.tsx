@@ -309,7 +309,9 @@ export function Sidebar() {
         {recolhida ? '»' : '« Recolher'}
       </button>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-2 text-sm text-slate-600">
+      <nav
+        className={`flex-1 space-y-1 p-2 text-sm text-slate-600 ${recolhida ? 'overflow-visible' : 'overflow-y-auto'}`}
+      >
         {GRUPOS.map((grupo) => {
           const aberto = gruposAbertos.has(grupo.chave)
           const algumAtivo = grupo.itens.some((i) => estaAtivo(location.pathname, i.rota))

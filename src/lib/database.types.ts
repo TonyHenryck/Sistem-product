@@ -275,6 +275,7 @@ export interface Database {
           cidade: string | null
           uf: string | null
           foto_path: string | null
+          meio_transporte: 'Moto' | 'Carro' | 'Aplicativo' | 'Transporte público' | null
           ativo: boolean
           desligamento: string | null
           motivo_saida: string | null
@@ -324,6 +325,7 @@ export interface Database {
           cidade?: string | null
           uf?: string | null
           foto_path?: string | null
+          meio_transporte?: 'Moto' | 'Carro' | 'Aplicativo' | 'Transporte público' | null
           ativo?: boolean
           desligamento?: string | null
           motivo_saida?: string | null
@@ -373,6 +375,7 @@ export interface Database {
           cidade?: string | null
           uf?: string | null
           foto_path?: string | null
+          meio_transporte?: 'Moto' | 'Carro' | 'Aplicativo' | 'Transporte público' | null
           ativo?: boolean
           desligamento?: string | null
           motivo_saida?: string | null
