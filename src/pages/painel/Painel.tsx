@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useAuth } from '../../auth/useAuth'
+import { mensagemErro } from '../../utils/erro'
 import {
   buscarAbsenteismoMes,
   buscarHeadcount,
@@ -70,17 +71,20 @@ export function Painel() {
   const [vencimentos, setVencimentos] = useState<number | null>(null)
   const [serieCusto, setSerieCusto] = useState<CustoMes[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
 
   const [periodo, setPeriodo] = useState<PeriodoIndicador>('mes')
   const [ranking, setRanking] = useState<RankingFaltaColaborador[]>([])
   const [porFuncao, setPorFuncao] = useState<FaltaPorFuncao[]>([])
   const [carregandoFaltas, setCarregandoFaltas] = useState(true)
+  const [erroFaltas, setErroFaltas] = useState<string | null>(null)
 
   useEffect(() => {
     if (!unidade) return
     const { competencia, ano, mes } = competenciaAtual()
 
     setCarregando(true)
+    setErro(null)
     Promise.all([
       buscarHeadcount(unidade.id),
       buscarAbsenteismoMes(unidade.id, competencia),
@@ -95,6 +99,7 @@ export function Painel() {
         setVencimentos(v)
         setSerieCusto(serie)
       })
+      .catch((e) => setErro(mensagemErro(e, 'Erro ao carregar o painel.')))
       .finally(() => setCarregando(false))
   }, [unidade])
 
@@ -103,11 +108,13 @@ export function Painel() {
     const { inicio, fim } = intervaloPeriodo(periodo)
 
     setCarregandoFaltas(true)
+    setErroFaltas(null)
     buscarIndicadoresFaltas(unidade.id, unidade.empresa_id, inicio, fim)
       .then(({ ranking, porFuncao }) => {
         setRanking(ranking)
         setPorFuncao(porFuncao)
       })
+      .catch((e) => setErroFaltas(mensagemErro(e, 'Erro ao carregar indicadores de faltas.')))
       .finally(() => setCarregandoFaltas(false))
   }, [unidade, periodo])
 
@@ -120,6 +127,10 @@ export function Painel() {
   return (
     <div>
       <h1 className="mb-4 text-lg font-semibold text-slate-800">Painel</h1>
+
+      {erro && (
+        <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>
+      )}
 
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
         <Card titulo="Headcount ativo" valor={String(headcount ?? 0)} />
@@ -177,7 +188,9 @@ export function Painel() {
 
       <div className="mt-3 rounded border border-slate-200 bg-white p-4">
         <p className="mb-3 text-sm font-medium text-slate-700">Faltas por função</p>
-        {carregandoFaltas ? (
+        {erroFaltas ? (
+          <p className="text-sm text-red-600">{erroFaltas}</p>
+        ) : carregandoFaltas ? (
           <p className="text-sm text-slate-400">Carregando...</p>
         ) : dadosGraficoFuncao.length === 0 ? (
           <p className="text-sm text-slate-400">Sem faltas registradas no período.</p>

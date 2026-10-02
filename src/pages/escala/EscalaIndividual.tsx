@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
+import { mensagemErro } from '../../utils/erro'
 import {
   buscarCoordenador,
   buscarDetalheColaboradorEscala,
@@ -349,11 +350,4 @@ export function EscalaIndividual() {
       </div>
     </div>
   )
-}
-
-// Erro do Supabase (PostgrestError) e um objeto comum, nao uma instancia de Error.
-function mensagemErro(e: unknown, fallback: string): string {
-  if (e instanceof Error) return e.message
-  if (e && typeof e === 'object' && 'message' in e && typeof e.message === 'string') return e.message
-  return fallback
 }

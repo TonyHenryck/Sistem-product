@@ -68,12 +68,13 @@ export async function buscarHeadcount(unidadeId: string): Promise<number> {
 }
 
 export async function buscarAbsenteismoMes(unidadeId: string, competencia: string): Promise<AbsenteismoMes> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('v_absenteismo_mes')
     .select('*')
     .eq('unidade_id', unidadeId)
     .eq('competencia', competencia)
     .maybeSingle()
+  if (error) throw error
 
   return {
     faltasInjustificadas: data?.faltas_injustificadas ?? 0,
@@ -103,11 +104,12 @@ export async function buscarSerieCustoMensal(unidadeId: string, meses = 6): Prom
 }
 
 export async function contarFurosEscalaMes(unidadeId: string, ano: number, mes: number): Promise<number> {
-  const { data: locais } = await supabase
+  const { data: locais, error } = await supabase
     .from('local_operacional')
     .select('id')
     .eq('unidade_id', unidadeId)
     .eq('ativo', true)
+  if (error) throw error
 
   if (!locais || locais.length === 0) return 0
 

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
+import { mensagemErro } from '../../utils/erro'
 import {
   atualizarColaborador,
   buscarCatalogos,
@@ -606,12 +607,4 @@ function Campo({ label, input, className }: { label: string; input: ReactNode; c
       {input}
     </div>
   )
-}
-
-// Erro do Supabase (PostgrestError) e um objeto comum, nao uma instancia de Error -
-// sem isso a mensagem real do banco (RLS, nome duplicado, etc.) nunca aparecia.
-function mensagemErro(e: unknown, fallback: string): string {
-  if (e instanceof Error) return e.message
-  if (e && typeof e === 'object' && 'message' in e && typeof e.message === 'string') return e.message
-  return fallback
 }
