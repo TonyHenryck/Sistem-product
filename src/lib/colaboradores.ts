@@ -18,6 +18,7 @@ export interface Catalogos {
   locais: Catalogo[]
   beneficios: Catalogo[]
   jornadas: Catalogo[]
+  horarios: Catalogo[]
 }
 
 export interface FiltrosColaborador {
@@ -46,12 +47,13 @@ export async function listarNomesColaboradores(unidadeId: string): Promise<Catal
 }
 
 export async function buscarCatalogos(empresaId: string, unidadeId: string): Promise<Catalogos> {
-  const [funcoes, escalas, locais, beneficios, jornadas] = await Promise.all([
+  const [funcoes, escalas, locais, beneficios, jornadas, horarios] = await Promise.all([
     supabase.from('cat_funcao').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
     supabase.from('cat_escala').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
     supabase.from('local_operacional').select('id, nome').eq('unidade_id', unidadeId).eq('ativo', true),
     supabase.from('cat_beneficio').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
     supabase.from('cat_jornada').select('id, nome').eq('empresa_id', empresaId).eq('ativo', true),
+    supabase.from('cat_horario').select('id, descricao').eq('empresa_id', empresaId),
   ])
 
   return {
@@ -60,6 +62,7 @@ export async function buscarCatalogos(empresaId: string, unidadeId: string): Pro
     locais: locais.data ?? [],
     beneficios: beneficios.data ?? [],
     jornadas: jornadas.data ?? [],
+    horarios: (horarios.data ?? []).map((h) => ({ id: h.id, nome: h.descricao })),
   }
 }
 
@@ -128,6 +131,26 @@ export async function criarJornada(dados: {
 }): Promise<void> {
   const { error } = await supabase.from('cat_jornada').insert(dados)
   if (error) throw error
+}
+
+// Define turno e vira_o_dia automaticamente a partir do horario, pra nao pedir
+// isso de quem so quer cadastrar "das 06:00 as 18:00".
+export async function criarHorario(empresaId: string, horaInicio: string, horaFim: string): Promise<Catalogo> {
+  const viraODia = horaFim <= horaInicio
+  const { data, error } = await supabase
+    .from('cat_horario')
+    .insert({
+      empresa_id: empresaId,
+      descricao: `${horaInicio}–${horaFim}`,
+      hora_inicio: horaInicio,
+      hora_fim: horaFim,
+      vira_o_dia: viraODia,
+      turno: viraODia ? 'Noturno' : 'Diurno',
+    })
+    .select('id, descricao')
+    .single()
+  if (error) throw error
+  return { id: data.id, nome: data.descricao }
 }
 
 export async function buscarDadoSensivel(colaboradorId: string): Promise<DadoSensivel | null> {

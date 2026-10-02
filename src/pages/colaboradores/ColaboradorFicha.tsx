@@ -7,6 +7,7 @@ import {
   buscarColaborador,
   buscarDadoSensivel,
   criarColaborador,
+  criarHorario,
   criarJornada,
   desligarColaborador,
   excluirColaborador,
@@ -42,6 +43,7 @@ export function ColaboradorFicha() {
     locais: [],
     beneficios: [],
     jornadas: [],
+    horarios: [],
   })
   const [form, setForm] = useState<ColaboradorUpdate>({ vinculo: 'CLT' })
   const [aba, setAba] = useState<Aba>('gerais')
@@ -59,6 +61,12 @@ export function ColaboradorFicha() {
   const [mostrarNovaJornada, setMostrarNovaJornada] = useState(false)
   const [novaJornada, setNovaJornada] = useState({ nome: '', cargaMensal: '', cargaSemanal: '' })
   const [salvandoJornada, setSalvandoJornada] = useState(false)
+  const [erroJornada, setErroJornada] = useState<string | null>(null)
+
+  const [mostrarNovoHorario, setMostrarNovoHorario] = useState(false)
+  const [novoHorario, setNovoHorario] = useState({ inicio: '', fim: '' })
+  const [salvandoHorario, setSalvandoHorario] = useState(false)
+  const [erroHorario, setErroHorario] = useState<string | null>(null)
 
   useEffect(() => {
     if (!unidade) return
@@ -161,6 +169,7 @@ export function ColaboradorFicha() {
   async function salvarNovaJornada() {
     if (!unidade || !novaJornada.nome) return
     setSalvandoJornada(true)
+    setErroJornada(null)
     try {
       await criarJornada({
         empresa_id: unidade.empresa_id,
@@ -172,8 +181,27 @@ export function ColaboradorFicha() {
       setCatalogos(catalogosAtualizados)
       setNovaJornada({ nome: '', cargaMensal: '', cargaSemanal: '' })
       setMostrarNovaJornada(false)
+    } catch (e) {
+      setErroJornada(e instanceof Error ? e.message : 'Erro ao cadastrar jornada.')
     } finally {
       setSalvandoJornada(false)
+    }
+  }
+
+  async function salvarNovoHorario() {
+    if (!unidade || !novoHorario.inicio || !novoHorario.fim) return
+    setSalvandoHorario(true)
+    setErroHorario(null)
+    try {
+      const criado = await criarHorario(unidade.empresa_id, novoHorario.inicio, novoHorario.fim)
+      setCatalogos((atual) => ({ ...atual, horarios: [...atual.horarios, criado] }))
+      setForm((atual) => ({ ...atual, horario_id: criado.id }))
+      setNovoHorario({ inicio: '', fim: '' })
+      setMostrarNovoHorario(false)
+    } catch (e) {
+      setErroHorario(e instanceof Error ? e.message : 'Erro ao cadastrar horário.')
+    } finally {
+      setSalvandoHorario(false)
     }
   }
 
@@ -387,6 +415,62 @@ export function ColaboradorFicha() {
                       </button>
                     </div>
                   )}
+                  {erroJornada && <p className="mt-1 text-xs text-red-600">{erroJornada}</p>}
+                </div>
+              }
+            />
+            <Campo
+              label="Horário"
+              input={
+                <div>
+                  <div className="flex gap-2">
+                    <select {...campo('horario_id')} className={inputCls}>
+                      <option value="">—</option>
+                      {catalogos.horarios.map((h) => (
+                        <option key={h.id} value={h.id}>
+                          {h.nome}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setMostrarNovoHorario((v) => !v)}
+                      className="shrink-0 rounded border border-slate-300 px-2 text-sm text-slate-600 hover:bg-slate-50"
+                    >
+                      + Novo
+                    </button>
+                  </div>
+                  {mostrarNovoHorario && (
+                    <div className="mt-2 flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-slate-50 p-2">
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Entrada</label>
+                        <input
+                          type="time"
+                          value={novoHorario.inicio}
+                          onChange={(e) => setNovoHorario((v) => ({ ...v, inicio: e.target.value }))}
+                          className={inputCls}
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Saída</label>
+                        <input
+                          type="time"
+                          value={novoHorario.fim}
+                          onChange={(e) => setNovoHorario((v) => ({ ...v, fim: e.target.value }))}
+                          className={inputCls}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={salvarNovoHorario}
+                        disabled={salvandoHorario || !novoHorario.inicio || !novoHorario.fim}
+                        className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
+                      >
+                        {salvandoHorario ? 'Salvando...' : 'Cadastrar'}
+                      </button>
+                    </div>
+                  )}
+                  {erroHorario && <p className="mt-1 text-xs text-red-600">{erroHorario}</p>}
                 </div>
               }
             />

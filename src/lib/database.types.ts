@@ -197,6 +197,36 @@ export interface Database {
         }
         Relationships: []
       }
+      cat_horario: {
+        Row: {
+          id: string
+          empresa_id: string
+          descricao: string
+          hora_inicio: string
+          hora_fim: string
+          vira_o_dia: boolean
+          turno: 'Diurno' | 'Noturno'
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          descricao: string
+          hora_inicio: string
+          hora_fim: string
+          vira_o_dia?: boolean
+          turno: 'Diurno' | 'Noturno'
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          descricao?: string
+          hora_inicio?: string
+          hora_fim?: string
+          vira_o_dia?: boolean
+          turno?: 'Diurno' | 'Noturno'
+        }
+        Relationships: []
+      }
       colaborador: {
         Row: {
           id: string
