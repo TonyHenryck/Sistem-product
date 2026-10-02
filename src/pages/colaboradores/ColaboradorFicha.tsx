@@ -435,7 +435,7 @@ export function ColaboradorFicha() {
             onClick={() => abrirAba(a.chave)}
             className={`px-3 py-2 text-sm ${
               aba === a.chave
-                ? 'border-b-2 border-slate-800 font-medium text-slate-800'
+                ? 'border-b-2 border-brand-700 font-medium text-brand-700'
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
@@ -575,7 +575,7 @@ export function ColaboradorFicha() {
                         type="button"
                         onClick={salvarNovaJornada}
                         disabled={salvandoJornada || !novaJornada.nome}
-                        className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
+                        className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
                       >
                         {salvandoJornada ? 'Salvando...' : 'Cadastrar'}
                       </button>
@@ -630,7 +630,7 @@ export function ColaboradorFicha() {
                         type="button"
                         onClick={salvarNovoHorario}
                         disabled={salvandoHorario || !novoHorario.inicio || !novoHorario.fim}
-                        className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
+                        className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
                       >
                         {salvandoHorario ? 'Salvando...' : 'Cadastrar'}
                       </button>
@@ -743,7 +743,7 @@ export function ColaboradorFicha() {
         <button
           onClick={salvar}
           disabled={salvando}
-          className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+          className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
         >
           {salvando ? 'Salvando...' : 'Salvar'}
         </button>
@@ -753,7 +753,7 @@ export function ColaboradorFicha() {
 }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
+  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
 
 function Campo({ label, input, className }: { label: string; input: ReactNode; className?: string }) {
   return (

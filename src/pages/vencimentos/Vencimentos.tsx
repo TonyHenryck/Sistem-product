@@ -77,7 +77,7 @@ export function Vencimentos() {
                 onClick={() => setFiltroTipo(null)}
                 className={`rounded-full px-3 py-1 text-xs font-medium ${
                   filtroTipo === null
-                    ? 'bg-slate-800 text-white'
+                    ? 'bg-brand-700 text-white'
                     : 'border border-slate-300 text-slate-600 hover:bg-slate-50'
                 }`}
               >
@@ -89,7 +89,7 @@ export function Vencimentos() {
                   onClick={() => setFiltroTipo(tipo)}
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
                     filtroTipo === tipo
-                      ? 'bg-slate-800 text-white'
+                      ? 'bg-brand-700 text-white'
                       : 'border border-slate-300 text-slate-600 hover:bg-slate-50'
                   }`}
                 >

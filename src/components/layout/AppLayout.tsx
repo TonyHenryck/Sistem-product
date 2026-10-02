@@ -13,7 +13,7 @@ export function AppLayout() {
       <div className="flex flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-6">
           <span className="text-sm font-medium text-slate-700">{nomeUnidade}</span>
-          <button onClick={sair} className="text-sm text-slate-500 hover:text-slate-800">
+          <button onClick={sair} className="text-sm text-slate-500 hover:text-brand-700">
             Sair
           </button>
         </header>

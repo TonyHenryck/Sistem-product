@@ -13,7 +13,7 @@ import {
 const vazio = { codigo: '', nome: '', categoriaId: '', unidadeMedida: '' }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
+  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
 
 export function CatalogoTab() {
   const { vinculos } = useAuth()
@@ -141,7 +141,7 @@ export function CatalogoTab() {
                   type="button"
                   onClick={salvarNovaCategoria}
                   disabled={salvandoCategoria || !novaCategoria.trim()}
-                  className="shrink-0 rounded bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
+                  className="shrink-0 rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
                 >
                   Ok
                 </button>
@@ -157,7 +157,7 @@ export function CatalogoTab() {
         <button
           onClick={salvar}
           disabled={salvando}
-          className="mt-4 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+          className="mt-4 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
         >
           {salvando ? 'Salvando...' : 'Cadastrar'}
         </button>

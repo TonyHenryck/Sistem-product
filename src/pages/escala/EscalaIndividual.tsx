@@ -160,7 +160,7 @@ export function EscalaIndividual() {
           </button>
           <button
             onClick={() => window.print()}
-            className="ml-3 rounded bg-slate-800 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-700"
+            className="ml-3 rounded bg-brand-700 px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-800"
           >
             Imprimir
           </button>
@@ -339,7 +339,7 @@ export function EscalaIndividual() {
                 <button
                   onClick={salvarCoordenadorForm}
                   disabled={salvandoCoordenador || !formCoordenador.nome.trim()}
-                  className="rounded bg-slate-800 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
+                  className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
                 >
                   {salvandoCoordenador ? 'Salvando...' : 'Salvar'}
                 </button>

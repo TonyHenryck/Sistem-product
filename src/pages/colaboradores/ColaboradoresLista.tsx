@@ -76,7 +76,7 @@ export function ColaboradoresLista() {
         <h1 className="text-lg font-semibold text-slate-800">Colaboradores</h1>
         <Link
           to="/colaboradores/novo"
-          className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+          className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800"
         >
           Novo colaborador
         </Link>
@@ -194,7 +194,7 @@ export function ColaboradoresLista() {
             {colaboradoresFiltrados.map((c) => (
               <tr key={c.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
                 <td className="px-3 py-2">
-                  <Link to={`/colaboradores/${c.id}`} className="text-slate-800 hover:underline">
+                  <Link to={`/colaboradores/${c.id}`} className="font-medium text-brand-700 hover:underline">
                     {c.nome}
                   </Link>
                 </td>

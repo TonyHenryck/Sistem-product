@@ -27,7 +27,7 @@ export function Almoxarifado() {
             onClick={() => setAba(a.chave)}
             className={`px-3 py-2 text-sm ${
               aba === a.chave
-                ? 'border-b-2 border-slate-800 font-medium text-slate-800'
+                ? 'border-b-2 border-brand-700 font-medium text-brand-700'
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >

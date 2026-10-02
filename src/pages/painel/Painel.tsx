@@ -176,7 +176,7 @@ export function Painel() {
         <select
           value={periodo}
           onChange={(e) => setPeriodo(e.target.value as PeriodoIndicador)}
-          className="rounded border border-slate-300 px-2 py-1 text-sm text-slate-700 focus:border-slate-500 focus:outline-none"
+          className="rounded border border-slate-300 px-2 py-1 text-sm text-slate-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
           {OPCOES_PERIODO.map((o) => (
             <option key={o.valor} value={o.valor}>

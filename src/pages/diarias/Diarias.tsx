@@ -43,7 +43,7 @@ const vazio = {
 }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
+  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
 
 export function Diarias() {
   const { vinculos } = useAuth()
@@ -467,7 +467,7 @@ export function Diarias() {
           <button
             onClick={salvar}
             disabled={salvando}
-            className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+            className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
           >
             {salvando ? 'Salvando...' : editandoId ? 'Salvar alterações' : 'Registrar'}
           </button>

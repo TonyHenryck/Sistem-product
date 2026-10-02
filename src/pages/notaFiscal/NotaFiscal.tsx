@@ -277,7 +277,7 @@ export function NotaFiscal() {
   }
 
   const inputCls =
-    'rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
+    'rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
 
   return (
     <div>
@@ -418,7 +418,7 @@ export function NotaFiscal() {
             <button
               onClick={salvarManual}
               disabled={salvandoManual}
-              className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+              className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
             >
               {salvandoManual ? 'Salvando...' : 'Lançar nota'}
             </button>
@@ -539,7 +539,7 @@ export function NotaFiscal() {
                     <button
                       onClick={confirmar}
                       disabled={confirmando}
-                      className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+                      className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
                     >
                       {confirmando ? 'Confirmando...' : 'Confirmar conferência'}
                     </button>

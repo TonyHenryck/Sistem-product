@@ -36,9 +36,16 @@ export function Sidebar() {
         recolhida ? 'w-16' : 'w-56'
       }`}
     >
+      <div className="flex h-14 items-center gap-2 border-b border-slate-200 px-4">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-brand-700 text-xs font-semibold text-white">
+          RH
+        </span>
+        {!recolhida && <span className="truncate text-sm font-semibold text-slate-800">Sistema RH/DP</span>}
+      </div>
+
       <button
         onClick={() => setRecolhida((valor) => !valor)}
-        className="flex h-12 items-center justify-center border-b border-slate-200 text-slate-500 hover:bg-slate-50"
+        className="flex h-9 items-center justify-center border-b border-slate-200 text-xs text-slate-500 hover:bg-slate-50"
       >
         {recolhida ? '»' : '« Recolher'}
       </button>
@@ -50,7 +57,7 @@ export function Sidebar() {
             to={item.rota}
             end={item.rota === '/'}
             className={({ isActive }) =>
-              `flex items-center justify-between rounded px-2 py-1.5 ${isActive ? 'bg-slate-100 font-medium text-slate-800' : 'hover:bg-slate-50'}`
+              `flex items-center justify-between rounded px-2 py-1.5 ${isActive ? 'bg-brand-50 font-medium text-brand-700' : 'hover:bg-slate-50'}`
             }
           >
             <span>{recolhida ? item.rotulo.slice(0, 1) : item.rotulo}</span>

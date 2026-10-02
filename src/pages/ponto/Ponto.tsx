@@ -138,7 +138,7 @@ export function Ponto() {
     .filter((r) => !buscaNorm || (nomes.get(r.colaborador_id) ?? '').toLowerCase().includes(buscaNorm))
 
   const inputCls =
-    'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-500 focus:outline-none'
+    'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
 
   return (
     <div>
@@ -230,7 +230,7 @@ export function Ponto() {
             <button
               onClick={confirmarImportacao}
               disabled={importando}
-              className="mt-3 rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60"
+              className="mt-3 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
             >
               {importando ? 'Importando...' : `Confirmar importação (${competencia})`}
             </button>
@@ -245,7 +245,7 @@ export function Ponto() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar colaborador..."
-            className="rounded border border-slate-300 px-2 py-1 text-sm focus:border-slate-500 focus:outline-none"
+            className="rounded border border-slate-300 px-2 py-1 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
           <label className="flex items-center gap-2 text-sm text-slate-600">
             <input
