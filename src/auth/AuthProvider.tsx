@@ -15,12 +15,18 @@ export interface Vinculo {
 interface AuthContextValue {
   session: Session | null
   vinculos: Vinculo[]
+  nomeUsuario: string | null
   carregando: boolean
   entrar: (email: string, senha: string) => Promise<{ erro: string | null }>
   sair: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+async function buscarNomeUsuario(usuarioId: string): Promise<string | null> {
+  const { data } = await supabase.from('usuario').select('nome').eq('id', usuarioId).maybeSingle()
+  return data?.nome ?? null
+}
 
 async function buscarVinculos(usuarioId: string): Promise<Vinculo[]> {
   const { data: vinculos, error } = await supabase
@@ -50,6 +56,7 @@ async function buscarVinculos(usuarioId: string): Promise<Vinculo[]> {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [vinculos, setVinculos] = useState<Vinculo[]>([])
+  const [nomeUsuario, setNomeUsuario] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
 
   useEffect(() => {
@@ -58,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session)
       if (data.session) {
         setVinculos(await buscarVinculos(data.session.user.id))
+        setNomeUsuario(await buscarNomeUsuario(data.session.user.id))
       }
       setCarregando(false)
     }
@@ -67,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: assinatura } = supabase.auth.onAuthStateChange(async (_evento, novaSessao) => {
       setSession(novaSessao)
       setVinculos(novaSessao ? await buscarVinculos(novaSessao.user.id) : [])
+      setNomeUsuario(novaSessao ? await buscarNomeUsuario(novaSessao.user.id) : null)
     })
 
     return () => assinatura.subscription.unsubscribe()
@@ -82,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, vinculos, carregando, entrar, sair }}>
+    <AuthContext.Provider value={{ session, vinculos, nomeUsuario, carregando, entrar, sair }}>
       {children}
     </AuthContext.Provider>
   )
