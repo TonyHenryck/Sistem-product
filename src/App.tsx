@@ -7,6 +7,7 @@ import { Painel } from './pages/painel/Painel'
 import { QuadroPessoal } from './pages/painel/QuadroPessoal'
 import { LinhaDoTempo } from './pages/painel/LinhaDoTempo'
 import { HistoricoComparativo } from './pages/painel/HistoricoComparativo'
+import { IndicadoresDecisao } from './pages/painel/IndicadoresDecisao'
 import { DiarioBordo } from './pages/diarioBordo/DiarioBordo'
 import { ColaboradoresLista } from './pages/colaboradores/ColaboradoresLista'
 import { ColaboradorFicha } from './pages/colaboradores/ColaboradorFicha'
@@ -36,6 +37,7 @@ export default function App() {
               <Route path="/painel/quadro-pessoal" element={<QuadroPessoal />} />
               <Route path="/painel/linha-do-tempo" element={<LinhaDoTempo />} />
               <Route path="/painel/historico-comparativo" element={<HistoricoComparativo />} />
+              <Route path="/painel/indicadores-decisao" element={<IndicadoresDecisao />} />
               <Route path="/diario-rh" element={<DiarioBordo />} />
               <Route path="/colaboradores" element={<ColaboradoresLista />} />
               <Route path="/colaboradores/novo" element={<ColaboradorFicha />} />

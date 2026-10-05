@@ -96,6 +96,13 @@ const ICONE_COMPARATIVO = (
     <rect x="13" y="3" width="8" height="18" rx="1" />
   </Icone>
 )
+const ICONE_LAMPADA = (
+  <Icone>
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z" />
+  </Icone>
+)
 const ICONE_CALENDARIO = (
   <Icone>
     <rect x="3" y="4" width="18" height="17" rx="2" />
@@ -198,6 +205,7 @@ const GRUPOS: GrupoMenu[] = [
       { rota: '/painel/quadro-pessoal', rotulo: 'Quadro de pessoal', icone: ICONE_ALVO },
       { rota: '/painel/linha-do-tempo', rotulo: 'Linha do tempo', icone: ICONE_LISTA },
       { rota: '/painel/historico-comparativo', rotulo: 'Histórico e comparativo', icone: ICONE_COMPARATIVO },
+      { rota: '/painel/indicadores-decisao', rotulo: 'Indicadores e decisões', icone: ICONE_LAMPADA },
     ],
   },
   {
