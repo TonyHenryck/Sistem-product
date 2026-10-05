@@ -43,7 +43,7 @@ const vazio = {
 }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+  'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
 export function Diarias() {
   const { vinculos } = useAuth()
@@ -209,10 +209,10 @@ export function Diarias() {
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-800">Diárias</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-100">Diárias</h1>
 
-      <div className="mb-6 rounded border border-slate-200 bg-white p-4">
-        <p className="mb-3 text-sm font-medium text-slate-700">Registrar diária</p>
+      <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+        <p className="mb-3 text-sm font-medium text-slate-300">Registrar diária</p>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div>
@@ -268,9 +268,9 @@ export function Diarias() {
           </div>
         </div>
 
-        <div className="mt-4 border-t border-slate-100 pt-3">
+        <div className="mt-4 border-t border-white/5 pt-3">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-700">Quem faltou</p>
+            <p className="text-sm font-medium text-slate-300">Quem faltou</p>
             <label className="flex items-center gap-2 text-xs text-slate-500">
               <input
                 type="checkbox"
@@ -316,9 +316,9 @@ export function Diarias() {
           </div>
         </div>
 
-        <div className="mt-4 border-t border-slate-100 pt-3">
+        <div className="mt-4 border-t border-white/5 pt-3">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-700">Quem cobriu</p>
+            <p className="text-sm font-medium text-slate-300">Quem cobriu</p>
             <label className="flex items-center gap-2 text-xs text-slate-500">
               <input
                 type="checkbox"
@@ -369,7 +369,7 @@ export function Diarias() {
           </div>
 
           {form.cobriuExterno && (
-            <div className="mt-3 grid grid-cols-2 gap-3 rounded bg-slate-50 p-3 md:grid-cols-3">
+            <div className="mt-3 grid grid-cols-2 gap-3 rounded bg-white/5 p-3 md:grid-cols-3">
               <input
                 placeholder="Telefone"
                 value={form.telefoneBenef}
@@ -410,7 +410,7 @@ export function Diarias() {
           )}
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 pt-3 md:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/5 pt-3 md:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs text-slate-500">Valor (R$)</label>
             <input
@@ -442,7 +442,7 @@ export function Diarias() {
               className={inputCls}
             />
           </div>
-          <label className="flex items-end gap-2 pb-2 text-sm text-slate-600">
+          <label className="flex items-end gap-2 pb-2 text-sm text-slate-400">
             <input
               type="checkbox"
               checked={form.reciboAssinado}
@@ -461,20 +461,20 @@ export function Diarias() {
           />
         </div>
 
-        {erro && <p className="mt-3 text-sm text-red-600">{erro}</p>}
+        {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
 
         <div className="mt-4 flex gap-2">
           <button
             onClick={salvar}
             disabled={salvando}
-            className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+            className="rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
           >
             {salvando ? 'Salvando...' : editandoId ? 'Salvar alterações' : 'Registrar'}
           </button>
           {editandoId && (
             <button
               onClick={cancelarEdicao}
-              className="rounded border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              className="rounded border border-white/10 px-4 py-2 text-sm text-slate-400 hover:bg-white/5"
             >
               Cancelar edição
             </button>
@@ -482,10 +482,10 @@ export function Diarias() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-white/10 text-left text-slate-500">
               <th className="px-3 py-2 font-medium">Data</th>
               <th className="px-3 py-2 font-medium">Turno</th>
               <th className="px-3 py-2 font-medium">Faltou</th>
@@ -498,43 +498,43 @@ export function Diarias() {
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={7} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && diarias.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-3 py-4 text-center text-slate-500">
                   Nenhuma diária registrada.
                 </td>
               </tr>
             )}
             {diarias.map((d) => (
-              <tr key={d.id} className="border-b border-slate-100 last:border-0">
+              <tr key={d.id} className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2">{formatarData(d.data)}</td>
-                <td className="px-3 py-2 text-slate-600">{d.turno ?? '—'}</td>
-                <td className="px-3 py-2 text-slate-600">
+                <td className="px-3 py-2 text-slate-400">{d.turno ?? '—'}</td>
+                <td className="px-3 py-2 text-slate-400">
                   {d.faltante_id ? (nomes.get(d.faltante_id) ?? '—') : (d.faltante_nome ?? '—')}
                 </td>
-                <td className="px-3 py-2 text-slate-600">
+                <td className="px-3 py-2 text-slate-400">
                   {d.cobriu_id ? (nomes.get(d.cobriu_id) ?? '—') : (d.cobriu_nome ?? '—')}
                 </td>
-                <td className="px-3 py-2 text-slate-600">{formatarMoeda(d.valor)}</td>
-                <td className="px-3 py-2 text-slate-600">{d.status}</td>
+                <td className="px-3 py-2 text-slate-400">{formatarMoeda(d.valor)}</td>
+                <td className="px-3 py-2 text-slate-400">{d.status}</td>
                 <td className="px-3 py-2">
                   <div className="flex gap-3 text-xs">
                     {d.status === 'Registrado' && (
                       <>
-                        <button onClick={() => editar(d)} className="text-slate-600 hover:underline">
+                        <button onClick={() => editar(d)} className="text-slate-400 hover:underline">
                           Editar
                         </button>
-                        <button onClick={() => cancelar(d)} className="text-amber-700 hover:underline">
+                        <button onClick={() => cancelar(d)} className="text-amber-400 hover:underline">
                           Cancelar
                         </button>
                       </>
                     )}
-                    <button onClick={() => excluir(d)} className="text-red-600 hover:underline">
+                    <button onClick={() => excluir(d)} className="text-red-400 hover:underline">
                       Excluir
                     </button>
                   </div>

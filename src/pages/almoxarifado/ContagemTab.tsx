@@ -15,7 +15,7 @@ import {
 import { formatarData } from '../../utils/data'
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+  'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
 export function ContagemTab() {
   const { vinculos } = useAuth()
@@ -105,26 +105,26 @@ export function ContagemTab() {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div>
-        <div className="mb-6 rounded border border-slate-200 bg-white p-4">
-          <p className="mb-3 text-sm font-medium text-slate-700">Nova contagem</p>
+        <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+          <p className="mb-3 text-sm font-medium text-slate-300">Nova contagem</p>
           <div className="grid grid-cols-3 gap-3">
             <input type="date" value={novaData} onChange={(e) => setNovaData(e.target.value)} className={inputCls} />
             <input placeholder="Local" value={novoLocal} onChange={(e) => setNovoLocal(e.target.value)} className={inputCls} />
             <input placeholder="Responsável" value={novoResponsavel} onChange={(e) => setNovoResponsavel(e.target.value)} className={inputCls} />
           </div>
-          {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
+          {erro && <p className="mt-2 text-sm text-red-400">{erro}</p>}
           <button
             onClick={criarNova}
-            className="mt-3 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800"
+            className="mt-3 rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white"
           >
             Iniciar contagem
           </button>
         </div>
 
-        <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-white/10 text-left text-slate-500">
                 <th className="px-3 py-2 font-medium">Data</th>
                 <th className="px-3 py-2 font-medium">Local</th>
                 <th className="px-3 py-2 font-medium">Status</th>
@@ -133,14 +133,14 @@ export function ContagemTab() {
             <tbody>
               {carregando && (
                 <tr>
-                  <td colSpan={3} className="px-3 py-4 text-center text-slate-400">
+                  <td colSpan={3} className="px-3 py-4 text-center text-slate-500">
                     Carregando...
                   </td>
                 </tr>
               )}
               {!carregando && contagens.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-3 py-4 text-center text-slate-400">
+                  <td colSpan={3} className="px-3 py-4 text-center text-slate-500">
                     Nenhuma contagem iniciada.
                   </td>
                 </tr>
@@ -149,13 +149,13 @@ export function ContagemTab() {
                 <tr
                   key={c.id}
                   onClick={() => abrir(c)}
-                  className={`cursor-pointer border-b border-slate-100 last:border-0 hover:bg-slate-50 ${
-                    selecionada?.id === c.id ? 'bg-slate-50' : ''
+                  className={`cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/5 ${
+                    selecionada?.id === c.id ? 'bg-white/5' : ''
                   }`}
                 >
                   <td className="px-3 py-2">{formatarData(c.data)}</td>
-                  <td className="px-3 py-2 text-slate-600">{c.local ?? '—'}</td>
-                  <td className="px-3 py-2 text-slate-600">{c.status}</td>
+                  <td className="px-3 py-2 text-slate-400">{c.local ?? '—'}</td>
+                  <td className="px-3 py-2 text-slate-400">{c.status}</td>
                 </tr>
               ))}
             </tbody>
@@ -165,15 +165,15 @@ export function ContagemTab() {
 
       <div>
         {!selecionada ? (
-          <p className="text-sm text-slate-400">Selecione uma contagem à esquerda.</p>
+          <p className="text-sm text-slate-500">Selecione uma contagem à esquerda.</p>
         ) : (
-          <div className="rounded border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-medium text-slate-700">
+              <p className="text-sm font-medium text-slate-300">
                 Itens — {formatarData(selecionada.data)} ({selecionada.status})
               </p>
               {selecionada.status === 'Em andamento' && (
-                <button onClick={fechar} className="rounded border border-slate-300 px-3 py-1 text-xs text-slate-700 hover:bg-slate-50">
+                <button onClick={fechar} className="rounded border border-white/10 px-3 py-1 text-xs text-slate-300 hover:bg-white/5">
                   Fechar contagem
                 </button>
               )}
@@ -198,7 +198,7 @@ export function ContagemTab() {
                   onChange={(e) => setQtdContada(e.target.value)}
                   className={`${inputCls} max-w-[100px]`}
                 />
-                <button onClick={adicionarItem} className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800">
+                <button onClick={adicionarItem} className="rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white">
                   Adicionar
                 </button>
               </div>
@@ -206,7 +206,7 @@ export function ContagemTab() {
 
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-slate-500">
+                <tr className="border-b border-white/10 text-left text-slate-500">
                   <th className="py-1 font-medium">Produto</th>
                   <th className="py-1 font-medium">Sistema</th>
                   <th className="py-1 font-medium">Contado</th>
@@ -216,17 +216,17 @@ export function ContagemTab() {
               <tbody>
                 {itens.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-3 text-center text-slate-400">
+                    <td colSpan={4} className="py-3 text-center text-slate-500">
                       Nenhum item contado ainda.
                     </td>
                   </tr>
                 )}
                 {itens.map((i) => (
-                  <tr key={i.id} className="border-b border-slate-100 last:border-0">
+                  <tr key={i.id} className="border-b border-white/5 last:border-0">
                     <td className="py-1">{nomesProduto.get(i.produto_id) ?? '—'}</td>
-                    <td className="py-1 text-slate-600">{i.qtd_sistema}</td>
-                    <td className="py-1 text-slate-600">{i.qtd_contada}</td>
-                    <td className={`py-1 ${i.diferenca && i.diferenca !== 0 ? 'font-medium text-red-600' : 'text-slate-500'}`}>
+                    <td className="py-1 text-slate-400">{i.qtd_sistema}</td>
+                    <td className="py-1 text-slate-400">{i.qtd_contada}</td>
+                    <td className={`py-1 ${i.diferenca && i.diferenca !== 0 ? 'font-medium text-red-400' : 'text-slate-500'}`}>
                       {i.diferenca}
                     </td>
                   </tr>

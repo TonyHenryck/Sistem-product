@@ -17,7 +17,7 @@ const vazio = {
 }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+  'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
 export function MovimentosTab() {
   const { vinculos } = useAuth()
@@ -77,9 +77,9 @@ export function MovimentosTab() {
 
   return (
     <div>
-      <div className="mb-6 rounded border border-slate-200 bg-white p-4">
-        <p className="mb-1 text-sm font-medium text-slate-700">Registrar movimento</p>
-        <p className="mb-3 text-xs text-slate-400">
+      <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+        <p className="mb-1 text-sm font-medium text-slate-300">Registrar movimento</p>
+        <p className="mb-3 text-xs text-slate-500">
           Em "Entrada", "Saída" e "Perda" digite a quantidade sempre positiva. Em "Ajuste" e
           "Transferência" o sinal importa: negativo diminui o saldo, positivo aumenta.
         </p>
@@ -131,20 +131,20 @@ export function MovimentosTab() {
             <input value={form.responsavel} onChange={(e) => setForm({ ...form, responsavel: e.target.value })} className={inputCls} />
           </div>
         </div>
-        {erro && <p className="mt-3 text-sm text-red-600">{erro}</p>}
+        {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
         <button
           onClick={salvar}
           disabled={salvando}
-          className="mt-4 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+          className="mt-4 rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
         >
           {salvando ? 'Salvando...' : 'Registrar'}
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-white/10 text-left text-slate-500">
               <th className="px-3 py-2 font-medium">Data</th>
               <th className="px-3 py-2 font-medium">Produto</th>
               <th className="px-3 py-2 font-medium">Tipo</th>
@@ -154,24 +154,24 @@ export function MovimentosTab() {
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && movimentos.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                   Nenhum movimento registrado.
                 </td>
               </tr>
             )}
             {movimentos.map((m) => (
-              <tr key={m.id} className="border-b border-slate-100 last:border-0">
+              <tr key={m.id} className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2">{formatarData(m.data)}</td>
                 <td className="px-3 py-2">{nomesProduto.get(m.produto_id) ?? '—'}</td>
-                <td className="px-3 py-2 text-slate-600">{m.tipo}</td>
-                <td className="px-3 py-2 text-slate-600">{m.qtd}</td>
+                <td className="px-3 py-2 text-slate-400">{m.tipo}</td>
+                <td className="px-3 py-2 text-slate-400">{m.qtd}</td>
               </tr>
             ))}
           </tbody>

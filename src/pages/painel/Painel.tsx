@@ -31,12 +31,12 @@ const ROTULO_TIPO: Record<TipoFalta, string> = {
 }
 
 const COR_TIPO: Record<TipoFalta, string> = {
-  'Falta injustificada': '#60a5fa',
-  'Atestado médico': '#fb923c',
-  'Falta abonada': '#34d399',
-  Atraso: '#fbbf24',
-  'Saída antecipada': '#f472b6',
-  Suspensão: '#a78bfa',
+  'Falta injustificada': '#f8fafc',
+  'Atestado médico': '#cbd5e1',
+  'Falta abonada': '#94a3b8',
+  Atraso: '#64748b',
+  'Saída antecipada': '#475569',
+  Suspensão: '#f87171',
 }
 
 const OPCOES_PERIODO: { valor: PeriodoIndicador; rotulo: string }[] = [
@@ -234,20 +234,20 @@ export function Painel() {
       )}
 
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-        <Card titulo="Headcount ativo" valor={String(headcountAnimado)} cor="#60a5fa" icone={ICONE_PESSOAS} atraso={0} />
+        <Card titulo="Headcount ativo" valor={String(headcountAnimado)} cor="#e2e8f0" icone={ICONE_PESSOAS} atraso={0} />
         <Card
           titulo="Absenteísmo (dias)"
           valor={String(diasAnimado)}
-          cor="#fbbf24"
+          cor="#e2e8f0"
           icone={ICONE_ALERTA}
           sub={`${absenteismo?.faltasInjustificadas ?? 0} falta(s) · ${absenteismo?.atestados ?? 0} atestado(s)`}
           atraso={60}
         />
-        <Card titulo="Custo do mês" valor={formatarMoeda(custoAnimado)} cor="#a78bfa" icone={ICONE_CARTEIRA} atraso={120} />
+        <Card titulo="Custo do mês" valor={formatarMoeda(custoAnimado)} cor="#e2e8f0" icone={ICONE_CARTEIRA} atraso={120} />
         <Card
           titulo="Furos de escala"
           valor={String(furosAnimado)}
-          cor="#fb7185"
+          cor={furos && furos > 0 ? '#f87171' : '#e2e8f0'}
           icone={ICONE_CALENDARIO}
           destaque={Boolean(furos && furos > 0)}
           atraso={180}
@@ -255,7 +255,7 @@ export function Painel() {
         <Card
           titulo="Documentos vencendo"
           valor={String(vencimentosAnimado)}
-          cor="#fb7185"
+          cor={vencimentos && vencimentos > 0 ? '#f87171' : '#e2e8f0'}
           icone={ICONE_DOCUMENTO}
           destaque={Boolean(vencimentos && vencimentos > 0)}
           atraso={240}
@@ -271,8 +271,8 @@ export function Painel() {
               <BarChart data={serieCusto} margin={{ left: 8, right: 8 }}>
                 <defs>
                   <linearGradient id="gradCusto" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#4c1d95" stopOpacity={0.5} />
+                    <stop offset="0%" stopColor="#e2e8f0" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#334155" stopOpacity={0.5} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
@@ -297,7 +297,7 @@ export function Painel() {
         <select
           value={periodo}
           onChange={(e) => setPeriodo(e.target.value as PeriodoIndicador)}
-          className="rounded border border-white/10 bg-slate-900/60 px-2 py-1 text-sm text-slate-300 backdrop-blur-xl focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="rounded border border-white/10 bg-slate-900/60 px-2 py-1 text-sm text-slate-300 backdrop-blur-xl focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
         >
           {OPCOES_PERIODO.map((o) => (
             <option key={o.valor} value={o.valor} className="bg-slate-900">

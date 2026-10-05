@@ -6,19 +6,19 @@ function ListaBarras({ titulo, grupos }: { titulo: string; grupos: GrupoContagem
   const maximo = Math.max(1, ...grupos.map((g) => g.total))
 
   return (
-    <div className="rounded border border-slate-200 bg-white p-4">
-      <p className="mb-3 text-sm font-medium text-slate-700">{titulo}</p>
-      {grupos.length === 0 && <p className="text-sm text-slate-400">Sem dados.</p>}
+    <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+      <p className="mb-3 text-sm font-medium text-slate-300">{titulo}</p>
+      {grupos.length === 0 && <p className="text-sm text-slate-500">Sem dados.</p>}
       <div className="space-y-2">
         {grupos.map((g) => (
           <div key={g.nome}>
             <div className="mb-0.5 flex items-center justify-between text-sm">
-              <span className="text-slate-600">{g.nome}</span>
-              <span className="font-medium text-slate-800">{g.total}</span>
+              <span className="text-slate-400">{g.nome}</span>
+              <span className="font-medium text-slate-100">{g.total}</span>
             </div>
-            <div className="h-1.5 w-full rounded-full bg-slate-100">
+            <div className="h-1.5 w-full rounded-full bg-white/10">
               <div
-                className="h-1.5 rounded-full bg-brand-600"
+                className="h-1.5 rounded-full bg-slate-300"
                 style={{ width: `${(g.total / maximo) * 100}%` }}
               />
             </div>
@@ -51,16 +51,16 @@ export function QuadroPessoal() {
 
   return (
     <div>
-      <h1 className="mb-1 text-lg font-semibold text-slate-800">Quadro de pessoal</h1>
+      <h1 className="mb-1 text-lg font-semibold text-slate-100">Quadro de pessoal</h1>
       <p className="mb-4 text-sm text-slate-500">Composição do time ativo por função, local, escala e vínculo.</p>
 
-      {erro && <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>}
+      {erro && <p className="mb-4 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{erro}</p>}
 
       {quadro && (
         <>
-          <div className="mb-6 rounded border border-slate-200 bg-white p-4">
+          <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
             <p className="text-xs text-slate-500">Colaboradores ativos</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-800">{quadro.totalAtivos}</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-100">{quadro.totalAtivos}</p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

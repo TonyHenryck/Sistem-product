@@ -36,7 +36,7 @@ export function Login() {
         onSubmit={handleSubmit}
         className="relative w-full max-w-sm rounded-lg border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-xl"
       >
-        <span className="mb-4 flex h-10 w-10 items-center justify-center rounded bg-brand-600 text-sm font-semibold text-white">
+        <span className="mb-4 flex h-10 w-10 items-center justify-center rounded bg-slate-300 text-sm font-semibold text-slate-900">
           RH
         </span>
         <h1 className="mb-6 text-xl font-semibold text-white">Entrar</h1>
@@ -50,7 +50,7 @@ export function Login() {
           required
           value={email}
           onChange={(evento) => setEmail(evento.target.value)}
-          className="mb-4 w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+          className="mb-4 w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-300"
         />
 
         <label className="mb-1 block text-sm text-slate-200" htmlFor="senha">
@@ -62,7 +62,7 @@ export function Login() {
           required
           value={senha}
           onChange={(evento) => setSenha(evento.target.value)}
-          className="mb-4 w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 focus:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-400"
+          className="mb-4 w-full rounded border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-300 focus:border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-300"
         />
 
         {erro && <p className="mb-4 text-sm text-red-300">{erro}</p>}
@@ -70,7 +70,7 @@ export function Login() {
         <button
           type="submit"
           disabled={enviando}
-          className="w-full rounded bg-brand-600 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+          className="w-full rounded bg-slate-300 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100 disabled:opacity-60"
         >
           {enviando ? 'Entrando...' : 'Entrar'}
         </button>

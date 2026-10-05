@@ -18,17 +18,17 @@ export function Almoxarifado() {
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-800">Almoxarifado</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-100">Almoxarifado</h1>
 
-      <div className="mb-4 flex gap-1 border-b border-slate-200">
+      <div className="mb-4 flex gap-1 border-b border-white/10">
         {ABAS.map((a) => (
           <button
             key={a.chave}
             onClick={() => setAba(a.chave)}
             className={`px-3 py-2 text-sm ${
               aba === a.chave
-                ? 'border-b-2 border-brand-700 font-medium text-brand-700'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'border-b-2 border-slate-100 font-medium text-slate-100'
+                : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             {a.rotulo}

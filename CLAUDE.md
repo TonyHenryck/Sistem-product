@@ -53,10 +53,12 @@ Administrativo de RH e reporta a matriz em Sao Luis.
   a linha "clean" original - o objetivo agora e impressionar ao abrir, nao
   minimizar estimulo visual. Mesmo assim, informacao continua legivel:
   numero grande, contraste alto, sem efeito que atrapalhe leitura.
-- Cor de destaque fica em `brand` (tailwind.config.js). Cores semanticas
-  (vermelho = erro/urgente, ambar = alerta, esmeralda = sucesso/ativo) nao
-  mudam de significado, so de tom (shades mais claras pra contrastar com
-  fundo escuro).
+- Paleta monocromatica: preto, branco e cinza (slate) em tudo - sem azul
+  nem outra cor de marca. Brilho/glow tambem usa branco/cinza, nao azul.
+  Cores semanticas (vermelho = erro/urgente, ambar = alerta, esmeralda =
+  sucesso/ativo) continuam existindo com o mesmo significado, so de tom
+  mais claro pra contrastar com fundo escuro - sao a unica cor permitida
+  fora da escala de cinza, e so aparecem onde ha alerta real.
 - Respostas curtas no chat. Prefira mostrar o diff a explicar o diff.
 - Portugues do Brasil em toda a interface e nos comentarios.
 

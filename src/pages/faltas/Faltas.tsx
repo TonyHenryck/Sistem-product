@@ -84,14 +84,14 @@ export function Faltas() {
   }
 
   const inputCls =
-    'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+    'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-800">Faltas</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-100">Faltas</h1>
 
-      <div className="mb-6 rounded border border-slate-200 bg-white p-4">
-        <p className="mb-3 text-sm font-medium text-slate-700">Registrar falta</p>
+      <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+        <p className="mb-3 text-sm font-medium text-slate-300">Registrar falta</p>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs text-slate-500">Data</label>
@@ -166,7 +166,7 @@ export function Faltas() {
         </div>
 
         <div className="mt-3 flex flex-wrap gap-5">
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-slate-400">
             <input
               type="checkbox"
               checked={form.descontar}
@@ -174,7 +174,7 @@ export function Faltas() {
             />
             Descontar
           </label>
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-slate-400">
             <input
               type="checkbox"
               checked={form.perdeDsr}
@@ -182,7 +182,7 @@ export function Faltas() {
             />
             Perde DSR
           </label>
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-slate-400">
             <input
               type="checkbox"
               checked={form.notificado}
@@ -192,21 +192,21 @@ export function Faltas() {
           </label>
         </div>
 
-        {erro && <p className="mt-3 text-sm text-red-600">{erro}</p>}
+        {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
 
         <button
           onClick={salvar}
           disabled={salvando}
-          className="mt-4 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+          className="mt-4 rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
         >
           {salvando ? 'Salvando...' : 'Registrar'}
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-white/10 text-left text-slate-500">
               <th className="px-3 py-2 font-medium">Data</th>
               <th className="px-3 py-2 font-medium">Colaborador</th>
               <th className="px-3 py-2 font-medium">Tipo</th>
@@ -218,26 +218,26 @@ export function Faltas() {
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={6} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && faltas.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={6} className="px-3 py-4 text-center text-slate-500">
                   Nenhuma falta registrada.
                 </td>
               </tr>
             )}
             {faltas.map((f) => (
-              <tr key={f.id} className="border-b border-slate-100 last:border-0">
+              <tr key={f.id} className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2">{formatarData(f.data)}</td>
                 <td className="px-3 py-2">{nomes.get(f.colaborador_id) ?? '—'}</td>
-                <td className="px-3 py-2 text-slate-600">{f.tipo}</td>
-                <td className="px-3 py-2 text-slate-600">{f.dias}</td>
-                <td className="px-3 py-2 text-slate-600">{f.descontar ? 'Sim' : 'Não'}</td>
-                <td className="px-3 py-2 text-slate-600">{f.perde_dsr ? 'Sim' : 'Não'}</td>
+                <td className="px-3 py-2 text-slate-400">{f.tipo}</td>
+                <td className="px-3 py-2 text-slate-400">{f.dias}</td>
+                <td className="px-3 py-2 text-slate-400">{f.descontar ? 'Sim' : 'Não'}</td>
+                <td className="px-3 py-2 text-slate-400">{f.perde_dsr ? 'Sim' : 'Não'}</td>
               </tr>
             ))}
           </tbody>

@@ -13,7 +13,7 @@ import {
 const vazio = { codigo: '', nome: '', categoriaId: '', unidadeMedida: '' }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+  'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
 export function CatalogoTab() {
   const { vinculos } = useAuth()
@@ -95,8 +95,8 @@ export function CatalogoTab() {
 
   return (
     <div>
-      <div className="mb-6 rounded border border-slate-200 bg-white p-4">
-        <p className="mb-3 text-sm font-medium text-slate-700">Novo produto</p>
+      <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+        <p className="mb-3 text-sm font-medium text-slate-300">Novo produto</p>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs text-slate-500">Código</label>
@@ -124,7 +124,7 @@ export function CatalogoTab() {
               <button
                 type="button"
                 onClick={() => setMostrarNovaCategoria((v) => !v)}
-                className="shrink-0 rounded border border-slate-300 px-2 text-sm text-slate-600 hover:bg-slate-50"
+                className="shrink-0 rounded border border-white/10 px-2 text-sm text-slate-400 hover:bg-white/5"
               >
                 +
               </button>
@@ -141,7 +141,7 @@ export function CatalogoTab() {
                   type="button"
                   onClick={salvarNovaCategoria}
                   disabled={salvandoCategoria || !novaCategoria.trim()}
-                  className="shrink-0 rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
+                  className="shrink-0 rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
                 >
                   Ok
                 </button>
@@ -153,20 +153,20 @@ export function CatalogoTab() {
             <input value={form.unidadeMedida} onChange={(e) => setForm({ ...form, unidadeMedida: e.target.value })} className={inputCls} placeholder="kg, un, lt..." />
           </div>
         </div>
-        {erro && <p className="mt-3 text-sm text-red-600">{erro}</p>}
+        {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
         <button
           onClick={salvar}
           disabled={salvando}
-          className="mt-4 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+          className="mt-4 rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
         >
           {salvando ? 'Salvando...' : 'Cadastrar'}
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-white/10 text-left text-slate-500">
               <th className="px-3 py-2 font-medium">Código</th>
               <th className="px-3 py-2 font-medium">Nome</th>
               <th className="px-3 py-2 font-medium">Categoria</th>
@@ -176,26 +176,26 @@ export function CatalogoTab() {
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && produtos.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                   Nenhum produto cadastrado.
                 </td>
               </tr>
             )}
             {produtos.map((p) => (
-              <tr key={p.id} className="border-b border-slate-100 last:border-0">
-                <td className="px-3 py-2 text-slate-600">{p.codigo ?? '—'}</td>
+              <tr key={p.id} className="border-b border-white/5 last:border-0">
+                <td className="px-3 py-2 text-slate-400">{p.codigo ?? '—'}</td>
                 <td className="px-3 py-2">{p.nome}</td>
-                <td className="px-3 py-2 text-slate-600">
+                <td className="px-3 py-2 text-slate-400">
                   {p.categoria_id ? (nomeCategoria.get(p.categoria_id) ?? '—') : (p.categoria ?? '—')}
                 </td>
-                <td className="px-3 py-2 text-slate-600">
+                <td className="px-3 py-2 text-slate-400">
                   {saldos.get(p.id) ?? 0} {p.unidade_medida}
                 </td>
               </tr>

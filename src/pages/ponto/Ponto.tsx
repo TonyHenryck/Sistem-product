@@ -138,12 +138,12 @@ export function Ponto() {
     .filter((r) => !buscaNorm || (nomes.get(r.colaborador_id) ?? '').toLowerCase().includes(buscaNorm))
 
   const inputCls =
-    'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+    'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-slate-800">Ponto</h1>
+        <h1 className="text-lg font-semibold text-slate-100">Ponto</h1>
         <input
           type="month"
           value={competencia}
@@ -152,9 +152,9 @@ export function Ponto() {
         />
       </div>
 
-      <div className="mb-6 rounded border border-slate-200 bg-white p-4">
-        <p className="mb-1 text-sm font-medium text-slate-700">Importar relatório do FACEPONTO</p>
-        <p className="mb-3 text-xs text-slate-400">
+      <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+        <p className="mb-1 text-sm font-medium text-slate-300">Importar relatório do FACEPONTO</p>
+        <p className="mb-3 text-xs text-slate-500">
           Uma linha por colaborador: nome e saldo separados por vírgula, ponto e vírgula ou tab (ex:
           "Maria da Silva;-2:30"). Lembre que quem faz 12h está cadastrado lá como 8h — o saldo do
           sistema pode não fechar; confira manualmente.
@@ -173,15 +173,15 @@ export function Ponto() {
           <button
             onClick={analisar}
             disabled={!texto.trim()}
-            className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="rounded border border-white/10 px-3 py-1.5 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-50"
           >
             Analisar
           </button>
         </div>
 
-        <div className="mt-3 border-t border-slate-100 pt-3">
-          <p className="mb-1 text-sm font-medium text-slate-700">Ou importar folha de ponto (Excel)</p>
-          <p className="mb-2 text-xs text-slate-400">
+        <div className="mt-3 border-t border-white/5 pt-3">
+          <p className="mb-1 text-sm font-medium text-slate-300">Ou importar folha de ponto (Excel)</p>
+          <p className="mb-2 text-xs text-slate-500">
             Arquivo .xls/.xlsx exportado pelo FACEPONTO (um bloco por colaborador). Pega o "Saldo do
             Banco de Horas" de cada um automaticamente.
           </p>
@@ -193,14 +193,14 @@ export function Ponto() {
             disabled={lendoFolha}
             className="text-xs"
           />
-          {lendoFolha && <span className="ml-2 text-xs text-slate-400">Lendo arquivo...</span>}
+          {lendoFolha && <span className="ml-2 text-xs text-slate-500">Lendo arquivo...</span>}
         </div>
 
         {preview && (
           <div className="mt-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-slate-500">
+                <tr className="border-b border-white/10 text-left text-slate-500">
                   <th className="py-1 font-medium">Nome no relatório</th>
                   <th className="py-1 font-medium">Saldo</th>
                   <th className="py-1 font-medium">Status</th>
@@ -208,16 +208,16 @@ export function Ponto() {
               </thead>
               <tbody>
                 {preview.map((l, i) => (
-                  <tr key={i} className="border-b border-slate-100 last:border-0">
+                  <tr key={i} className="border-b border-white/5 last:border-0">
                     <td className="py-1">{l.nomeOriginal}</td>
                     <td className="py-1">{l.saldoTexto}</td>
                     <td className="py-1">
                       {!l.colaboradorId ? (
-                        <span className="text-red-600">Colaborador não encontrado</span>
+                        <span className="text-red-400">Colaborador não encontrado</span>
                       ) : !l.saldoIntervalo ? (
-                        <span className="text-red-600">Saldo inválido</span>
+                        <span className="text-red-400">Saldo inválido</span>
                       ) : (
-                        <span className="text-emerald-600">OK</span>
+                        <span className="text-emerald-400">OK</span>
                       )}
                     </td>
                   </tr>
@@ -225,12 +225,12 @@ export function Ponto() {
               </tbody>
             </table>
 
-            {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
+            {erro && <p className="mt-2 text-sm text-red-400">{erro}</p>}
 
             <button
               onClick={confirmarImportacao}
               disabled={importando}
-              className="mt-3 rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+              className="mt-3 rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
             >
               {importando ? 'Importando...' : `Confirmar importação (${competencia})`}
             </button>
@@ -239,15 +239,15 @@ export function Ponto() {
       </div>
 
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-slate-700">Competência {competencia}</p>
+        <p className="text-sm font-medium text-slate-300">Competência {competencia}</p>
         <div className="flex items-center gap-4">
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar colaborador..."
-            className="rounded border border-slate-300 px-2 py-1 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="rounded border border-white/10 px-2 py-1 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
           />
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-slate-400">
             <input
               type="checkbox"
               checked={soDivergencias}
@@ -258,10 +258,10 @@ export function Ponto() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-white/10 text-left text-slate-500">
               <th className="px-3 py-2 font-medium">Colaborador</th>
               <th className="px-3 py-2 font-medium">Saldo sistema</th>
               <th className="px-3 py-2 font-medium">Saldo conferido</th>
@@ -271,32 +271,32 @@ export function Ponto() {
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && linhasTabela.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                   {soDivergencias ? 'Nenhuma divergência.' : 'Nenhum lançamento nessa competência.'}
                 </td>
               </tr>
             )}
             {linhasTabela.map((r) => (
-              <tr key={r.id} className="border-b border-slate-100 last:border-0">
+              <tr key={r.id} className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2">{nomes.get(r.colaborador_id) ?? '—'}</td>
-                <td className="px-3 py-2 text-slate-600">{formatarIntervalo(r.saldo_sistema)}</td>
+                <td className="px-3 py-2 text-slate-400">{formatarIntervalo(r.saldo_sistema)}</td>
                 <td className="px-3 py-2">
                   <input
                     value={edicoes[r.id] ?? ''}
                     onChange={(e) => setEdicoes({ ...edicoes, [r.id]: e.target.value })}
                     onBlur={() => salvarConferido(r.id)}
                     placeholder="HH:MM"
-                    className="w-24 rounded border border-slate-300 px-2 py-1 text-sm"
+                    className="w-24 rounded border border-white/10 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                   />
                 </td>
-                <td className={`px-3 py-2 ${temDivergencia(r) ? 'font-medium text-red-600' : 'text-slate-500'}`}>
+                <td className={`px-3 py-2 ${temDivergencia(r) ? 'font-medium text-red-400' : 'text-slate-500'}`}>
                   {formatarIntervalo(r.divergencia) || '—'}
                 </td>
               </tr>

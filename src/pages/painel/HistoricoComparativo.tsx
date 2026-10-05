@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+
+const ESTILO_TOOLTIP = {
+  contentStyle: { backgroundColor: '#0b1220', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 },
+  labelStyle: { color: '#94a3b8' },
+  itemStyle: { color: '#e2e8f0' },
+}
 import { useAuth } from '../../auth/useAuth'
 import { buscarSerieCustoMensal, type CustoMes } from '../../lib/painel'
 import {
@@ -22,10 +28,10 @@ function Comparativo({ titulo, atual, anterior, formatar }: { titulo: string; at
   const desceu = diferenca < 0
 
   return (
-    <div className="rounded border border-slate-200 bg-white p-4">
+    <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
       <p className="text-xs text-slate-500">{titulo}</p>
-      <p className="mt-1 text-2xl font-semibold text-slate-800">{formatar(atual)}</p>
-      <p className={`mt-1 text-xs ${subiu ? 'text-red-600' : desceu ? 'text-emerald-600' : 'text-slate-400'}`}>
+      <p className="mt-1 text-2xl font-semibold text-slate-100">{formatar(atual)}</p>
+      <p className={`mt-1 text-xs ${subiu ? 'text-red-400' : desceu ? 'text-emerald-400' : 'text-slate-500'}`}>
         {percentual === null
           ? 'sem comparação anterior'
           : `${subiu ? '▲' : desceu ? '▼' : '—'} ${Math.abs(percentual).toFixed(0)}% vs mês anterior`}
@@ -79,10 +85,10 @@ export function HistoricoComparativo() {
 
   return (
     <div>
-      <h1 className="mb-1 text-lg font-semibold text-slate-800">Histórico e comparativo</h1>
+      <h1 className="mb-1 text-lg font-semibold text-slate-100">Histórico e comparativo</h1>
       <p className="mb-4 text-sm text-slate-500">Mês atual contra o mês anterior, e a série dos últimos 6 meses.</p>
 
-      {erro && <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>}
+      {erro && <p className="mb-4 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{erro}</p>}
 
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Comparativo titulo="Headcount ativo" atual={headcountAtual} anterior={headcountAnterior} formatar={(v) => String(v)} />
@@ -91,46 +97,46 @@ export function HistoricoComparativo() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded border border-slate-200 bg-white p-4">
-          <p className="mb-3 text-sm font-medium text-slate-700">Headcount (6 meses)</p>
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+          <p className="mb-3 text-sm font-medium text-slate-300">Headcount (6 meses)</p>
           <div style={{ width: '100%', height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={headcount} margin={{ left: 8, right: 8 }}>
-                <CartesianGrid vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} width={32} allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="total" name="Headcount" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} width={32} allowDecimals={false} />
+                <Tooltip {...ESTILO_TOOLTIP} />
+                <Bar dataKey="total" name="Headcount" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded border border-slate-200 bg-white p-4">
-          <p className="mb-3 text-sm font-medium text-slate-700">Custo mensal (6 meses)</p>
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+          <p className="mb-3 text-sm font-medium text-slate-300">Custo mensal (6 meses)</p>
           <div style={{ width: '100%', height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={custo} margin={{ left: 8, right: 8 }}>
-                <CartesianGrid vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} width={80} tickFormatter={(v) => formatarMoeda(v)} />
-                <Tooltip formatter={(v) => formatarMoeda(Number(v))} />
-                <Bar dataKey="custoTotal" name="Custo total" fill="#334155" radius={[4, 4, 0, 0]} />
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} width={80} tickFormatter={(v) => formatarMoeda(v)} />
+                <Tooltip {...ESTILO_TOOLTIP} formatter={(v) => formatarMoeda(Number(v))} />
+                <Bar dataKey="custoTotal" name="Custo total" fill="#94a3b8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="rounded border border-slate-200 bg-white p-4 md:col-span-2">
-          <p className="mb-3 text-sm font-medium text-slate-700">Absenteísmo — dias perdidos (6 meses)</p>
+        <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4 md:col-span-2">
+          <p className="mb-3 text-sm font-medium text-slate-300">Absenteísmo — dias perdidos (6 meses)</p>
           <div style={{ width: '100%', height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={absenteismo} margin={{ left: 8, right: 8 }}>
-                <CartesianGrid vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} width={32} allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="diasPerdidos" name="Dias perdidos" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} width={32} allowDecimals={false} />
+                <Tooltip {...ESTILO_TOOLTIP} />
+                <Bar dataKey="diasPerdidos" name="Dias perdidos" fill="#f87171" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

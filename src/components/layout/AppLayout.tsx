@@ -15,10 +15,10 @@ export function AppLayout() {
       <div className="relative z-10 flex flex-1 flex-col">
         <header className="flex h-14 items-center justify-between border-b border-white/10 bg-slate-900/60 px-6 backdrop-blur-xl">
           <span className="flex items-center gap-2 text-sm font-medium text-slate-200">
-            <span className="h-1.5 w-1.5 animar-pulso rounded-full bg-emerald-400 shadow-[0_0_8px_2px_rgba(52,211,153,0.6)]" />
+            <span className="h-1.5 w-1.5 animar-pulso rounded-full bg-slate-100 shadow-[0_0_8px_2px_rgba(255,255,255,0.5)]" />
             {nomeUnidade}
           </span>
-          <button onClick={sair} className="text-sm text-slate-400 hover:text-brand-400">
+          <button onClick={sair} className="text-sm text-slate-400 hover:text-white">
             Sair
           </button>
         </header>

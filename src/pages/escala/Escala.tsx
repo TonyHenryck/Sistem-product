@@ -126,13 +126,13 @@ export function Escala() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold text-slate-800">Escala</h1>
+        <h1 className="text-lg font-semibold text-slate-100">Escala</h1>
 
         <div className="flex items-center gap-3">
           <select
             value={localId}
             onChange={(e) => setLocalId(e.target.value)}
-            className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+            className="rounded border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
           >
             <option value="">Todos os locais</option>
             {locais.map((l) => (
@@ -145,16 +145,16 @@ export function Escala() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => mudarMes(-1)}
-              className="rounded border border-slate-300 px-2 py-1 text-sm text-slate-600 hover:bg-slate-50"
+              className="rounded border border-white/10 px-2 py-1 text-sm text-slate-400 hover:bg-white/5"
             >
               ‹
             </button>
-            <span className="w-36 text-center text-sm font-medium text-slate-700">
+            <span className="w-36 text-center text-sm font-medium text-slate-300">
               {MESES[mes - 1]} {ano}
             </span>
             <button
               onClick={() => mudarMes(1)}
-              className="rounded border border-slate-300 px-2 py-1 text-sm text-slate-600 hover:bg-slate-50"
+              className="rounded border border-white/10 px-2 py-1 text-sm text-slate-400 hover:bg-white/5"
             >
               ›
             </button>
@@ -163,7 +163,7 @@ export function Escala() {
       </div>
 
       {localId === '' && (
-        <p className="mb-3 text-xs text-slate-400">
+        <p className="mb-3 text-xs text-slate-500">
           Cada dia mostra quantas pessoas por local. Clique num dia pra ver os nomes. Selecione um local
           específico pra ver furos de escala (dias sem ninguém trabalhando).
         </p>
@@ -178,7 +178,7 @@ export function Escala() {
               <thead>
                 <tr>
                   {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((d) => (
-                    <th key={d} className="pb-2 text-left text-xs font-medium text-slate-400">
+                    <th key={d} className="pb-2 text-left text-xs font-medium text-slate-500">
                       {d}
                     </th>
                   ))}
@@ -199,35 +199,35 @@ export function Escala() {
                           onClick={() => dataISO && setDiaSelecionado(dataISO)}
                           className={`h-24 w-[14.28%] align-top border p-1.5 ${dataISO ? 'cursor-pointer' : ''} ${
                             selecionado
-                              ? 'border-slate-800 border-2 bg-slate-50'
+                              ? 'border-slate-100 border-2 bg-white/10'
                               : furo
-                                ? 'border-slate-100 bg-red-50'
+                                ? 'border-red-500/20 bg-red-500/10'
                                 : dataISO
-                                  ? 'border-slate-100 bg-white hover:bg-slate-50'
-                                  : 'border-slate-100 bg-slate-50'
+                                  ? 'border-white/5 bg-slate-900/40 hover:bg-white/5'
+                                  : 'border-white/5 bg-slate-950/50'
                           }`}
                         >
                           {dataISO && (
                             <>
                               <div className="mb-1 flex items-center justify-between">
-                                <span className="text-xs text-slate-400">{Number(dataISO.slice(8, 10))}</span>
+                                <span className="text-xs text-slate-500">{Number(dataISO.slice(8, 10))}</span>
                                 {dia.length > 0 && (
-                                  <span className="rounded-full bg-slate-200 px-1.5 text-[10px] font-medium text-slate-600">
+                                  <span className="rounded-full bg-slate-200 px-1.5 text-[10px] font-medium text-slate-400">
                                     {dia.length}
                                   </span>
                                 )}
                               </div>
                               {furo ? (
-                                <div className="text-[11px] font-medium text-red-600">Furo de escala</div>
+                                <div className="text-[11px] font-medium text-red-400">Furo de escala</div>
                               ) : (
                                 <div className="space-y-0.5">
                                   {resumo.slice(0, 3).map((r) => (
-                                    <div key={r.rotulo} className="truncate text-[11px] text-slate-600">
-                                      {r.rotulo} <span className="font-medium text-slate-800">{r.total}</span>
+                                    <div key={r.rotulo} className="truncate text-[11px] text-slate-400">
+                                      {r.rotulo} <span className="font-medium text-slate-100">{r.total}</span>
                                     </div>
                                   ))}
                                   {resumo.length > 3 && (
-                                    <div className="text-[11px] text-slate-400">+{resumo.length - 3} local(is)</div>
+                                    <div className="text-[11px] text-slate-500">+{resumo.length - 3} local(is)</div>
                                   )}
                                 </div>
                               )}
@@ -242,29 +242,29 @@ export function Escala() {
             </table>
           </div>
 
-          <div className="rounded border border-slate-200 bg-white p-4">
+          <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
             {!diaSelecionado ? (
-              <p className="text-sm text-slate-400">Clique num dia do calendário pra ver quem trabalha.</p>
+              <p className="text-sm text-slate-500">Clique num dia do calendário pra ver quem trabalha.</p>
             ) : (
               <>
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-medium text-slate-700">{formatarDataLonga(diaSelecionado)}</p>
+                  <p className="text-sm font-medium text-slate-300">{formatarDataLonga(diaSelecionado)}</p>
                   <button
                     onClick={() => setDiaSelecionado(null)}
-                    className="text-xs text-slate-400 hover:text-slate-600"
+                    className="text-xs text-slate-500 hover:text-slate-400"
                   >
                     Fechar
                   </button>
                 </div>
 
                 {diaDetalhe.length === 0 && (
-                  <p className="text-sm text-slate-400">Ninguém escalado neste dia.</p>
+                  <p className="text-sm text-slate-500">Ninguém escalado neste dia.</p>
                 )}
 
                 <div className="space-y-4">
                   {gruposDetalhe.map(([rotulo, pessoas]) => (
                     <div key={rotulo}>
-                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         {rotulo} · {pessoas.length}
                       </p>
                       <div className="space-y-1">
@@ -272,16 +272,16 @@ export function Escala() {
                           <div
                             key={c.colaboradorId}
                             className={`flex items-center gap-2 text-sm ${
-                              c.situacao === 'falta' ? 'text-red-600 line-through' : 'text-slate-700'
+                              c.situacao === 'falta' ? 'text-red-400 line-through' : 'text-slate-300'
                             }`}
                           >
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: c.cor }} />
                             <span className="truncate">{c.nome}</span>
                             {c.turno === 'Noturno' && (
-                              <span className="shrink-0 text-xs text-slate-400">Noturno</span>
+                              <span className="shrink-0 text-xs text-slate-500">Noturno</span>
                             )}
                             {c.situacao === 'cobrindo' && (
-                              <span className="shrink-0 text-xs text-sky-600">↔ cobrindo troca</span>
+                              <span className="shrink-0 text-xs text-sky-400">↔ cobrindo troca</span>
                             )}
                             {c.situacao === 'falta' && <span className="shrink-0 text-xs">falta</span>}
                           </div>

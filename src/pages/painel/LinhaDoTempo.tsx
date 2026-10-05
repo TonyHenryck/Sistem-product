@@ -4,19 +4,19 @@ import { buscarLinhaDoTempo, type EventoLinhaDoTempo } from '../../lib/linhaDoTe
 import { formatarData } from '../../utils/data'
 
 const CORES: Record<string, string> = {
-  Admissão: '#1baf7a',
+  Admissão: '#cbd5e1',
   Desligamento: '#64748b',
-  Falta: '#dc2626',
-  'Troca de turno': '#eda100',
-  Advertência: '#dc2626',
+  Falta: '#f87171',
+  'Troca de turno': '#94a3b8',
+  Advertência: '#f87171',
 }
 
 function corDoEvento(tipo: string): string {
   if (CORES[tipo]) return CORES[tipo]
   if (tipo.includes('Licença') || tipo === 'Férias' || tipo === 'Abono pecuniário' || tipo === 'Suspensão de contrato') {
-    return '#0ea5e9'
+    return '#475569'
   }
-  return '#1d4ed8'
+  return '#e2e8f0'
 }
 
 export function LinhaDoTempo() {
@@ -39,26 +39,26 @@ export function LinhaDoTempo() {
 
   return (
     <div>
-      <h1 className="mb-1 text-lg font-semibold text-slate-800">Linha do tempo</h1>
+      <h1 className="mb-1 text-lg font-semibold text-slate-100">Linha do tempo</h1>
       <p className="mb-4 text-sm text-slate-500">
         Admissões, desligamentos, faltas, trocas, advertências, férias e entradas do diário — mais recentes primeiro.
       </p>
 
-      {erro && <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>}
-      {carregando && <p className="text-sm text-slate-400">Carregando...</p>}
-      {!carregando && eventos.length === 0 && <p className="text-sm text-slate-400">Nenhum evento registrado ainda.</p>}
+      {erro && <p className="mb-4 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{erro}</p>}
+      {carregando && <p className="text-sm text-slate-500">Carregando...</p>}
+      {!carregando && eventos.length === 0 && <p className="text-sm text-slate-500">Nenhum evento registrado ainda.</p>}
 
       <div className="space-y-2">
         {eventos.map((e) => (
           <div
             key={e.id}
-            className="flex gap-4 rounded border border-l-4 border-slate-200 bg-white p-3"
+            className="flex gap-4 rounded border border-l-4 border-white/10 bg-slate-900/60 p-3 backdrop-blur-xl"
             style={{ borderLeftColor: corDoEvento(e.tipo) }}
           >
-            <span className="w-20 shrink-0 text-xs text-slate-400">{formatarData(e.data)}</span>
+            <span className="w-20 shrink-0 text-xs text-slate-500">{formatarData(e.data)}</span>
             <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{e.tipo}</p>
-              <p className="truncate text-sm text-slate-800">{e.titulo}</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{e.tipo}</p>
+              <p className="truncate text-sm text-slate-100">{e.titulo}</p>
               {e.detalhe && <p className="text-xs text-slate-500">{e.detalhe}</p>}
             </div>
           </div>

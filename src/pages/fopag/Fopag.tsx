@@ -23,10 +23,10 @@ const STATUS_OPCOES: EnvioFopag['status'][] = [
 ]
 
 const STATUS_CLASSE: Record<EnvioFopag['status'], string> = {
-  'Em preparação': 'bg-slate-100 text-slate-600',
-  Enviado: 'bg-amber-100 text-amber-800',
-  'Confirmado pela matriz': 'bg-emerald-100 text-emerald-700',
-  'Devolvido para ajuste': 'bg-red-100 text-red-700',
+  'Em preparação': 'bg-white/10 text-slate-400',
+  Enviado: 'bg-amber-500/15 text-amber-300',
+  'Confirmado pela matriz': 'bg-emerald-500/15 text-emerald-400',
+  'Devolvido para ajuste': 'bg-red-500/15 text-red-400',
 }
 
 function competenciaAtual(): string {
@@ -116,23 +116,23 @@ export function Fopag() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-slate-800">FOPAG</h1>
+        <h1 className="text-lg font-semibold text-slate-100">FOPAG</h1>
         <input
           type="month"
           value={competencia}
           onChange={(e) => setCompetencia(e.target.value)}
-          className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+          className="rounded border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
         />
       </div>
 
-      <div className="mb-6 rounded border border-slate-200 bg-white p-4">
+      <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-400">
               {diaLimite ? contadorLimite(competencia, diaLimite) : 'Dia limite não configurado.'}
             </p>
             {envio?.data_envio && (
-              <p className="mt-1 text-xs text-slate-400">Enviado em {formatarData(envio.data_envio)}</p>
+              <p className="mt-1 text-xs text-slate-500">Enviado em {formatarData(envio.data_envio)}</p>
             )}
           </div>
 
@@ -142,7 +142,7 @@ export function Fopag() {
               value={status}
               disabled={salvandoStatus}
               onChange={(e) => mudarStatus(e.target.value as EnvioFopag['status'])}
-              className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+              className="rounded border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
             >
               {STATUS_OPCOES.map((s) => (
                 <option key={s} value={s}>
@@ -160,14 +160,14 @@ export function Fopag() {
         <>
           <div className="mb-6">
             <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-medium text-slate-700">
-                Pendências de pagamento <span className="text-slate-400">({pendencias.length})</span>
+              <h2 className="text-sm font-medium text-slate-300">
+                Pendências de pagamento <span className="text-slate-500">({pendencias.length})</span>
               </h2>
             </div>
-            <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+            <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-slate-500">
+                  <tr className="border-b border-white/10 text-left text-slate-500">
                     <th className="px-3 py-2 font-medium">Colaborador</th>
                     <th className="px-3 py-2 font-medium">Motivo</th>
                     <th className="px-3 py-2 font-medium">Valor</th>
@@ -177,19 +177,19 @@ export function Fopag() {
                 <tbody>
                   {pendencias.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                      <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                         Nenhuma pendência em aberto.
                       </td>
                     </tr>
                   )}
                   {pendencias.map((p) => (
-                    <tr key={p.id} className="border-b border-slate-100 last:border-0">
+                    <tr key={p.id} className="border-b border-white/5 last:border-0">
                       <td className="px-3 py-2">
                         {p.colaborador_id ? (nomes.get(p.colaborador_id) ?? '—') : (p.colaborador_nome ?? '—')}
                       </td>
-                      <td className="px-3 py-2 text-slate-600">{p.motivo ?? '—'}</td>
-                      <td className="px-3 py-2 text-slate-600">{formatarMoeda(p.valor_total)}</td>
-                      <td className="px-3 py-2 text-slate-600">{p.status}</td>
+                      <td className="px-3 py-2 text-slate-400">{p.motivo ?? '—'}</td>
+                      <td className="px-3 py-2 text-slate-400">{formatarMoeda(p.valor_total)}</td>
+                      <td className="px-3 py-2 text-slate-400">{p.status}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -198,13 +198,13 @@ export function Fopag() {
           </div>
 
           <div className="mb-6">
-            <h2 className="mb-2 text-sm font-medium text-slate-700">
-              Diárias em aberto <span className="text-slate-400">({diarias.length})</span>
+            <h2 className="mb-2 text-sm font-medium text-slate-300">
+              Diárias em aberto <span className="text-slate-500">({diarias.length})</span>
             </h2>
-            <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+            <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-slate-500">
+                  <tr className="border-b border-white/10 text-left text-slate-500">
                     <th className="px-3 py-2 font-medium">Data</th>
                     <th className="px-3 py-2 font-medium">Cobriu</th>
                     <th className="px-3 py-2 font-medium">Valor</th>
@@ -214,19 +214,19 @@ export function Fopag() {
                 <tbody>
                   {diarias.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                      <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                         Nenhuma diária em aberto.
                       </td>
                     </tr>
                   )}
                   {diarias.map((d) => (
-                    <tr key={d.id} className="border-b border-slate-100 last:border-0">
+                    <tr key={d.id} className="border-b border-white/5 last:border-0">
                       <td className="px-3 py-2">{formatarData(d.data)}</td>
-                      <td className="px-3 py-2 text-slate-600">
+                      <td className="px-3 py-2 text-slate-400">
                         {d.cobriu_id ? (nomes.get(d.cobriu_id) ?? '—') : (d.cobriu_nome ?? '—')}
                       </td>
-                      <td className="px-3 py-2 text-slate-600">{formatarMoeda(d.valor)}</td>
-                      <td className="px-3 py-2 text-slate-600">{d.status}</td>
+                      <td className="px-3 py-2 text-slate-400">{formatarMoeda(d.valor)}</td>
+                      <td className="px-3 py-2 text-slate-400">{d.status}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -236,7 +236,7 @@ export function Fopag() {
 
           <button
             onClick={baixarResumo}
-            className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800"
+            className="rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white"
           >
             Baixar resumo (CSV)
           </button>

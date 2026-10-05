@@ -303,12 +303,12 @@ export function ColaboradorFicha() {
               type="button"
               onClick={() => fotoInputRef.current?.click()}
               disabled={modoNovo || enviandoFoto}
-              className="group h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100 disabled:cursor-not-allowed"
+              className="group h-16 w-16 overflow-hidden rounded-full border border-white/10 bg-white/10 disabled:cursor-not-allowed"
             >
               {fotoUrl ? (
                 <img src={fotoUrl} alt={form.nome || ''} className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center text-lg font-medium text-slate-400">
+                <span className="flex h-full w-full items-center justify-center text-lg font-medium text-slate-500">
                   {(form.nome || '?').charAt(0).toUpperCase()}
                 </span>
               )}
@@ -327,27 +327,27 @@ export function ColaboradorFicha() {
             />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-slate-800">
+            <h1 className="text-lg font-semibold text-slate-100">
               {modoNovo ? 'Novo colaborador' : form.nome}
             </h1>
             {!modoNovo && (nomeFuncao || nomeLocal) && (
               <p className="text-sm text-slate-500">{[nomeFuncao, nomeLocal].filter(Boolean).join(' · ')}</p>
             )}
             {!modoNovo && (form.admissao || form.telefone) && (
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 {form.admissao && `Admitido em ${formatarData(form.admissao)}`}
                 {form.admissao && form.telefone && ' · '}
                 {form.telefone}
               </p>
             )}
-            {erroFoto && <p className="mt-1 text-xs text-red-600">{erroFoto}</p>}
+            {erroFoto && <p className="mt-1 text-xs text-red-400">{erroFoto}</p>}
           </div>
         </div>
         {!modoNovo && (
           <div className="flex shrink-0 gap-2">
             <Link
               to={`/colaboradores/${id}/escala-individual`}
-              className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+              className="rounded border border-white/10 px-3 py-1.5 text-sm text-slate-400 hover:bg-white/5"
             >
               Escala do mês
             </Link>
@@ -355,13 +355,13 @@ export function ColaboradorFicha() {
               <>
                 <button
                   onClick={() => setMostrarDesligar((v) => !v)}
-                  className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+                  className="rounded border border-red-500/30 px-3 py-1.5 text-sm text-red-400 hover:bg-red-500/10"
                 >
                   Desligar
                 </button>
                 <button
                   onClick={excluir}
-                  className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+                  className="rounded border border-white/10 px-3 py-1.5 text-sm text-slate-400 hover:bg-white/5"
                 >
                   Excluir
                 </button>
@@ -372,16 +372,16 @@ export function ColaboradorFicha() {
       </div>
 
       {!modoNovo && (
-        <div className="mb-4 rounded border border-slate-200 bg-white p-4">
+        <div className="mb-4 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
           <p className="mb-2 text-xs font-medium text-slate-500">Documentos (ASO, contrato...)</p>
-          {anexos.length === 0 && <p className="mb-2 text-xs text-slate-400">Nenhum documento.</p>}
+          {anexos.length === 0 && <p className="mb-2 text-xs text-slate-500">Nenhum documento.</p>}
           <ul className="mb-2 space-y-1">
             {anexos.map((a) => (
               <li key={a.id} className="flex items-center justify-between text-sm">
-                <button onClick={() => abrirAnexo(a)} className="truncate text-left text-slate-700 hover:underline">
+                <button onClick={() => abrirAnexo(a)} className="truncate text-left text-slate-300 hover:underline">
                   {a.nome_arquivo}
                 </button>
-                <button onClick={() => removerAnexo(a)} className="ml-2 shrink-0 text-xs text-red-600 hover:underline">
+                <button onClick={() => removerAnexo(a)} className="ml-2 shrink-0 text-xs text-red-400 hover:underline">
                   Remover
                 </button>
               </li>
@@ -390,7 +390,7 @@ export function ColaboradorFicha() {
           <button
             onClick={() => anexoInputRef.current?.click()}
             disabled={enviandoAnexo}
-            className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+            className="rounded border border-white/10 px-3 py-1.5 text-xs text-slate-400 hover:bg-white/5 disabled:opacity-60"
           >
             {enviandoAnexo ? 'Enviando...' : '+ Anexar documento (PDF, JPG, PNG)'}
           </button>
@@ -401,29 +401,29 @@ export function ColaboradorFicha() {
             className="hidden"
             onChange={(e) => enviarAnexoColaborador(e.target.files?.[0])}
           />
-          {erroAnexo && <p className="mt-1 text-xs text-red-600">{erroAnexo}</p>}
+          {erroAnexo && <p className="mt-1 text-xs text-red-400">{erroAnexo}</p>}
         </div>
       )}
 
       {mostrarDesligar && (
-        <div className="mb-4 rounded border border-red-200 bg-red-50 p-4">
-          <p className="mb-2 text-sm font-medium text-red-800">Confirmar desligamento</p>
+        <div className="mb-4 rounded border border-red-500/30 bg-red-500/10 p-4">
+          <p className="mb-2 text-sm font-medium text-red-300">Confirmar desligamento</p>
           <div className="flex flex-wrap items-end gap-3">
             <div>
-              <label className="mb-1 block text-xs text-slate-600">Data</label>
+              <label className="mb-1 block text-xs text-slate-400">Data</label>
               <input
                 type="date"
                 value={desligamento}
                 onChange={(e) => setDesligamento(e.target.value)}
-                className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+                className="rounded border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-slate-600">Motivo</label>
+              <label className="mb-1 block text-xs text-slate-400">Motivo</label>
               <input
                 value={motivoSaida}
                 onChange={(e) => setMotivoSaida(e.target.value)}
-                className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+                className="rounded border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
               />
             </div>
             <button
@@ -436,15 +436,15 @@ export function ColaboradorFicha() {
         </div>
       )}
 
-      <div className="mb-4 flex gap-1 border-b border-slate-200">
+      <div className="mb-4 flex gap-1 border-b border-white/10">
         {ABAS.filter((a) => a.chave !== 'bancario' || ehGestor).map((a) => (
           <button
             key={a.chave}
             onClick={() => abrirAba(a.chave)}
             className={`px-3 py-2 text-sm ${
               aba === a.chave
-                ? 'border-b-2 border-brand-700 font-medium text-brand-700'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'border-b-2 border-slate-100 font-medium text-slate-100'
+                : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             {a.rotulo}
@@ -452,7 +452,7 @@ export function ColaboradorFicha() {
         ))}
       </div>
 
-      <div className="rounded border border-slate-200 bg-white p-4">
+      <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
         {aba === 'gerais' && (
           <div className="grid grid-cols-2 gap-4">
             <Campo label="Nome" className="col-span-2" input={<input {...campo('nome')} className={inputCls} />} />
@@ -512,7 +512,7 @@ export function ColaboradorFicha() {
                 </select>
               }
             />
-            <label className="flex items-end gap-2 pb-2 text-sm text-slate-600">
+            <label className="flex items-end gap-2 pb-2 text-sm text-slate-400">
               <input type="checkbox" {...checkbox('atende_multiplos')} />
               Atende múltiplos locais
             </label>
@@ -545,13 +545,13 @@ export function ColaboradorFicha() {
                     <button
                       type="button"
                       onClick={() => setMostrarNovaJornada((v) => !v)}
-                      className="shrink-0 rounded border border-slate-300 px-2 text-sm text-slate-600 hover:bg-slate-50"
+                      className="shrink-0 rounded border border-white/10 px-2 text-sm text-slate-400 hover:bg-white/5"
                     >
                       + Nova
                     </button>
                   </div>
                   {mostrarNovaJornada && (
-                    <div className="mt-2 flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-slate-50 p-2">
+                    <div className="mt-2 flex flex-wrap items-end gap-2 rounded border border-white/10 bg-white/5 p-2">
                       <div>
                         <label className="mb-1 block text-xs text-slate-500">Nome</label>
                         <input
@@ -583,13 +583,13 @@ export function ColaboradorFicha() {
                         type="button"
                         onClick={salvarNovaJornada}
                         disabled={salvandoJornada || !novaJornada.nome}
-                        className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
+                        className="rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
                       >
                         {salvandoJornada ? 'Salvando...' : 'Cadastrar'}
                       </button>
                     </div>
                   )}
-                  {erroJornada && <p className="mt-1 text-xs text-red-600">{erroJornada}</p>}
+                  {erroJornada && <p className="mt-1 text-xs text-red-400">{erroJornada}</p>}
                 </div>
               }
             />
@@ -609,13 +609,13 @@ export function ColaboradorFicha() {
                     <button
                       type="button"
                       onClick={() => setMostrarNovoHorario((v) => !v)}
-                      className="shrink-0 rounded border border-slate-300 px-2 text-sm text-slate-600 hover:bg-slate-50"
+                      className="shrink-0 rounded border border-white/10 px-2 text-sm text-slate-400 hover:bg-white/5"
                     >
                       + Novo
                     </button>
                   </div>
                   {mostrarNovoHorario && (
-                    <div className="mt-2 flex flex-wrap items-end gap-2 rounded border border-slate-200 bg-slate-50 p-2">
+                    <div className="mt-2 flex flex-wrap items-end gap-2 rounded border border-white/10 bg-white/5 p-2">
                       <div>
                         <label className="mb-1 block text-xs text-slate-500">Entrada</label>
                         <input
@@ -638,13 +638,13 @@ export function ColaboradorFicha() {
                         type="button"
                         onClick={salvarNovoHorario}
                         disabled={salvandoHorario || !novoHorario.inicio || !novoHorario.fim}
-                        className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
+                        className="rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
                       >
                         {salvandoHorario ? 'Salvando...' : 'Cadastrar'}
                       </button>
                     </div>
                   )}
-                  {erroHorario && <p className="mt-1 text-xs text-red-600">{erroHorario}</p>}
+                  {erroHorario && <p className="mt-1 text-xs text-red-400">{erroHorario}</p>}
                 </div>
               }
             />
@@ -764,13 +764,13 @@ export function ColaboradorFicha() {
         )}
       </div>
 
-      {erro && <p className="mt-3 text-sm text-red-600">{erro}</p>}
+      {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
 
       <div className="mt-4">
         <button
           onClick={salvar}
           disabled={salvando}
-          className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+          className="rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
         >
           {salvando ? 'Salvando...' : 'Salvar'}
         </button>
@@ -780,7 +780,7 @@ export function ColaboradorFicha() {
 }
 
 const inputCls =
-  'w-full rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+  'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
 function Campo({ label, input, className }: { label: string; input: ReactNode; className?: string }) {
   return (

@@ -41,13 +41,13 @@
 .fundo-aurora::before {
   top: -10%;
   left: -5%;
-  background: radial-gradient(circle, #1d4ed8, transparent 70%);
+  background: radial-gradient(circle, #ffffff, transparent 70%);
   animation: aurora-um 22s ease-in-out infinite;
 }
 .fundo-aurora::after {
   bottom: -15%;
   right: -5%;
-  background: radial-gradient(circle, #7c3aed, transparent 70%);
+  background: radial-gradient(circle, #94a3b8, transparent 70%);
   animation: aurora-dois 26s ease-in-out infinite;
 }
 

@@ -327,7 +327,7 @@ export function Sidebar() {
       }`}
     >
       <div className="flex h-14 items-center gap-2 border-b border-white/10 px-4">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-brand-600 text-xs font-semibold text-white shadow-[0_0_14px_2px_rgba(37,99,235,0.55)]">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-slate-300 text-xs font-semibold text-slate-900 shadow-[0_0_14px_2px_rgba(255,255,255,0.35)]">
           RH
         </span>
         {!recolhida && <span className="truncate text-sm font-semibold text-slate-100">Sistema RH/DP</span>}
@@ -356,7 +356,7 @@ export function Sidebar() {
                   onClick={() => setGrupoFlutuante((atual) => (atual === grupo.chave ? null : grupo.chave))}
                   className={`flex w-full items-center justify-center rounded p-2 transition-colors ${
                     algumAtivo || grupoFlutuante === grupo.chave
-                      ? 'bg-brand-500/15 text-brand-300 shadow-[0_0_12px_rgba(59,130,246,0.35)]'
+                      ? 'bg-white/10 text-slate-100 shadow-[0_0_12px_rgba(255,255,255,0.25)]'
                       : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                   }`}
                 >
@@ -378,7 +378,7 @@ export function Sidebar() {
                           className={({ isActive }) =>
                             `flex items-center gap-2.5 rounded px-2 py-1.5 ${
                               isActive
-                                ? 'bg-brand-500/15 font-medium text-brand-300'
+                                ? 'bg-white/10 font-medium text-slate-100'
                                 : 'text-slate-300 hover:bg-white/5'
                             }`
                           }
@@ -416,7 +416,7 @@ export function Sidebar() {
                       className={({ isActive }) =>
                         `flex items-center gap-2.5 rounded px-2 py-1.5 text-sm transition-colors ${
                           isActive
-                            ? 'bg-brand-500/15 font-medium text-brand-300 shadow-[0_0_10px_rgba(59,130,246,0.25)]'
+                            ? 'bg-white/10 font-medium text-slate-100 shadow-[0_0_10px_rgba(255,255,255,0.18)]'
                             : 'text-slate-300 hover:bg-white/5'
                         }`
                       }

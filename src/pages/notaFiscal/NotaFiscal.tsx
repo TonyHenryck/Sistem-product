@@ -21,9 +21,9 @@ import { formatarMoeda } from '../../utils/moeda'
 const ENTIDADE_NOTA = 'nota_fiscal'
 
 const STATUS_CLASSE: Record<NotaFiscalRow['status'], string> = {
-  'Pendente conferência': 'bg-amber-100 text-amber-800',
-  Conferida: 'bg-emerald-100 text-emerald-700',
-  Rejeitada: 'bg-red-100 text-red-700',
+  'Pendente conferência': 'bg-amber-500/15 text-amber-300',
+  Conferida: 'bg-emerald-500/15 text-emerald-400',
+  Rejeitada: 'bg-red-500/15 text-red-400',
 }
 
 function normalizar(texto: string): string {
@@ -277,11 +277,11 @@ export function NotaFiscal() {
   }
 
   const inputCls =
-    'rounded border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500'
+    'rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-800">Nota fiscal</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-100">Nota fiscal</h1>
 
       <div
         onDragOver={(e) => {
@@ -292,12 +292,12 @@ export function NotaFiscal() {
         onDrop={aoSoltar}
         onClick={() => inputRef.current?.click()}
         className={`mb-4 cursor-pointer rounded border-2 border-dashed p-8 text-center text-sm ${
-          arrastando ? 'border-slate-500 bg-slate-50' : 'border-slate-300 text-slate-500'
+          arrastando ? 'border-slate-500 bg-white/5' : 'border-white/10 text-slate-500'
         }`}
       >
         Arraste o XML ou o PDF (DANFE) da NFe aqui, ou clique para escolher o arquivo.
         <br />
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-500">
           O XML é mais confiável. Pelo PDF os itens são lidos automaticamente, mas confira as quantidades antes de
           confirmar. Foto e romaneio podem ser anexados depois, na nota já importada.
         </span>
@@ -314,15 +314,15 @@ export function NotaFiscal() {
       <div className="mb-4">
         <button
           onClick={() => (mostrarManual ? fecharManual() : setMostrarManual(true))}
-          className="text-sm text-slate-600 hover:underline"
+          className="text-sm text-slate-400 hover:underline"
         >
           {mostrarManual ? 'Cancelar lançamento manual' : '+ Lançar nota manualmente (sem XML/PDF)'}
         </button>
       </div>
 
       {mostrarManual && (
-        <div className="mb-4 rounded border border-slate-200 bg-white p-4">
-          <p className="mb-3 text-sm font-medium text-slate-700">Lançar nota manualmente</p>
+        <div className="mb-4 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+          <p className="mb-3 text-sm font-medium text-slate-300">Lançar nota manualmente</p>
           <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
             <div className="col-span-2">
               <label className="mb-1 block text-xs text-slate-500">Fornecedor / Remetente</label>
@@ -361,7 +361,7 @@ export function NotaFiscal() {
 
           <table className="mb-2 w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-white/10 text-left text-slate-500">
                 <th className="py-1 font-medium">Descrição</th>
                 <th className="py-1 font-medium">Unidade</th>
                 <th className="py-1 font-medium">Qtd.</th>
@@ -371,7 +371,7 @@ export function NotaFiscal() {
             </thead>
             <tbody>
               {itensManual.map((item, idx) => (
-                <tr key={idx} className="border-b border-slate-100 last:border-0">
+                <tr key={idx} className="border-b border-white/5 last:border-0">
                   <td className="py-1 pr-2">
                     <input
                       value={item.descricao}
@@ -402,7 +402,7 @@ export function NotaFiscal() {
                     />
                   </td>
                   <td className="w-8 py-1">
-                    <button onClick={() => removerItemManual(idx)} className="text-xs text-red-600 hover:underline">
+                    <button onClick={() => removerItemManual(idx)} className="text-xs text-red-400 hover:underline">
                       ✕
                     </button>
                   </td>
@@ -410,7 +410,7 @@ export function NotaFiscal() {
               ))}
             </tbody>
           </table>
-          <button onClick={adicionarItemManual} className="mb-4 text-xs text-slate-600 hover:underline">
+          <button onClick={adicionarItemManual} className="mb-4 text-xs text-slate-400 hover:underline">
             + Adicionar item
           </button>
 
@@ -418,7 +418,7 @@ export function NotaFiscal() {
             <button
               onClick={salvarManual}
               disabled={salvandoManual}
-              className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+              className="rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
             >
               {salvandoManual ? 'Salvando...' : 'Lançar nota'}
             </button>
@@ -428,14 +428,14 @@ export function NotaFiscal() {
 
       {importando && <p className="mb-3 text-sm text-slate-500">Processando...</p>}
       {mensagem && (
-        <p className={`mb-4 text-sm ${mensagem.tipo === 'ok' ? 'text-emerald-700' : 'text-red-600'}`}>{mensagem.texto}</p>
+        <p className={`mb-4 text-sm ${mensagem.tipo === 'ok' ? 'text-emerald-400' : 'text-red-400'}`}>{mensagem.texto}</p>
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="overflow-x-auto rounded border border-slate-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-white/10 text-left text-slate-500">
                 <th className="px-3 py-2 font-medium">Nº</th>
                 <th className="px-3 py-2 font-medium">Emitente</th>
                 <th className="px-3 py-2 font-medium">Valor</th>
@@ -445,14 +445,14 @@ export function NotaFiscal() {
             <tbody>
               {carregando && (
                 <tr>
-                  <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                  <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                     Carregando...
                   </td>
                 </tr>
               )}
               {!carregando && notas.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-3 py-4 text-center text-slate-400">
+                  <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                     Nenhuma nota importada.
                   </td>
                 </tr>
@@ -461,13 +461,13 @@ export function NotaFiscal() {
                 <tr
                   key={n.id}
                   onClick={() => selecionarNota(n)}
-                  className={`cursor-pointer border-b border-slate-100 last:border-0 hover:bg-slate-50 ${
-                    selecionada?.id === n.id ? 'bg-slate-50' : ''
+                  className={`cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/5 ${
+                    selecionada?.id === n.id ? 'bg-white/5' : ''
                   }`}
                 >
                   <td className="px-3 py-2">{n.numero ?? '—'}</td>
-                  <td className="px-3 py-2 text-slate-600">{n.emitente_nome ?? '—'}</td>
-                  <td className="px-3 py-2 text-slate-600">{formatarMoeda(n.valor_total)}</td>
+                  <td className="px-3 py-2 text-slate-400">{n.emitente_nome ?? '—'}</td>
+                  <td className="px-3 py-2 text-slate-400">{formatarMoeda(n.valor_total)}</td>
                   <td className="px-3 py-2">
                     <span className={`rounded px-2 py-0.5 text-xs ${STATUS_CLASSE[n.status]}`}>{n.status}</span>
                   </td>
@@ -479,13 +479,13 @@ export function NotaFiscal() {
 
         <div>
           {!selecionada ? (
-            <p className="text-sm text-slate-400">Clique numa nota pra ver detalhes e anexos.</p>
+            <p className="text-sm text-slate-500">Clique numa nota pra ver detalhes e anexos.</p>
           ) : (
-            <div className="rounded border border-slate-200 bg-white p-4">
-              <p className="mb-1 text-sm font-medium text-slate-700">
+            <div className="rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+              <p className="mb-1 text-sm font-medium text-slate-300">
                 NF {selecionada.numero} — {selecionada.emitente_nome}
               </p>
-              <p className="mb-3 text-xs text-slate-400">
+              <p className="mb-3 text-xs text-slate-500">
                 {formatarData(selecionada.data_emissao)} · {formatarMoeda(selecionada.valor_total)}
               </p>
 
@@ -493,7 +493,7 @@ export function NotaFiscal() {
                 <>
                   <table className="mb-3 w-full text-sm">
                     <thead>
-                      <tr className="border-b border-slate-200 text-left text-slate-500">
+                      <tr className="border-b border-white/10 text-left text-slate-500">
                         <th className="py-1 font-medium">Descrição (NF)</th>
                         <th className="py-1 font-medium">Qtd.</th>
                         <th className="py-1 font-medium">Produto do catálogo</th>
@@ -501,14 +501,14 @@ export function NotaFiscal() {
                     </thead>
                     <tbody>
                       {itens.map((item) => (
-                        <tr key={item.id} className="border-b border-slate-100 last:border-0">
+                        <tr key={item.id} className="border-b border-white/5 last:border-0">
                           <td className="py-1">{item.descricao}</td>
-                          <td className="py-1 text-slate-600">{item.qtd}</td>
+                          <td className="py-1 text-slate-400">{item.qtd}</td>
                           <td className="py-1">
                             <select
                               value={item.produto_id ?? ''}
                               onChange={(e) => mudarProdutoItem(item.id, e.target.value)}
-                              className={`${inputCls} ${!item.produto_id ? 'border-red-300' : ''}`}
+                              className={`${inputCls} ${!item.produto_id ? 'border-red-500/30' : ''}`}
                             >
                               <option value="">Selecione</option>
                               {produtos.map((p) => (
@@ -539,13 +539,13 @@ export function NotaFiscal() {
                     <button
                       onClick={confirmar}
                       disabled={confirmando}
-                      className="rounded bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800 disabled:opacity-60"
+                      className="rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
                     >
                       {confirmando ? 'Confirmando...' : 'Confirmar conferência'}
                     </button>
                     <button
                       onClick={rejeitar}
-                      className="rounded border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                      className="rounded border border-red-500/30 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10"
                     >
                       Rejeitar
                     </button>
@@ -553,18 +553,18 @@ export function NotaFiscal() {
                 </>
               )}
 
-              <div className="mt-4 border-t border-slate-100 pt-3">
+              <div className="mt-4 border-t border-white/5 pt-3">
                 <p className="mb-2 text-xs font-medium text-slate-500">
                   Anexos (romaneio, comprovante...)
                 </p>
-                {anexos.length === 0 && <p className="mb-2 text-xs text-slate-400">Nenhum anexo.</p>}
+                {anexos.length === 0 && <p className="mb-2 text-xs text-slate-500">Nenhum anexo.</p>}
                 <ul className="mb-2 space-y-1">
                   {anexos.map((a) => (
                     <li key={a.id} className="flex items-center justify-between text-sm">
-                      <button onClick={() => abrirAnexo(a)} className="truncate text-left text-slate-700 hover:underline">
+                      <button onClick={() => abrirAnexo(a)} className="truncate text-left text-slate-300 hover:underline">
                         {a.nome_arquivo}
                       </button>
-                      <button onClick={() => removerAnexo(a)} className="ml-2 shrink-0 text-xs text-red-600 hover:underline">
+                      <button onClick={() => removerAnexo(a)} className="ml-2 shrink-0 text-xs text-red-400 hover:underline">
                         Remover
                       </button>
                     </li>
@@ -573,7 +573,7 @@ export function NotaFiscal() {
                 <button
                   onClick={() => anexoInputRef.current?.click()}
                   disabled={enviandoAnexo}
-                  className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+                  className="rounded border border-white/10 px-3 py-1.5 text-xs text-slate-400 hover:bg-white/5 disabled:opacity-60"
                 >
                   {enviandoAnexo ? 'Enviando...' : '+ Anexar arquivo (PDF, JPG, PNG)'}
                 </button>

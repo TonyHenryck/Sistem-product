@@ -133,34 +133,34 @@ export function EscalaIndividual() {
 
   if (!colaborador) {
     return (
-      <div className="p-6">
-        <Link to={`/colaboradores/${id}`} className="text-sm text-slate-600 hover:underline">
+      <div className="min-h-screen bg-slate-950 p-6">
+        <Link to={`/colaboradores/${id}`} className="text-sm text-slate-400 hover:underline">
           ‹ Voltar pro colaborador
         </Link>
-        <p className="mt-3 text-sm text-red-600">{erro}</p>
+        <p className="mt-3 text-sm text-red-400">{erro}</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 py-6 print:bg-white print:py-0">
+    <div className="min-h-screen bg-slate-950 py-6 print:bg-white print:py-0">
       <div className="mx-auto mb-4 flex max-w-[860px] items-center justify-between px-4 print:hidden">
-        <Link to={`/colaboradores/${id}`} className="text-sm text-slate-600 hover:underline">
+        <Link to={`/colaboradores/${id}`} className="text-sm text-slate-400 hover:underline">
           ‹ Voltar pro colaborador
         </Link>
         <div className="flex items-center gap-2">
-          <button onClick={() => mudarMes(-1)} className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-white">
+          <button onClick={() => mudarMes(-1)} className="rounded border border-white/10 px-2 py-1 text-sm text-slate-300 hover:bg-white/5">
             ‹
           </button>
-          <span className="w-32 text-center text-sm font-medium text-slate-700">
+          <span className="w-32 text-center text-sm font-medium text-slate-300">
             {carregando ? 'Carregando...' : `${MESES[mes - 1]} ${ano}`}
           </span>
-          <button onClick={() => mudarMes(1)} className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-white">
+          <button onClick={() => mudarMes(1)} className="rounded border border-white/10 px-2 py-1 text-sm text-slate-300 hover:bg-white/5">
             ›
           </button>
           <button
             onClick={() => window.print()}
-            className="ml-3 rounded bg-brand-700 px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-800"
+            className="ml-3 rounded bg-slate-100 px-4 py-1.5 text-sm font-medium text-slate-900 hover:bg-white"
           >
             Imprimir
           </button>
@@ -339,7 +339,7 @@ export function EscalaIndividual() {
                 <button
                   onClick={salvarCoordenadorForm}
                   disabled={salvandoCoordenador || !formCoordenador.nome.trim()}
-                  className="rounded bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800 disabled:opacity-60"
+                  className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-700 disabled:opacity-60"
                 >
                   {salvandoCoordenador ? 'Salvando...' : 'Salvar'}
                 </button>
