@@ -46,7 +46,17 @@ Administrativo de RH e reporta a matriz em Sao Luis.
 
 ## Preferencias do usuario
 
-- Interface limpa e direta, feita para leitura rapida. Sem enfeite.
+- Visual futurista e dinamico, tema escuro (base slate-950), com efeitos:
+  vidro fosco (`backdrop-blur`), brilho/glow nos estados ativos e nos
+  indicadores, fundo ambiente animado (`.fundo-aurora` em `index.css`) e
+  transicoes nas cartas (`.animar-entrada`, `.animar-pulso`). Isso substitui
+  a linha "clean" original - o objetivo agora e impressionar ao abrir, nao
+  minimizar estimulo visual. Mesmo assim, informacao continua legivel:
+  numero grande, contraste alto, sem efeito que atrapalhe leitura.
+- Cor de destaque fica em `brand` (tailwind.config.js). Cores semanticas
+  (vermelho = erro/urgente, ambar = alerta, esmeralda = sucesso/ativo) nao
+  mudam de significado, so de tom (shades mais claras pra contrastar com
+  fundo escuro).
 - Respostas curtas no chat. Prefira mostrar o diff a explicar o diff.
 - Portugues do Brasil em toda a interface e nos comentarios.
 

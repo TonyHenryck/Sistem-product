@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useAuth } from '../../auth/useAuth'
 import { mensagemErro } from '../../utils/erro'
+import { useContagemAnimada } from '../../hooks/useContagemAnimada'
 import {
   buscarAbsenteismoMes,
   buscarHeadcount,
@@ -30,12 +31,12 @@ const ROTULO_TIPO: Record<TipoFalta, string> = {
 }
 
 const COR_TIPO: Record<TipoFalta, string> = {
-  'Falta injustificada': '#2a78d6',
-  'Atestado médico': '#eb6834',
-  'Falta abonada': '#1baf7a',
-  Atraso: '#eda100',
-  'Saída antecipada': '#e87ba4',
-  Suspensão: '#008300',
+  'Falta injustificada': '#60a5fa',
+  'Atestado médico': '#fb923c',
+  'Falta abonada': '#34d399',
+  Atraso: '#fbbf24',
+  'Saída antecipada': '#f472b6',
+  Suspensão: '#a78bfa',
 }
 
 const OPCOES_PERIODO: { valor: PeriodoIndicador; rotulo: string }[] = [
@@ -51,14 +52,108 @@ function competenciaAtual(): { competencia: string; ano: number; mes: number } {
   return { competencia: `${ano}-${String(mes).padStart(2, '0')}`, ano, mes }
 }
 
-function Card({ titulo, valor, destaque, sub }: { titulo: string; valor: string; destaque?: boolean; sub?: string }) {
+function IconeIndicador({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded border border-slate-200 bg-white p-4">
-      <p className="text-xs text-slate-500">{titulo}</p>
-      <p className={`mt-1 text-2xl font-semibold ${destaque ? 'text-red-600' : 'text-slate-800'}`}>{valor}</p>
-      {sub && <p className="mt-1 text-xs text-slate-400">{sub}</p>}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+      {children}
+    </svg>
+  )
+}
+
+const ICONE_PESSOAS = (
+  <IconeIndicador>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+  </IconeIndicador>
+)
+const ICONE_ALERTA = (
+  <IconeIndicador>
+    <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+    <path d="M12 9v4M12 17h.01" />
+  </IconeIndicador>
+)
+const ICONE_CARTEIRA = (
+  <IconeIndicador>
+    <path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2h-4a3 3 0 0 0 0 6h4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+    <circle cx="16" cy="12" r="1" />
+  </IconeIndicador>
+)
+const ICONE_CALENDARIO = (
+  <IconeIndicador>
+    <rect x="3" y="4" width="18" height="17" rx="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" />
+  </IconeIndicador>
+)
+const ICONE_DOCUMENTO = (
+  <IconeIndicador>
+    <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" />
+    <path d="M9 13h6M9 17h6M9 9h2" />
+  </IconeIndicador>
+)
+
+function Card({
+  titulo,
+  valor,
+  cor,
+  icone,
+  destaque,
+  sub,
+  atraso = 0,
+}: {
+  titulo: string
+  valor: string
+  cor: string
+  icone: ReactNode
+  destaque?: boolean
+  sub?: string
+  atraso?: number
+}) {
+  return (
+    <div
+      className="animar-entrada relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 p-4 backdrop-blur-xl transition-transform hover:-translate-y-0.5"
+      style={{ animationDelay: `${atraso}ms` }}
+    >
+      <div
+        className="absolute inset-x-0 top-0 h-[2px]"
+        style={{ background: `linear-gradient(90deg, transparent, ${cor}, transparent)` }}
+      />
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-slate-400">{titulo}</p>
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-lg"
+          style={{ backgroundColor: `${cor}22`, color: cor }}
+        >
+          {icone}
+        </span>
+      </div>
+      <p
+        className={`mt-2 text-2xl font-semibold tabular-nums ${destaque ? 'text-red-400' : 'text-slate-50'}`}
+        style={!destaque ? { textShadow: `0 0 24px ${cor}40` } : undefined}
+      >
+        {valor}
+      </p>
+      {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
     </div>
   )
+}
+
+function PainelGrafico({ titulo, children, atraso = 0 }: { titulo: string; children: ReactNode; atraso?: number }) {
+  return (
+    <div
+      className="animar-entrada rounded-xl border border-white/10 bg-slate-900/60 p-4 backdrop-blur-xl"
+      style={{ animationDelay: `${atraso}ms` }}
+    >
+      <p className="mb-3 text-sm font-medium text-slate-300">{titulo}</p>
+      {children}
+    </div>
+  )
+}
+
+const ESTILO_TOOLTIP = {
+  contentStyle: { backgroundColor: '#0b1220', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 },
+  labelStyle: { color: '#94a3b8' },
+  itemStyle: { color: '#e2e8f0' },
 }
 
 export function Painel() {
@@ -122,101 +217,128 @@ export function Painel() {
   const custoMesAtual = serieCusto.find((c) => c.competencia === competenciaAtualStr)?.custoTotal ?? 0
   const dadosGraficoFuncao = porFuncao.map((f) => ({ funcao: f.funcao, ...f.porTipo }))
 
-  if (carregando) return <p className="text-slate-500">Carregando...</p>
+  const headcountAnimado = useContagemAnimada(headcount ?? 0)
+  const diasAnimado = useContagemAnimada(absenteismo?.diasPerdidos ?? 0)
+  const custoAnimado = useContagemAnimada(Math.round(custoMesAtual))
+  const furosAnimado = useContagemAnimada(furos ?? 0)
+  const vencimentosAnimado = useContagemAnimada(vencimentos ?? 0)
+
+  if (carregando) return <p className="text-slate-400">Carregando...</p>
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-800">Operação do mês</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-100">Operação do mês</h1>
 
       {erro && (
-        <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erro}</p>
+        <p className="mb-4 rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{erro}</p>
       )}
 
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-        <Card titulo="Headcount ativo" valor={String(headcount ?? 0)} />
+        <Card titulo="Headcount ativo" valor={String(headcountAnimado)} cor="#60a5fa" icone={ICONE_PESSOAS} atraso={0} />
         <Card
           titulo="Absenteísmo (dias)"
-          valor={String(absenteismo?.diasPerdidos ?? 0)}
+          valor={String(diasAnimado)}
+          cor="#fbbf24"
+          icone={ICONE_ALERTA}
           sub={`${absenteismo?.faltasInjustificadas ?? 0} falta(s) · ${absenteismo?.atestados ?? 0} atestado(s)`}
+          atraso={60}
         />
-        <Card titulo="Custo do mês" valor={formatarMoeda(custoMesAtual)} />
+        <Card titulo="Custo do mês" valor={formatarMoeda(custoAnimado)} cor="#a78bfa" icone={ICONE_CARTEIRA} atraso={120} />
         <Card
           titulo="Furos de escala"
-          valor={String(furos ?? 0)}
+          valor={String(furosAnimado)}
+          cor="#fb7185"
+          icone={ICONE_CALENDARIO}
           destaque={Boolean(furos && furos > 0)}
+          atraso={180}
         />
         <Card
           titulo="Documentos vencendo"
-          valor={String(vencimentos ?? 0)}
+          valor={String(vencimentosAnimado)}
+          cor="#fb7185"
+          icone={ICONE_DOCUMENTO}
           destaque={Boolean(vencimentos && vencimentos > 0)}
+          atraso={240}
         />
       </div>
 
-      <div className="rounded border border-slate-200 bg-white p-4">
-        <p className="mb-3 text-sm font-medium text-slate-700">Custo mensal (últimos 6 meses)</p>
+      <PainelGrafico titulo="Custo mensal (últimos 6 meses)" atraso={280}>
         {serieCusto.length === 0 ? (
-          <p className="text-sm text-slate-400">Sem lançamentos de custo ainda.</p>
+          <p className="text-sm text-slate-500">Sem lançamentos de custo ainda.</p>
         ) : (
           <div style={{ width: '100%', height: 240 }}>
             <ResponsiveContainer>
               <BarChart data={serieCusto} margin={{ left: 8, right: 8 }}>
-                <CartesianGrid vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} width={80} tickFormatter={(v) => formatarMoeda(v)} />
-                <Tooltip formatter={(v) => formatarMoeda(Number(v))} labelFormatter={(l) => `Competência ${l}`} />
-                <Bar dataKey="custoTotal" name="Custo total" fill="#334155" radius={[4, 4, 0, 0]} />
+                <defs>
+                  <linearGradient id="gradCusto" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#4c1d95" stopOpacity={0.5} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="competencia" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: '#64748b', fontSize: 12 }}
+                  width={80}
+                  tickFormatter={(v) => formatarMoeda(v)}
+                />
+                <Tooltip {...ESTILO_TOOLTIP} formatter={(v) => formatarMoeda(Number(v))} labelFormatter={(l) => `Competência ${l}`} />
+                <Bar dataKey="custoTotal" name="Custo total" fill="url(#gradCusto)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         )}
-      </div>
+      </PainelGrafico>
 
       <div className="mt-6 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-slate-700">Indicadores de faltas</h2>
+        <h2 className="text-sm font-medium text-slate-300">Indicadores de faltas</h2>
         <select
           value={periodo}
           onChange={(e) => setPeriodo(e.target.value as PeriodoIndicador)}
-          className="rounded border border-slate-300 px-2 py-1 text-sm text-slate-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="rounded border border-white/10 bg-slate-900/60 px-2 py-1 text-sm text-slate-300 backdrop-blur-xl focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         >
           {OPCOES_PERIODO.map((o) => (
-            <option key={o.valor} value={o.valor}>
+            <option key={o.valor} value={o.valor} className="bg-slate-900">
               {o.rotulo}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="mt-3 rounded border border-slate-200 bg-white p-4">
-        <p className="mb-3 text-sm font-medium text-slate-700">Faltas por função</p>
-        {erroFaltas ? (
-          <p className="text-sm text-red-600">{erroFaltas}</p>
-        ) : carregandoFaltas ? (
-          <p className="text-sm text-slate-400">Carregando...</p>
-        ) : dadosGraficoFuncao.length === 0 ? (
-          <p className="text-sm text-slate-400">Sem faltas registradas no período.</p>
-        ) : (
-          <div style={{ width: '100%', height: 280 }}>
-            <ResponsiveContainer>
-              <BarChart data={dadosGraficoFuncao} margin={{ left: 8, right: 8 }}>
-                <CartesianGrid vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="funcao" tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} width={32} allowDecimals={false} />
-                <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                {TIPOS_FALTA.map((tipo) => (
-                  <Bar key={tipo} dataKey={tipo} name={ROTULO_TIPO[tipo]} stackId="faltas" fill={COR_TIPO[tipo]} />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+      <div className="mt-3">
+        <PainelGrafico titulo="Faltas por função">
+          {erroFaltas ? (
+            <p className="text-sm text-red-400">{erroFaltas}</p>
+          ) : carregandoFaltas ? (
+            <p className="text-sm text-slate-500">Carregando...</p>
+          ) : dadosGraficoFuncao.length === 0 ? (
+            <p className="text-sm text-slate-500">Sem faltas registradas no período.</p>
+          ) : (
+            <div style={{ width: '100%', height: 280 }}>
+              <ResponsiveContainer>
+                <BarChart data={dadosGraficoFuncao} margin={{ left: 8, right: 8 }}>
+                  <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="funcao" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                  <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} width={32} allowDecimals={false} />
+                  <Tooltip {...ESTILO_TOOLTIP} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
+                  {TIPOS_FALTA.map((tipo) => (
+                    <Bar key={tipo} dataKey={tipo} name={ROTULO_TIPO[tipo]} stackId="faltas" fill={COR_TIPO[tipo]} />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </PainelGrafico>
       </div>
 
-      <div className="mt-3 overflow-x-auto rounded border border-slate-200 bg-white">
-        <p className="px-4 pt-4 text-sm font-medium text-slate-700">Colaboradores com mais faltas</p>
+      <div className="animar-entrada mt-3 overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
+        <p className="px-4 pt-4 text-sm font-medium text-slate-300">Colaboradores com mais faltas</p>
         <table className="mt-3 w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-white/10 text-left text-slate-500">
               <th className="px-3 py-2 font-medium">Colaborador</th>
               <th className="px-3 py-2 font-medium">Função</th>
               <th className="px-3 py-2 font-medium">Total</th>
@@ -231,26 +353,26 @@ export function Painel() {
           <tbody>
             {carregandoFaltas && (
               <tr>
-                <td colSpan={4 + TIPOS_FALTA.length} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4 + TIPOS_FALTA.length} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregandoFaltas && ranking.length === 0 && (
               <tr>
-                <td colSpan={4 + TIPOS_FALTA.length} className="px-3 py-4 text-center text-slate-400">
+                <td colSpan={4 + TIPOS_FALTA.length} className="px-3 py-4 text-center text-slate-500">
                   Sem faltas registradas no período.
                 </td>
               </tr>
             )}
             {ranking.slice(0, 10).map((r) => (
-              <tr key={r.colaboradorId} className="border-b border-slate-100 last:border-0">
-                <td className="px-3 py-2">{r.nome}</td>
-                <td className="px-3 py-2 text-slate-600">{r.funcao}</td>
-                <td className="px-3 py-2 font-medium text-slate-800">{r.total}</td>
-                <td className="px-3 py-2 text-slate-600">{r.diasPerdidos}</td>
+              <tr key={r.colaboradorId} className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/5">
+                <td className="px-3 py-2 text-slate-100">{r.nome}</td>
+                <td className="px-3 py-2 text-slate-400">{r.funcao}</td>
+                <td className="px-3 py-2 font-medium text-slate-100">{r.total}</td>
+                <td className="px-3 py-2 text-slate-400">{r.diasPerdidos}</td>
                 {TIPOS_FALTA.map((tipo) => (
-                  <td key={tipo} className="px-3 py-2 text-slate-600">
+                  <td key={tipo} className="px-3 py-2 text-slate-400">
                     {r.porTipo[tipo] || '—'}
                   </td>
                 ))}

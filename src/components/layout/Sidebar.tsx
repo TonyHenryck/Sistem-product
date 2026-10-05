@@ -301,14 +301,14 @@ export function Sidebar() {
   function badgeDoItem(item: ItemMenu) {
     if (item.badge === 'vencimentos' && contagemVencimentos > 0) {
       return (
-        <span className="ml-auto shrink-0 rounded-full bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
+        <span className="ml-auto shrink-0 rounded-full bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-300">
           {contagemVencimentos}
         </span>
       )
     }
     if (item.badge === 'headcount' && headcount > 0) {
       return (
-        <span className="ml-auto shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">
+        <span className="ml-auto shrink-0 rounded-full bg-white/10 px-1.5 py-0.5 text-xs font-medium text-slate-300">
           {headcount}
         </span>
       )
@@ -322,27 +322,27 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`relative flex h-screen flex-col border-r border-slate-200 bg-white transition-all ${
+      className={`relative z-20 flex h-screen flex-col border-r border-white/10 bg-slate-900/70 backdrop-blur-xl transition-all ${
         recolhida ? 'w-16' : 'w-60'
       }`}
     >
-      <div className="flex h-14 items-center gap-2 border-b border-slate-200 px-4">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-brand-700 text-xs font-semibold text-white">
+      <div className="flex h-14 items-center gap-2 border-b border-white/10 px-4">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-brand-600 text-xs font-semibold text-white shadow-[0_0_14px_2px_rgba(37,99,235,0.55)]">
           RH
         </span>
-        {!recolhida && <span className="truncate text-sm font-semibold text-slate-800">Sistema RH/DP</span>}
+        {!recolhida && <span className="truncate text-sm font-semibold text-slate-100">Sistema RH/DP</span>}
       </div>
 
       <button
         onClick={() => setRecolhida((valor) => !valor)}
-        className="flex h-9 items-center justify-center gap-1.5 border-b border-slate-200 text-xs text-slate-500 hover:bg-slate-50"
+        className="flex h-9 items-center justify-center gap-1.5 border-b border-white/10 text-xs text-slate-400 hover:bg-white/5"
       >
         <IconeRecolher recolhida={recolhida} />
         {!recolhida && 'Recolher'}
       </button>
 
       <nav
-        className={`flex-1 space-y-1 p-2 text-sm text-slate-600 ${recolhida ? 'overflow-visible' : 'overflow-y-auto'}`}
+        className={`flex-1 space-y-1 p-2 text-sm text-slate-300 ${recolhida ? 'overflow-visible' : 'overflow-y-auto'}`}
       >
         {GRUPOS.map((grupo) => {
           const aberto = gruposAbertos.has(grupo.chave)
@@ -354,10 +354,10 @@ export function Sidebar() {
                 <button
                   title={grupo.rotulo}
                   onClick={() => setGrupoFlutuante((atual) => (atual === grupo.chave ? null : grupo.chave))}
-                  className={`flex w-full items-center justify-center rounded p-2 ${
+                  className={`flex w-full items-center justify-center rounded p-2 transition-colors ${
                     algumAtivo || grupoFlutuante === grupo.chave
-                      ? 'bg-brand-50 text-brand-700'
-                      : 'text-slate-600 hover:bg-slate-50'
+                      ? 'bg-brand-500/15 text-brand-300 shadow-[0_0_12px_rgba(59,130,246,0.35)]'
+                      : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                   }`}
                 >
                   {grupo.icone}
@@ -366,8 +366,8 @@ export function Sidebar() {
                 {grupoFlutuante === grupo.chave && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setGrupoFlutuante(null)} />
-                    <div className="absolute left-full top-0 z-20 ml-2 w-56 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
-                      <p className="px-2 pb-1.5 pt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    <div className="animar-entrada absolute left-full top-0 z-20 ml-2 w-56 rounded-lg border border-white/10 bg-slate-900/95 p-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                      <p className="px-2 pb-1.5 pt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
                         {grupo.rotulo}
                       </p>
                       {grupo.itens.map((item) => (
@@ -377,7 +377,9 @@ export function Sidebar() {
                           end={item.rota === '/'}
                           className={({ isActive }) =>
                             `flex items-center gap-2.5 rounded px-2 py-1.5 ${
-                              isActive ? 'bg-brand-50 font-medium text-brand-700' : 'text-slate-600 hover:bg-slate-50'
+                              isActive
+                                ? 'bg-brand-500/15 font-medium text-brand-300'
+                                : 'text-slate-300 hover:bg-white/5'
                             }`
                           }
                         >
@@ -397,7 +399,7 @@ export function Sidebar() {
             <div key={grupo.chave}>
               <button
                 onClick={() => alternarGrupo(grupo.chave)}
-                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400 hover:bg-slate-50"
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500 hover:bg-white/5 hover:text-slate-300"
               >
                 {grupo.icone}
                 <span className="flex-1 text-left">{grupo.rotulo}</span>
@@ -405,15 +407,17 @@ export function Sidebar() {
               </button>
 
               {aberto && (
-                <div className="ml-[13px] space-y-0.5 border-l border-slate-100 py-0.5 pl-2.5">
+                <div className="animar-entrada ml-[13px] space-y-0.5 border-l border-white/10 py-0.5 pl-2.5">
                   {grupo.itens.map((item) => (
                     <NavLink
                       key={item.rota}
                       to={item.rota}
                       end={item.rota === '/'}
                       className={({ isActive }) =>
-                        `flex items-center gap-2.5 rounded px-2 py-1.5 text-sm ${
-                          isActive ? 'bg-brand-50 font-medium text-brand-700' : 'hover:bg-slate-50'
+                        `flex items-center gap-2.5 rounded px-2 py-1.5 text-sm transition-colors ${
+                          isActive
+                            ? 'bg-brand-500/15 font-medium text-brand-300 shadow-[0_0_10px_rgba(59,130,246,0.25)]'
+                            : 'text-slate-300 hover:bg-white/5'
                         }`
                       }
                     >
@@ -429,24 +433,24 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-slate-200">
+      <div className="border-t border-white/10">
         {recolhida ? (
           <div className="flex items-center justify-center p-2">
             <span
               title={nomeExibido}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-slate-800 text-xs font-semibold text-slate-200"
             >
               {inicial}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-2 p-2">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-slate-800 text-xs font-semibold text-slate-200">
               {inicial}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-800">{nomeExibido}</p>
-              <p className="truncate text-xs text-slate-400">
+              <p className="truncate text-sm font-medium text-slate-100">{nomeExibido}</p>
+              <p className="truncate text-xs text-slate-500">
                 {papelLabel}
                 {unidade ? ` · ${unidade.nome}` : ''}
               </p>
@@ -454,7 +458,7 @@ export function Sidebar() {
             <button
               onClick={sair}
               title="Sair"
-              className="shrink-0 rounded p-1.5 text-slate-400 hover:bg-slate-100 hover:text-red-600"
+              className="shrink-0 rounded p-1.5 text-slate-500 hover:bg-white/5 hover:text-red-400"
             >
               <IconeSair />
             </button>

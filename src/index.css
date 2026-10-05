@@ -1,3 +1,74 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100;
+  }
+}
+
+/* Fundo ambiente: dois blobs de luz se movendo devagar atras do conteudo.
+   Baixa opacidade e blur pesado - e textura, nao deve competir com o dado. */
+@keyframes aurora-um {
+  0%, 100% { transform: translate(-10%, -10%) scale(1); }
+  50% { transform: translate(10%, 5%) scale(1.15); }
+}
+@keyframes aurora-dois {
+  0%, 100% { transform: translate(5%, 10%) scale(1); }
+  50% { transform: translate(-10%, -5%) scale(1.1); }
+}
+
+.fundo-aurora {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.fundo-aurora::before,
+.fundo-aurora::after {
+  content: '';
+  position: absolute;
+  width: 50vw;
+  height: 50vw;
+  max-width: 700px;
+  max-height: 700px;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.22;
+}
+.fundo-aurora::before {
+  top: -10%;
+  left: -5%;
+  background: radial-gradient(circle, #1d4ed8, transparent 70%);
+  animation: aurora-um 22s ease-in-out infinite;
+}
+.fundo-aurora::after {
+  bottom: -15%;
+  right: -5%;
+  background: radial-gradient(circle, #7c3aed, transparent 70%);
+  animation: aurora-dois 26s ease-in-out infinite;
+}
+
+/* Grade tecnica sutil - pontos finos, quase imperceptiveis, so pra dar textura. */
+.grade-tecnica {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+@keyframes pulso-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.animar-pulso {
+  animation: pulso-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes entrada-subida {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animar-entrada {
+  animation: entrada-subida 0.45s ease-out both;
+}
