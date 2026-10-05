@@ -100,7 +100,7 @@ export interface ResumoEscalaIndividual {
   feriadosEscalados: { dataISO: string; nome: string }[]
 }
 
-function duracaoHoras(horaInicio: string, horaFim: string, viraODia: boolean): number {
+export function duracaoHoras(horaInicio: string, horaFim: string, viraODia: boolean): number {
   const [hi, mi] = horaInicio.split(':').map(Number)
   const [hf, mf] = horaFim.split(':').map(Number)
   let minutos = hf * 60 + mf - (hi * 60 + mi)

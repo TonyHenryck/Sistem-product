@@ -54,11 +54,22 @@ function parseToUnicode(cmapText: string): Map<number, string> {
     }
   }
   for (const m of cmapText.matchAll(/beginbfrange([\s\S]*?)endbfrange/g)) {
-    for (const par of m[1].matchAll(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g)) {
+    const entradaRe = /<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*(?:<([0-9A-Fa-f]+)>|\[((?:\s*<[0-9A-Fa-f]+>\s*)+)\])/g
+    for (const par of m[1].matchAll(entradaRe)) {
       const lo = parseInt(par[1], 16)
       const hi = parseInt(par[2], 16)
-      const dstLo = parseInt(par[3], 16)
-      for (let code = lo; code <= hi; code++) mapping.set(code, String.fromCharCode(dstLo + (code - lo)))
+      if (par[3] !== undefined) {
+        const dstLo = parseInt(par[3], 16)
+        for (let code = lo; code <= hi; code++) mapping.set(code, String.fromCharCode(dstLo + (code - lo)))
+      } else if (par[4] !== undefined) {
+        const destinos = [...par[4].matchAll(/<([0-9A-Fa-f]+)>/g)].map((d) => d[1])
+        for (let i = 0; i < destinos.length && lo + i <= hi; i++) {
+          const dstHex = destinos[i]
+          let chars = ''
+          for (let j = 0; j < dstHex.length; j += 4) chars += String.fromCharCode(parseInt(dstHex.slice(j, j + 4), 16))
+          mapping.set(lo + i, chars)
+        }
+      }
     }
   }
   return mapping

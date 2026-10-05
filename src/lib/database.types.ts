@@ -899,6 +899,69 @@ export interface Database {
         }
         Relationships: []
       }
+      ponto_registro_diario: {
+        Row: {
+          id: string
+          empresa_id: string
+          unidade_id: string
+          colaborador_id: string
+          data: string
+          nome_relatado: string
+          funcao_relatada: string | null
+          batidas: { tipo: 'E' | 'S'; hora: string; data: string }[]
+          registro_bruto: string
+          sem_batida_saida: boolean
+          reg_total_relatado: string | null
+          saldo_relatado: string | null
+          esperado_relatado: string | null
+          horas_trabalhadas: number | null
+          horas_esperadas: number | null
+          saldo_calculado: number | null
+          arquivo_origem: string | null
+          importado_em: string
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          unidade_id: string
+          colaborador_id: string
+          data: string
+          nome_relatado: string
+          funcao_relatada?: string | null
+          batidas?: { tipo: 'E' | 'S'; hora: string; data: string }[]
+          registro_bruto: string
+          sem_batida_saida?: boolean
+          reg_total_relatado?: string | null
+          saldo_relatado?: string | null
+          esperado_relatado?: string | null
+          horas_trabalhadas?: number | null
+          horas_esperadas?: number | null
+          saldo_calculado?: number | null
+          arquivo_origem?: string | null
+          importado_em?: string
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          unidade_id?: string
+          colaborador_id?: string
+          data?: string
+          nome_relatado?: string
+          funcao_relatada?: string | null
+          batidas?: { tipo: 'E' | 'S'; hora: string; data: string }[]
+          registro_bruto?: string
+          sem_batida_saida?: boolean
+          reg_total_relatado?: string | null
+          saldo_relatado?: string | null
+          esperado_relatado?: string | null
+          horas_trabalhadas?: number | null
+          horas_esperadas?: number | null
+          saldo_calculado?: number | null
+          arquivo_origem?: string | null
+          importado_em?: string
+        }
+        Relationships: []
+      }
       ponto_competencia: {
         Row: {
           id: string
