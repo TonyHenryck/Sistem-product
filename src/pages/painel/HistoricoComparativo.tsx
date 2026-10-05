@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-
-const ESTILO_TOOLTIP = {
-  contentStyle: { backgroundColor: '#0b1220', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 },
-  labelStyle: { color: '#94a3b8' },
-  itemStyle: { color: '#e2e8f0' },
-}
 import { useAuth } from '../../auth/useAuth'
 import { buscarSerieCustoMensal, type CustoMes } from '../../lib/painel'
 import {
@@ -15,6 +9,13 @@ import {
   type HeadcountMes,
 } from '../../lib/historicoComparativo'
 import { formatarMoeda } from '../../utils/moeda'
+
+const ESTILO_TOOLTIP = {
+  contentStyle: { backgroundColor: '#0b1220', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 },
+  labelStyle: { color: '#94a3b8' },
+  itemStyle: { color: '#e2e8f0' },
+  cursor: { fill: 'rgba(255,255,255,0.05)' },
+}
 
 function competenciaAtualStr(): string {
   const hoje = new Date()

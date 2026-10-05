@@ -154,6 +154,7 @@ const ESTILO_TOOLTIP = {
   contentStyle: { backgroundColor: '#0b1220', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 },
   labelStyle: { color: '#94a3b8' },
   itemStyle: { color: '#e2e8f0' },
+  cursor: { fill: 'rgba(255,255,255,0.05)' },
 }
 
 export function Painel() {
@@ -316,14 +317,26 @@ export function Painel() {
           ) : dadosGraficoFuncao.length === 0 ? (
             <p className="text-sm text-slate-500">Sem faltas registradas no período.</p>
           ) : (
-            <div style={{ width: '100%', height: 280 }}>
+            <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
-                <BarChart data={dadosGraficoFuncao} margin={{ left: 8, right: 8 }}>
+                <BarChart data={dadosGraficoFuncao} margin={{ left: 8, right: 8, bottom: 8 }}>
                   <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.06)" />
                   <XAxis dataKey="funcao" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                   <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} width={32} allowDecimals={false} />
                   <Tooltip {...ESTILO_TOOLTIP} />
-                  <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{
+                      fontSize: 12,
+                      color: '#94a3b8',
+                      paddingTop: 16,
+                      marginTop: 8,
+                      borderTop: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                  />
                   {TIPOS_FALTA.map((tipo) => (
                     <Bar key={tipo} dataKey={tipo} name={ROTULO_TIPO[tipo]} stackId="faltas" fill={COR_TIPO[tipo]} />
                   ))}
