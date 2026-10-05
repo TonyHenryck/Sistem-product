@@ -47,6 +47,33 @@ export async function listarDiarias(unidadeId: string): Promise<Diaria[]> {
   return data ?? []
 }
 
+// Mantém o custo_lancamento da diária em dia com o que está cadastrado aqui:
+// apaga o lançamento anterior (se houver) e recria com valor/data atuais, a
+// não ser que a diária esteja cancelada ou sem valor — assim "Custo do mês"
+// no painel reflete diárias igual já reflete nota fiscal.
+async function sincronizarCustoDiaria(diaria: Diaria): Promise<void> {
+  const { error: erroRemover } = await supabase
+    .from('custo_lancamento')
+    .delete()
+    .eq('origem', 'diaria')
+    .eq('origem_id', diaria.id)
+  if (erroRemover) throw erroRemover
+
+  if (diaria.status === 'Cancelado' || diaria.valor == null) return
+
+  const { error } = await supabase.from('custo_lancamento').insert({
+    empresa_id: diaria.empresa_id,
+    unidade_id: diaria.unidade_id,
+    competencia: diaria.data.slice(0, 7),
+    tipo: 'Variável',
+    descricao: `Diária${diaria.turno ? ` (${diaria.turno})` : ''} — ${diaria.cobriu_nome ?? 'cobertura'}`,
+    valor: diaria.valor,
+    origem: 'diaria',
+    origem_id: diaria.id,
+  })
+  if (error) throw error
+}
+
 export async function criarDiaria(
   dados: DiariaInsert,
   beneficiario?: Omit<DiariaBeneficiarioInsert, 'diaria_id' | 'empresa_id'>,
@@ -62,6 +89,8 @@ export async function criarDiaria(
     })
     if (erroBenef) throw erroBenef
   }
+
+  await sincronizarCustoDiaria(data)
 
   return data
 }
@@ -91,15 +120,23 @@ export async function atualizarDiaria(
     if (erroBenef) throw erroBenef
   }
 
+  await sincronizarCustoDiaria(data)
+
   return data
 }
 
 export async function cancelarDiaria(id: string): Promise<void> {
   const { error } = await supabase.from('diaria').update({ status: 'Cancelado' }).eq('id', id)
   if (error) throw error
+
+  const { error: erroCusto } = await supabase.from('custo_lancamento').delete().eq('origem', 'diaria').eq('origem_id', id)
+  if (erroCusto) throw erroCusto
 }
 
 export async function excluirDiaria(id: string): Promise<void> {
+  const { error: erroCusto } = await supabase.from('custo_lancamento').delete().eq('origem', 'diaria').eq('origem_id', id)
+  if (erroCusto) throw erroCusto
+
   const { error } = await supabase.from('diaria').delete().eq('id', id)
   if (error) throw error
 }
