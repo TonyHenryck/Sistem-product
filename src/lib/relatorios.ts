@@ -166,7 +166,7 @@ async function buscarRelatorioColaboradores(
     .order('nome')
 
   if (filtros.funcaoId) query = query.eq('funcao_id', filtros.funcaoId)
-  if (filtros.tipo) query = query.eq('vinculo', filtros.tipo)
+  if (filtros.tipo) query = query.eq('vinculo', filtros.tipo as 'CLT' | 'Prestador')
   if (filtros.status === 'ativo') query = query.eq('ativo', true)
   if (filtros.status === 'desligado') query = query.eq('ativo', false)
 
@@ -244,7 +244,18 @@ async function buscarRelatorioFaltas(unidadeId: string, empresaId: string, filtr
   let query = supabase.from('falta').select('*').eq('unidade_id', unidadeId).order('data', { ascending: false })
   if (filtros.dataInicio) query = query.gte('data', filtros.dataInicio)
   if (filtros.dataFim) query = query.lte('data', filtros.dataFim)
-  if (filtros.tipo) query = query.eq('tipo', filtros.tipo)
+  if (filtros.tipo) {
+    query = query.eq(
+      'tipo',
+      filtros.tipo as
+        | 'Falta injustificada'
+        | 'Atestado médico'
+        | 'Falta abonada'
+        | 'Atraso'
+        | 'Saída antecipada'
+        | 'Suspensão',
+    )
+  }
 
   const [{ data, error }, mapaColab] = await Promise.all([query, buscarMapaColaboradores(unidadeId, empresaId)])
   if (error) throw error
@@ -315,7 +326,7 @@ async function buscarRelatorioDiarias(unidadeId: string, empresaId: string, filt
   let query = supabase.from('diaria').select('*').eq('unidade_id', unidadeId).order('data', { ascending: false })
   if (filtros.dataInicio) query = query.gte('data', filtros.dataInicio)
   if (filtros.dataFim) query = query.lte('data', filtros.dataFim)
-  if (filtros.tipo) query = query.eq('turno', filtros.tipo)
+  if (filtros.tipo) query = query.eq('turno', filtros.tipo as 'Diurno' | 'Noturno')
 
   const [{ data, error }, mapaColab, { data: motivos }] = await Promise.all([
     query,
@@ -404,7 +415,7 @@ async function buscarRelatorioTrocas(unidadeId: string, empresaId: string, filtr
   let query = supabase.from('troca_turno').select('*').eq('unidade_id', unidadeId).order('data_trocada', { ascending: false })
   if (filtros.dataInicio) query = query.gte('data_trocada', filtros.dataInicio)
   if (filtros.dataFim) query = query.lte('data_trocada', filtros.dataFim)
-  if (filtros.tipo) query = query.eq('status', filtros.tipo)
+  if (filtros.tipo) query = query.eq('status', filtros.tipo as 'Devolução pendente' | 'Concluída' | 'Cancelada')
 
   const [{ data, error }, mapaColab] = await Promise.all([query, buscarMapaColaboradores(unidadeId, empresaId)])
   if (error) throw error
@@ -474,7 +485,7 @@ async function buscarRelatorioAdvertencias(
   let query = supabase.from('advertencia').select('*').eq('unidade_id', unidadeId).order('data', { ascending: false })
   if (filtros.dataInicio) query = query.gte('data', filtros.dataInicio)
   if (filtros.dataFim) query = query.lte('data', filtros.dataFim)
-  if (filtros.tipo) query = query.eq('tipo', filtros.tipo)
+  if (filtros.tipo) query = query.eq('tipo', filtros.tipo as 'Verbal' | 'Escrita' | 'Suspensão')
 
   const [{ data, error }, mapaColab] = await Promise.all([query, buscarMapaColaboradores(unidadeId, empresaId)])
   if (error) throw error
