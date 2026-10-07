@@ -290,7 +290,19 @@ async function buscarRelatorioFaltas(unidadeId: string, empresaId: string, filtr
       { chave: 'notificado', rotulo: 'Notificado' },
       { chave: 'obs', rotulo: 'Observação' },
     ],
-    linhas: linhas.map(({ dataIso: _dataIso, funcaoId: _funcaoId, ...resto }) => resto),
+    linhas: linhas.map((l) => ({
+      data: l.data,
+      colaborador: l.colaborador,
+      funcao: l.funcao,
+      tipo: l.tipo,
+      dias: l.dias,
+      tempo_perdido: l.tempo_perdido,
+      atestado: l.atestado,
+      descontar: l.descontar,
+      perde_dsr: l.perde_dsr,
+      notificado: l.notificado,
+      obs: l.obs,
+    })),
     grafico,
   }
 }
@@ -364,7 +376,22 @@ async function buscarRelatorioDiarias(unidadeId: string, empresaId: string, filt
       { chave: 'status', rotulo: 'Status' },
       { chave: 'obs', rotulo: 'Observação' },
     ],
-    linhas: linhas.map(({ colaboradorBusca: _cb, funcaoId: _fi, local: _local, ...resto }) => resto),
+    linhas: linhas.map((l) => ({
+      data: l.data,
+      turno: l.turno,
+      faltou: l.faltou,
+      motivo: l.motivo,
+      atestado: l.atestado,
+      cobriu: l.cobriu,
+      vinculo_cobriu: l.vinculo_cobriu,
+      funcao_exercida: l.funcao_exercida,
+      valor: l.valor,
+      forma_pagamento: l.forma_pagamento,
+      recibo_assinado: l.recibo_assinado,
+      autorizado_por: l.autorizado_por,
+      status: l.status,
+      obs: l.obs,
+    })),
     grafico,
   }
 }
@@ -420,7 +447,17 @@ async function buscarRelatorioTrocas(unidadeId: string, empresaId: string, filtr
       { chave: 'autorizado_por', rotulo: 'Autorizado por' },
       { chave: 'obs', rotulo: 'Observação' },
     ],
-    linhas: linhas.map(({ colaboradorBusca: _cb, funcaoId: _fi, ...resto }) => resto),
+    linhas: linhas.map((l) => ({
+      data: l.data,
+      folgou: l.folgou,
+      assumiu: l.assumiu,
+      motivo: l.motivo,
+      data_devolucao: l.data_devolucao,
+      status: l.status,
+      formalizada: l.formalizada,
+      autorizado_por: l.autorizado_por,
+      obs: l.obs,
+    })),
     grafico,
   }
 }
@@ -476,7 +513,16 @@ async function buscarRelatorioAdvertencias(
       { chave: 'testemunha', rotulo: 'Testemunha' },
       { chave: 'assinada', rotulo: 'Assinada' },
     ],
-    linhas: linhas.map(({ funcaoId: _fi, ...resto }) => resto),
+    linhas: linhas.map((l) => ({
+      data: l.data,
+      colaborador: l.colaborador,
+      funcao: l.funcao,
+      tipo: l.tipo,
+      motivo: l.motivo,
+      descricao: l.descricao,
+      testemunha: l.testemunha,
+      assinada: l.assinada,
+    })),
     grafico,
   }
 }
@@ -536,7 +582,18 @@ async function buscarRelatorioPontoDiario(
       { chave: 'esperado_relatado', rotulo: 'Esperado (FACEPONTO)' },
       { chave: 'sem_batida_saida', rotulo: 'Saída não registrada' },
     ],
-    linhas: linhas.map(({ dataIso: _di, funcaoId: _fi, ...resto }) => resto),
+    linhas: linhas.map((l) => ({
+      data: l.data,
+      colaborador: l.colaborador,
+      funcao: l.funcao,
+      horas_trabalhadas: l.horas_trabalhadas,
+      horas_esperadas: l.horas_esperadas,
+      saldo_calculado: l.saldo_calculado,
+      reg_total_relatado: l.reg_total_relatado,
+      saldo_relatado: l.saldo_relatado,
+      esperado_relatado: l.esperado_relatado,
+      sem_batida_saida: l.sem_batida_saida,
+    })),
     grafico,
   }
 }
