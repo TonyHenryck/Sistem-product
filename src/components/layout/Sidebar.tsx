@@ -96,6 +96,12 @@ const ICONE_COMPARATIVO = (
     <rect x="13" y="3" width="8" height="18" rx="1" />
   </Icone>
 )
+const ICONE_RELATORIO = (
+  <Icone>
+    <path d="M3 3v18h18" />
+    <path d="M7 16v-4M12 16V8M17 16v-7" />
+  </Icone>
+)
 const ICONE_LAMPADA = (
   <Icone>
     <path d="M9 18h6" />
@@ -206,6 +212,7 @@ const GRUPOS: GrupoMenu[] = [
       { rota: '/painel/linha-do-tempo', rotulo: 'Linha do tempo', icone: ICONE_LISTA },
       { rota: '/painel/historico-comparativo', rotulo: 'Histórico e comparativo', icone: ICONE_COMPARATIVO },
       { rota: '/painel/indicadores-decisao', rotulo: 'Indicadores e decisões', icone: ICONE_LAMPADA },
+      { rota: '/relatorios', rotulo: 'Relatórios', icone: ICONE_RELATORIO },
     ],
   },
   {
