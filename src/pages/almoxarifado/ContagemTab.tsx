@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type DragEvent } from 'react'
+import { useEffect, useRef, useState, type DragEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import {
   adicionarItemContagem,
   buscarSaldoProduto,
   criarContagem,
+  excluirContagem,
   fecharContagem,
   listarContagens,
   listarItensContagem,
@@ -172,6 +173,18 @@ export function ContagemTab() {
     setSelecionada({ ...selecionada, status: 'Fechada' })
   }
 
+  async function excluir(c: Contagem, e: ReactMouseEvent) {
+    e.stopPropagation()
+    if (!confirm(`Excluir a contagem de ${formatarData(c.data)}? Se ela já tiver sido fechada, o ajuste de estoque lançado por ela também é desfeito.`))
+      return
+    await excluirContagem(c.id)
+    if (selecionada?.id === c.id) {
+      setSelecionada(null)
+      setItens([])
+    }
+    recarregarContagens()
+  }
+
   const nomesProduto = new Map(produtos.map((p) => [p.id, p.nome]))
 
   return (
@@ -292,19 +305,20 @@ export function ContagemTab() {
                   <th className="px-3 py-2 font-medium">Data</th>
                   <th className="px-3 py-2 font-medium">Local</th>
                   <th className="px-3 py-2 font-medium">Status</th>
+                  <th className="px-3 py-2 font-medium"></th>
                 </tr>
               </thead>
               <tbody>
                 {carregando && (
                   <tr>
-                    <td colSpan={3} className="px-3 py-4 text-center text-slate-500">
+                    <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                       Carregando...
                     </td>
                   </tr>
                 )}
                 {!carregando && contagens.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-3 py-4 text-center text-slate-500">
+                    <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
                       Nenhuma contagem iniciada.
                     </td>
                   </tr>
@@ -320,6 +334,15 @@ export function ContagemTab() {
                     <td className="px-3 py-2">{formatarData(c.data)}</td>
                     <td className="px-3 py-2 text-slate-400">{c.local ?? '—'}</td>
                     <td className="px-3 py-2 text-slate-400">{c.status}</td>
+                    <td className="px-3 py-2 text-right">
+                      <button
+                        type="button"
+                        onClick={(e) => excluir(c, e)}
+                        className="text-xs text-red-400 hover:underline"
+                      >
+                        Excluir
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

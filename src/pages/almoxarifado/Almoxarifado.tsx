@@ -3,10 +3,12 @@ import { CatalogoTab } from './CatalogoTab'
 import { MovimentosTab } from './MovimentosTab'
 import { ContagemTab } from './ContagemTab'
 import { RequisicoesTab } from './RequisicoesTab'
+import { PainelTab } from './PainelTab'
 
-type Aba = 'catalogo' | 'movimentos' | 'contagem' | 'requisicoes'
+type Aba = 'painel' | 'catalogo' | 'movimentos' | 'contagem' | 'requisicoes'
 
 const ABAS: { chave: Aba; rotulo: string }[] = [
+  { chave: 'painel', rotulo: 'Painel' },
   { chave: 'catalogo', rotulo: 'Catálogo' },
   { chave: 'movimentos', rotulo: 'Movimentos' },
   { chave: 'contagem', rotulo: 'Contagem física' },
@@ -14,7 +16,7 @@ const ABAS: { chave: Aba; rotulo: string }[] = [
 ]
 
 export function Almoxarifado() {
-  const [aba, setAba] = useState<Aba>('catalogo')
+  const [aba, setAba] = useState<Aba>('painel')
 
   return (
     <div>
@@ -36,6 +38,7 @@ export function Almoxarifado() {
         ))}
       </div>
 
+      {aba === 'painel' && <PainelTab />}
       {aba === 'catalogo' && <CatalogoTab />}
       {aba === 'movimentos' && <MovimentosTab />}
       {aba === 'contagem' && <ContagemTab />}

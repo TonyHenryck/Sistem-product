@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import {
   atualizarCategoriaProduto,
+  atualizarProdutoCategoria,
+  atualizarProdutoUnidade,
   atualizarUnidadeMedida,
   buscarSaldos,
   criarCategoriaProduto,
@@ -16,6 +18,7 @@ import {
   type Produto,
   type UnidadeMedida,
 } from '../../lib/almoxarifado'
+import { formatarQtd } from '../../utils/numero'
 
 const vazio = { codigo: '', nome: '', categoriaId: '', unidadeMedidaId: '' }
 
@@ -74,7 +77,6 @@ export function CatalogoTab() {
       .finally(() => setCarregando(false))
   }
 
-  const nomeCategoria = useMemo(() => new Map(categorias.map((c) => [c.id, c.nome])), [categorias])
   const siglaUnidade = useMemo(() => new Map(unidadesMedida.map((u) => [u.id, u.sigla])), [unidadesMedida])
 
   async function salvarNovaCategoria() {
@@ -168,6 +170,26 @@ export function CatalogoTab() {
       recarregar()
     } catch (e) {
       setErroUnidades(e instanceof Error ? e.message : 'Erro ao remover unidade de medida.')
+    }
+  }
+
+  async function mudarCategoriaProduto(produtoId: string, categoriaId: string) {
+    setErro(null)
+    try {
+      await atualizarProdutoCategoria(produtoId, categoriaId || null)
+      recarregar()
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao atualizar categoria do produto.')
+    }
+  }
+
+  async function mudarUnidadeProduto(produtoId: string, unidadeMedidaId: string) {
+    setErro(null)
+    try {
+      await atualizarProdutoUnidade(produtoId, unidadeMedidaId || null)
+      recarregar()
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao atualizar unidade do produto.')
     }
   }
 
@@ -456,20 +478,21 @@ export function CatalogoTab() {
               <th className="px-3 py-2 font-medium">Código</th>
               <th className="px-3 py-2 font-medium">Nome</th>
               <th className="px-3 py-2 font-medium">Categoria</th>
+              <th className="px-3 py-2 font-medium">Unidade</th>
               <th className="px-3 py-2 font-medium">Saldo</th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
+                <td colSpan={5} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && produtos.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-4 text-center text-slate-500">
+                <td colSpan={5} className="px-3 py-4 text-center text-slate-500">
                   Nenhum produto cadastrado.
                 </td>
               </tr>
@@ -478,11 +501,37 @@ export function CatalogoTab() {
               <tr key={p.id} className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2 text-slate-400">{p.codigo ?? '—'}</td>
                 <td className="px-3 py-2">{p.nome}</td>
-                <td className="px-3 py-2 text-slate-400">
-                  {p.categoria_id ? (nomeCategoria.get(p.categoria_id) ?? '—') : (p.categoria ?? '—')}
+                <td className="px-3 py-2">
+                  <select
+                    value={p.categoria_id ?? ''}
+                    onChange={(e) => mudarCategoriaProduto(p.id, e.target.value)}
+                    className={`${inputCls} min-w-[9rem]`}
+                  >
+                    <option value="">{p.categoria_id ? '—' : (p.categoria ?? '—')}</option>
+                    {categorias.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nome}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="px-3 py-2">
+                  <select
+                    value={p.unidade_medida_id ?? ''}
+                    onChange={(e) => mudarUnidadeProduto(p.id, e.target.value)}
+                    className={`${inputCls} min-w-[8rem]`}
+                  >
+                    <option value="">{p.unidade_medida_id ? '—' : (p.unidade_medida ?? '—')}</option>
+                    {unidadesMedida.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.nome} ({u.sigla})
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td className="px-3 py-2 text-slate-400">
-                  {saldos.get(p.id) ?? 0} {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '—') : (p.unidade_medida ?? '')}
+                  {formatarQtd(saldos.get(p.id) ?? 0)}{' '}
+                  {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '') : (p.unidade_medida ?? '')}
                 </td>
               </tr>
             ))}

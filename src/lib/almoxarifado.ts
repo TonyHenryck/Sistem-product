@@ -103,6 +103,16 @@ export async function criarProduto(dados: ProdutoInsert): Promise<Produto> {
   return data
 }
 
+export async function atualizarProdutoCategoria(id: string, categoriaId: string | null): Promise<void> {
+  const { error } = await supabase.from('produto').update({ categoria_id: categoriaId }).eq('id', id)
+  if (error) throw error
+}
+
+export async function atualizarProdutoUnidade(id: string, unidadeMedidaId: string | null): Promise<void> {
+  const { error } = await supabase.from('produto').update({ unidade_medida_id: unidadeMedidaId }).eq('id', id)
+  if (error) throw error
+}
+
 export async function buscarSaldos(unidadeId: string): Promise<Map<string, number>> {
   const { data, error } = await supabase
     .from('v_saldo_produto')
@@ -140,6 +150,21 @@ export async function criarMovimento(dados: MovimentoEstoqueInsert): Promise<Mov
   const { data, error } = await supabase.from('movimento_estoque').insert(dados).select().single()
   if (error) throw error
   return data
+}
+
+export async function buscarMovimentosPeriodo(
+  unidadeId: string,
+  dataInicio: string,
+  dataFim: string,
+): Promise<MovimentoEstoque[]> {
+  const { data, error } = await supabase
+    .from('movimento_estoque')
+    .select('*')
+    .eq('unidade_id', unidadeId)
+    .gte('data', dataInicio)
+    .lte('data', dataFim)
+  if (error) throw error
+  return data ?? []
 }
 
 // ---------- contagem ----------
@@ -192,6 +217,21 @@ export async function fecharContagem(id: string): Promise<void> {
     .from('contagem')
     .update({ status: 'Fechada', fechada_em: new Date().toISOString() })
     .eq('id', id)
+  if (error) throw error
+}
+
+// Apaga a contagem (contagem_item cai junto via cascade) e desfaz qualquer
+// ajuste de estoque que ela tenha lançado ao ser fechada — pra limpar
+// contagem de teste sem deixar saldo errado pra trás.
+export async function excluirContagem(id: string): Promise<void> {
+  const { error: erroAjuste } = await supabase
+    .from('movimento_estoque')
+    .delete()
+    .eq('origem', 'contagem')
+    .eq('origem_id', id)
+  if (erroAjuste) throw erroAjuste
+
+  const { error } = await supabase.from('contagem').delete().eq('id', id)
   if (error) throw error
 }
 
