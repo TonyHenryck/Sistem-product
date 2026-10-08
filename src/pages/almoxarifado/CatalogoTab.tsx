@@ -10,6 +10,7 @@ import {
   buscarSaldos,
   criarCategoriaProduto,
   criarEmbalagem,
+  criarMovimento,
   criarProduto,
   criarUnidadeMedida,
   excluirCategoriaProduto,
@@ -70,6 +71,10 @@ export function CatalogoTab() {
   const [novaEmbalagemQtd, setNovaEmbalagemQtd] = useState('')
   const [salvandoEmbalagem, setSalvandoEmbalagem] = useState(false)
   const [erroEmbalagem, setErroEmbalagem] = useState<string | null>(null)
+
+  const [entradaEmbalagemId, setEntradaEmbalagemId] = useState('')
+  const [entradaQtdPacotes, setEntradaQtdPacotes] = useState('')
+  const [salvandoEntrada, setSalvandoEntrada] = useState(false)
 
   useEffect(() => {
     recarregar()
@@ -206,7 +211,37 @@ export function CatalogoTab() {
     setErroEmbalagem(null)
     setNovaEmbalagemNome('')
     setNovaEmbalagemQtd('')
+    setEntradaEmbalagemId('')
+    setEntradaQtdPacotes('')
     recarregarEmbalagens(produtoId)
+  }
+
+  async function registrarEntradaEmbalagem(p: Produto) {
+    if (!unidade) return
+    const embalagem = (embalagensPorProduto[p.id] ?? []).find((e) => e.id === entradaEmbalagemId)
+    const qtdPacotes = Number(entradaQtdPacotes.replace(',', '.'))
+    if (!embalagem || !qtdPacotes || qtdPacotes <= 0) return
+    setSalvandoEntrada(true)
+    setErroEmbalagem(null)
+    try {
+      await criarMovimento({
+        empresa_id: unidade.empresa_id,
+        unidade_id: unidade.id,
+        produto_id: p.id,
+        data: new Date().toISOString().slice(0, 10),
+        tipo: 'Entrada',
+        qtd: qtdPacotes * embalagem.qtd_por_embalagem,
+        origem: 'manual',
+        obs: `Entrada de ${qtdPacotes} ${embalagem.nome}`,
+      })
+      setEntradaEmbalagemId('')
+      setEntradaQtdPacotes('')
+      recarregar()
+    } catch (e) {
+      setErroEmbalagem(e instanceof Error ? e.message : 'Erro ao registrar entrada.')
+    } finally {
+      setSalvandoEntrada(false)
+    }
   }
 
   async function salvarNovaEmbalagem(produtoId: string) {
@@ -695,6 +730,56 @@ export function CatalogoTab() {
                         <p className="text-sm text-slate-500">Nenhuma embalagem cadastrada — conta e lança direto na unidade base.</p>
                       )}
                     </div>
+
+                    {(embalagensPorProduto[p.id] ?? []).length > 0 && (
+                      <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-white/5 pt-3">
+                        <div>
+                          <label className="mb-1 block text-xs text-slate-500">Dar entrada por embalagem</label>
+                          <select
+                            value={entradaEmbalagemId}
+                            onChange={(e) => setEntradaEmbalagemId(e.target.value)}
+                            className={`${inputCls} max-w-[12rem]`}
+                          >
+                            <option value="">Selecione</option>
+                            {(embalagensPorProduto[p.id] ?? []).map((emb) => (
+                              <option key={emb.id} value={emb.id}>
+                                {emb.nome}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="w-24">
+                          <label className="mb-1 block text-xs text-slate-500">Qtd. pacotes</label>
+                          <input
+                            type="number"
+                            step="1"
+                            value={entradaQtdPacotes}
+                            onChange={(e) => setEntradaQtdPacotes(e.target.value)}
+                            className={inputCls}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => registrarEntradaEmbalagem(p)}
+                          disabled={salvandoEntrada || !entradaEmbalagemId || !entradaQtdPacotes}
+                          className="shrink-0 rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
+                        >
+                          {salvandoEntrada ? 'Registrando...' : 'Registrar entrada'}
+                        </button>
+                        {entradaEmbalagemId && entradaQtdPacotes && (() => {
+                          const embSel = (embalagensPorProduto[p.id] ?? []).find((e) => e.id === entradaEmbalagemId)
+                          if (!embSel) return null
+                          const total = Number(entradaQtdPacotes.replace(',', '.')) * embSel.qtd_por_embalagem
+                          const sigla = p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '') : (p.unidade_medida ?? '')
+                          return (
+                            <span className="pb-1.5 text-xs text-slate-500">
+                              = {formatarQtd(total)} {sigla}
+                            </span>
+                          )
+                        })()}
+                      </div>
+                    )}
+
                     <div className="mt-3 flex items-center gap-2 border-t border-white/5 pt-3">
                       <input
                         value={novaEmbalagemNome}
