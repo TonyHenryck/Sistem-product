@@ -160,7 +160,34 @@ export async function criarContagem(dados: ContagemInsert): Promise<Contagem> {
   return data
 }
 
+// Fechar a contagem lança em movimento_estoque o ajuste de cada item com
+// diferença (qtd_contada - qtd_sistema): é isso que faz o saldo real
+// (v_saldo_produto, somado a partir de movimento_estoque) refletir o que
+// foi contado, e não só guardar o número pra conferência.
 export async function fecharContagem(id: string): Promise<void> {
+  const { data: contagem, error: erroContagem } = await supabase.from('contagem').select('*').eq('id', id).single()
+  if (erroContagem) throw erroContagem
+
+  const itens = await listarItensContagem(id)
+  const ajustes = itens
+    .filter((i) => i.diferenca != null && i.diferenca !== 0)
+    .map((i) => ({
+      empresa_id: contagem.empresa_id,
+      unidade_id: contagem.unidade_id,
+      produto_id: i.produto_id,
+      data: contagem.data,
+      tipo: 'Ajuste' as const,
+      qtd: i.diferenca as number,
+      origem: 'contagem',
+      origem_id: contagem.id,
+      obs: 'Ajuste de estoque pela contagem física.',
+    }))
+
+  if (ajustes.length > 0) {
+    const { error: erroAjuste } = await supabase.from('movimento_estoque').insert(ajustes)
+    if (erroAjuste) throw erroAjuste
+  }
+
   const { error } = await supabase
     .from('contagem')
     .update({ status: 'Fechada', fechada_em: new Date().toISOString() })
