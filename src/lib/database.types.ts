@@ -1150,6 +1150,7 @@ export interface Database {
           categoria: string | null
           categoria_id: string | null
           unidade_medida: string | null
+          unidade_medida_id: string | null
           ativo: boolean
         }
         Insert: {
@@ -1160,6 +1161,7 @@ export interface Database {
           categoria?: string | null
           categoria_id?: string | null
           unidade_medida?: string | null
+          unidade_medida_id?: string | null
           ativo?: boolean
         }
         Update: {
@@ -1170,6 +1172,7 @@ export interface Database {
           categoria?: string | null
           categoria_id?: string | null
           unidade_medida?: string | null
+          unidade_medida_id?: string | null
           ativo?: boolean
         }
         Relationships: []
@@ -1178,6 +1181,12 @@ export interface Database {
         Row: { id: string; empresa_id: string; nome: string; ativo: boolean }
         Insert: { id?: string; empresa_id: string; nome: string; ativo?: boolean }
         Update: { id?: string; empresa_id?: string; nome?: string; ativo?: boolean }
+        Relationships: []
+      }
+      cat_unidade_medida: {
+        Row: { id: string; empresa_id: string; nome: string; sigla: string; ativo: boolean }
+        Insert: { id?: string; empresa_id: string; nome: string; sigla: string; ativo?: boolean }
+        Update: { id?: string; empresa_id?: string; nome?: string; sigla?: string; ativo?: boolean }
         Relationships: []
       }
       movimento_estoque: {

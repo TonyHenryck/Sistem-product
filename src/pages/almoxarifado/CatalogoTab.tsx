@@ -2,17 +2,22 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import {
   atualizarCategoriaProduto,
+  atualizarUnidadeMedida,
   buscarSaldos,
   criarCategoriaProduto,
   criarProduto,
+  criarUnidadeMedida,
   excluirCategoriaProduto,
+  excluirUnidadeMedida,
   listarCategoriasProduto,
   listarProdutos,
+  listarUnidadesMedida,
   type CategoriaProduto,
   type Produto,
+  type UnidadeMedida,
 } from '../../lib/almoxarifado'
 
-const vazio = { codigo: '', nome: '', categoriaId: '', unidadeMedida: '' }
+const vazio = { codigo: '', nome: '', categoriaId: '', unidadeMedidaId: '' }
 
 const inputCls =
   'w-full rounded border border-white/10 px-2 py-1.5 text-sm bg-slate-900 text-slate-100 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400'
@@ -23,6 +28,7 @@ export function CatalogoTab() {
 
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([])
+  const [unidadesMedida, setUnidadesMedida] = useState<UnidadeMedida[]>([])
   const [saldos, setSaldos] = useState<Map<string, number>>(new Map())
   const [carregando, setCarregando] = useState(true)
   const [form, setForm] = useState(vazio)
@@ -37,6 +43,15 @@ export function CatalogoTab() {
   const [edicoesCategorias, setEdicoesCategorias] = useState<Record<string, string>>({})
   const [erroCategorias, setErroCategorias] = useState<string | null>(null)
 
+  const [mostrarNovaUnidade, setMostrarNovaUnidade] = useState(false)
+  const [novaUnidadeNome, setNovaUnidadeNome] = useState('')
+  const [novaUnidadeSigla, setNovaUnidadeSigla] = useState('')
+  const [salvandoUnidade, setSalvandoUnidade] = useState(false)
+
+  const [gerenciandoUnidades, setGerenciandoUnidades] = useState(false)
+  const [edicoesUnidades, setEdicoesUnidades] = useState<Record<string, { nome: string; sigla: string }>>({})
+  const [erroUnidades, setErroUnidades] = useState<string | null>(null)
+
   useEffect(() => {
     recarregar()
   }, [unidade])
@@ -48,16 +63,19 @@ export function CatalogoTab() {
       listarProdutos(unidade.empresa_id),
       buscarSaldos(unidade.id),
       listarCategoriasProduto(unidade.empresa_id),
+      listarUnidadesMedida(unidade.empresa_id),
     ])
-      .then(([p, s, c]) => {
+      .then(([p, s, c, u]) => {
         setProdutos(p)
         setSaldos(s)
         setCategorias(c)
+        setUnidadesMedida(u)
       })
       .finally(() => setCarregando(false))
   }
 
   const nomeCategoria = useMemo(() => new Map(categorias.map((c) => [c.id, c.nome])), [categorias])
+  const siglaUnidade = useMemo(() => new Map(unidadesMedida.map((u) => [u.id, u.sigla])), [unidadesMedida])
 
   async function salvarNovaCategoria() {
     if (!unidade || !novaCategoria.trim()) return
@@ -105,6 +123,54 @@ export function CatalogoTab() {
     }
   }
 
+  async function salvarNovaUnidade() {
+    if (!unidade || !novaUnidadeNome.trim() || !novaUnidadeSigla.trim()) return
+    setSalvandoUnidade(true)
+    try {
+      const criada = await criarUnidadeMedida(unidade.empresa_id, novaUnidadeNome.trim(), novaUnidadeSigla.trim())
+      setUnidadesMedida((atual) => [...atual, criada].sort((a, b) => a.nome.localeCompare(b.nome)))
+      setForm((f) => ({ ...f, unidadeMedidaId: criada.id }))
+      setNovaUnidadeNome('')
+      setNovaUnidadeSigla('')
+      setMostrarNovaUnidade(false)
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao criar unidade de medida.')
+    } finally {
+      setSalvandoUnidade(false)
+    }
+  }
+
+  function abrirGerenciarUnidades() {
+    setEdicoesUnidades(Object.fromEntries(unidadesMedida.map((u) => [u.id, { nome: u.nome, sigla: u.sigla }])))
+    setErroUnidades(null)
+    setGerenciandoUnidades(true)
+  }
+
+  async function salvarEdicaoUnidade(id: string) {
+    const edicao = edicoesUnidades[id]
+    const atual = unidadesMedida.find((u) => u.id === id)
+    if (!edicao || !edicao.nome.trim() || !edicao.sigla.trim()) return
+    if (edicao.nome === atual?.nome && edicao.sigla === atual?.sigla) return
+    setErroUnidades(null)
+    try {
+      await atualizarUnidadeMedida(id, edicao.nome.trim(), edicao.sigla.trim())
+      recarregar()
+    } catch (e) {
+      setErroUnidades(e instanceof Error ? e.message : 'Erro ao editar unidade de medida.')
+    }
+  }
+
+  async function removerUnidade(unidadeMedida: UnidadeMedida) {
+    if (!confirm(`Remover a unidade "${unidadeMedida.nome}"? Produtos que usam ela ficam sem unidade.`)) return
+    setErroUnidades(null)
+    try {
+      await excluirUnidadeMedida(unidadeMedida.id)
+      recarregar()
+    } catch (e) {
+      setErroUnidades(e instanceof Error ? e.message : 'Erro ao remover unidade de medida.')
+    }
+  }
+
   async function salvar() {
     if (!unidade || !form.nome) {
       setErro('Nome é obrigatório.')
@@ -118,7 +184,7 @@ export function CatalogoTab() {
         codigo: form.codigo || null,
         nome: form.nome,
         categoria_id: form.categoriaId || null,
-        unidade_medida: form.unidadeMedida || null,
+        unidade_medida_id: form.unidadeMedidaId || null,
       })
       setForm(vazio)
       recarregar()
@@ -193,7 +259,58 @@ export function CatalogoTab() {
           </div>
           <div>
             <label className="mb-1 block text-xs text-slate-500">Unidade</label>
-            <input value={form.unidadeMedida} onChange={(e) => setForm({ ...form, unidadeMedida: e.target.value })} className={inputCls} placeholder="kg, un, lt..." />
+            <div className="flex gap-1">
+              <select
+                value={form.unidadeMedidaId}
+                onChange={(e) => setForm({ ...form, unidadeMedidaId: e.target.value })}
+                className={inputCls}
+              >
+                <option value="">—</option>
+                {unidadesMedida.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.nome} ({u.sigla})
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setMostrarNovaUnidade((v) => !v)}
+                className="shrink-0 rounded border border-white/10 px-2 text-sm text-slate-400 hover:bg-white/5"
+              >
+                +
+              </button>
+            </div>
+            {mostrarNovaUnidade && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  value={novaUnidadeNome}
+                  onChange={(e) => setNovaUnidadeNome(e.target.value)}
+                  placeholder="Nome (ex: Quilograma)"
+                  className={inputCls}
+                />
+                <input
+                  value={novaUnidadeSigla}
+                  onChange={(e) => setNovaUnidadeSigla(e.target.value)}
+                  placeholder="Sigla (ex: kg)"
+                  className={`${inputCls} max-w-[6rem]`}
+                />
+                <button
+                  type="button"
+                  onClick={salvarNovaUnidade}
+                  disabled={salvandoUnidade || !novaUnidadeNome.trim() || !novaUnidadeSigla.trim()}
+                  className="shrink-0 rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
+                >
+                  Ok
+                </button>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={abrirGerenciarUnidades}
+              className="mt-2 text-xs text-slate-500 hover:text-slate-300 hover:underline"
+            >
+              Gerenciar unidades
+            </button>
           </div>
         </div>
         {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
@@ -261,6 +378,77 @@ export function CatalogoTab() {
         </div>
       )}
 
+      {gerenciandoUnidades && (
+        <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-medium text-slate-300">Unidades de medida</p>
+            <button
+              type="button"
+              onClick={() => setGerenciandoUnidades(false)}
+              className="text-xs text-slate-500 hover:text-slate-300"
+            >
+              Fechar
+            </button>
+          </div>
+
+          {erroUnidades && <p className="mb-2 text-sm text-red-400">{erroUnidades}</p>}
+
+          <div className="space-y-2">
+            {unidadesMedida.map((u) => (
+              <div key={u.id} className="flex items-center gap-2">
+                <input
+                  value={edicoesUnidades[u.id]?.nome ?? ''}
+                  onChange={(e) =>
+                    setEdicoesUnidades({ ...edicoesUnidades, [u.id]: { ...edicoesUnidades[u.id], nome: e.target.value } })
+                  }
+                  onBlur={() => salvarEdicaoUnidade(u.id)}
+                  className={`${inputCls} max-w-xs`}
+                />
+                <input
+                  value={edicoesUnidades[u.id]?.sigla ?? ''}
+                  onChange={(e) =>
+                    setEdicoesUnidades({ ...edicoesUnidades, [u.id]: { ...edicoesUnidades[u.id], sigla: e.target.value } })
+                  }
+                  onBlur={() => salvarEdicaoUnidade(u.id)}
+                  className={`${inputCls} max-w-[6rem]`}
+                />
+                <button
+                  type="button"
+                  onClick={() => removerUnidade(u)}
+                  className="shrink-0 text-xs text-red-400 hover:underline"
+                >
+                  Remover
+                </button>
+              </div>
+            ))}
+            {unidadesMedida.length === 0 && <p className="text-sm text-slate-500">Nenhuma unidade cadastrada.</p>}
+          </div>
+
+          <div className="mt-3 flex gap-2 border-t border-white/5 pt-3">
+            <input
+              value={novaUnidadeNome}
+              onChange={(e) => setNovaUnidadeNome(e.target.value)}
+              placeholder="Nome (ex: Quilograma)"
+              className={`${inputCls} max-w-xs`}
+            />
+            <input
+              value={novaUnidadeSigla}
+              onChange={(e) => setNovaUnidadeSigla(e.target.value)}
+              placeholder="Sigla (ex: kg)"
+              className={`${inputCls} max-w-[6rem]`}
+            />
+            <button
+              type="button"
+              onClick={salvarNovaUnidade}
+              disabled={salvandoUnidade || !novaUnidadeNome.trim() || !novaUnidadeSigla.trim()}
+              className="shrink-0 rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
+            >
+              Adicionar
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">
           <thead>
@@ -294,7 +482,7 @@ export function CatalogoTab() {
                   {p.categoria_id ? (nomeCategoria.get(p.categoria_id) ?? '—') : (p.categoria ?? '—')}
                 </td>
                 <td className="px-3 py-2 text-slate-400">
-                  {saldos.get(p.id) ?? 0} {p.unidade_medida}
+                  {saldos.get(p.id) ?? 0} {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '—') : (p.unidade_medida ?? '')}
                 </td>
               </tr>
             ))}

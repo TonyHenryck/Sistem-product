@@ -11,6 +11,7 @@ export type ContagemItem = Database['public']['Tables']['contagem_item']['Row']
 export type Requisicao = Database['public']['Tables']['requisicao']['Row']
 export type RequisicaoInsert = Database['public']['Tables']['requisicao']['Insert']
 export type CategoriaProduto = Database['public']['Tables']['cat_categoria_produto']['Row']
+export type UnidadeMedida = Database['public']['Tables']['cat_unidade_medida']['Row']
 
 // ---------- produto / saldo ----------
 
@@ -58,6 +59,41 @@ export async function atualizarCategoriaProduto(id: string, nome: string): Promi
 // de quem já usava essa categoria não quebra.
 export async function excluirCategoriaProduto(id: string): Promise<void> {
   const { error } = await supabase.from('cat_categoria_produto').update({ ativo: false }).eq('id', id)
+  if (error) throw error
+}
+
+export async function listarUnidadesMedida(empresaId: string): Promise<UnidadeMedida[]> {
+  const { data, error } = await supabase
+    .from('cat_unidade_medida')
+    .select('*')
+    .eq('empresa_id', empresaId)
+    .eq('ativo', true)
+    .order('nome')
+  if (error) throw error
+  return data ?? []
+}
+
+// Upsert por (empresa_id, nome): se já existia uma unidade com esse nome
+// desativada (excluída antes), reativa em vez de bater no unique e falhar.
+export async function criarUnidadeMedida(empresaId: string, nome: string, sigla: string): Promise<UnidadeMedida> {
+  const { data, error } = await supabase
+    .from('cat_unidade_medida')
+    .upsert({ empresa_id: empresaId, nome, sigla, ativo: true }, { onConflict: 'empresa_id,nome' })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function atualizarUnidadeMedida(id: string, nome: string, sigla: string): Promise<void> {
+  const { error } = await supabase.from('cat_unidade_medida').update({ nome, sigla }).eq('id', id)
+  if (error) throw error
+}
+
+// Soft delete (ativo = false) — FK de produto.unidade_medida_id não tem
+// cascade, então some da lista, mas o histórico de quem já usava não quebra.
+export async function excluirUnidadeMedida(id: string): Promise<void> {
+  const { error } = await supabase.from('cat_unidade_medida').update({ ativo: false }).eq('id', id)
   if (error) throw error
 }
 
