@@ -240,8 +240,8 @@ const GRUPOS: GrupoMenu[] = [
     rotulo: 'Almoxarifado',
     icone: ICONE_CAIXA,
     itens: [
-      { rota: '/almoxarifado', rotulo: 'Almoxarifado', icone: ICONE_CAIXA },
-      { rota: '/estoque', rotulo: 'Estoque', icone: ICONE_CAMADAS },
+      { rota: '/almoxarifado', rotulo: 'Gêneros alimentícios', icone: ICONE_CAIXA },
+      { rota: '/estoque', rotulo: 'Material de escritório', icone: ICONE_CAMADAS },
       { rota: '/nota-fiscal', rotulo: 'Nota fiscal', icone: ICONE_NOTA },
     ],
   },

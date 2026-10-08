@@ -18,7 +18,7 @@ export function Almoxarifado() {
 
   return (
     <div>
-      <h1 className="mb-4 text-lg font-semibold text-slate-100">Almoxarifado</h1>
+      <h1 className="mb-4 text-lg font-semibold text-slate-100">Almoxarifado — gêneros alimentícios</h1>
 
       <div className="mb-4 flex gap-1 border-b border-white/10">
         {ABAS.map((a) => (
