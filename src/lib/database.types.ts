@@ -1189,6 +1189,33 @@ export interface Database {
         Update: { id?: string; empresa_id?: string; nome?: string; sigla?: string; ativo?: boolean }
         Relationships: []
       }
+      cat_produto_embalagem: {
+        Row: {
+          id: string
+          empresa_id: string
+          produto_id: string
+          nome: string
+          qtd_por_embalagem: number
+          ativo: boolean
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          produto_id: string
+          nome: string
+          qtd_por_embalagem: number
+          ativo?: boolean
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          produto_id?: string
+          nome?: string
+          qtd_por_embalagem?: number
+          ativo?: boolean
+        }
+        Relationships: []
+      }
       movimento_estoque: {
         Row: {
           id: string

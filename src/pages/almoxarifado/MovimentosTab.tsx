@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
-import { criarMovimento, listarMovimentos, listarProdutos, type MovimentoEstoque, type MovimentoEstoqueInsert, type Produto } from '../../lib/almoxarifado'
+import {
+  criarMovimento,
+  listarEmbalagens,
+  listarMovimentos,
+  listarProdutos,
+  type MovimentoEstoque,
+  type MovimentoEstoqueInsert,
+  type Produto,
+  type ProdutoEmbalagem,
+} from '../../lib/almoxarifado'
 import { formatarData } from '../../utils/data'
 
 const TIPOS: MovimentoEstoqueInsert['tipo'][] = ['Entrada', 'Saída', 'Ajuste', 'Perda', 'Transferência']
@@ -30,11 +39,32 @@ export function MovimentosTab() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
+  const [embalagens, setEmbalagens] = useState<ProdutoEmbalagem[]>([])
+  const [embalagemId, setEmbalagemId] = useState('')
+  const [qtdEmbalagens, setQtdEmbalagens] = useState('')
+
   useEffect(() => {
     if (!unidade) return
     listarProdutos(unidade.empresa_id).then(setProdutos)
     recarregar()
   }, [unidade])
+
+  useEffect(() => {
+    setEmbalagemId('')
+    setQtdEmbalagens('')
+    if (!form.produtoId) {
+      setEmbalagens([])
+      return
+    }
+    listarEmbalagens(form.produtoId).then(setEmbalagens)
+  }, [form.produtoId])
+
+  function aplicarEmbalagem(embId: string, qtdEmb: string) {
+    const embalagem = embalagens.find((e) => e.id === embId)
+    if (!embalagem || !qtdEmb) return
+    const qtd = Number(qtdEmb.replace(',', '.')) * embalagem.qtd_por_embalagem
+    if (qtd > 0) setForm((f) => ({ ...f, qtd: String(qtd) }))
+  }
 
   function recarregar() {
     if (!unidade) return
@@ -65,6 +95,8 @@ export function MovimentosTab() {
         obs: form.obs || null,
       })
       setForm(vazio)
+      setEmbalagemId('')
+      setQtdEmbalagens('')
       recarregar()
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao salvar.')
@@ -118,6 +150,41 @@ export function MovimentosTab() {
             <label className="mb-1 block text-xs text-slate-500">Quantidade</label>
             <input type="number" step="0.001" value={form.qtd} onChange={(e) => setForm({ ...form, qtd: e.target.value })} className={inputCls} />
           </div>
+          {embalagens.length > 0 && (
+            <div className="col-span-2 flex items-end gap-2">
+              <div className="flex-1">
+                <label className="mb-1 block text-xs text-slate-500">Ou lançar por embalagem</label>
+                <select
+                  value={embalagemId}
+                  onChange={(e) => {
+                    setEmbalagemId(e.target.value)
+                    aplicarEmbalagem(e.target.value, qtdEmbalagens)
+                  }}
+                  className={inputCls}
+                >
+                  <option value="">Selecione</option>
+                  {embalagens.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-28">
+                <label className="mb-1 block text-xs text-slate-500">Qtd. embalagens</label>
+                <input
+                  type="number"
+                  step="1"
+                  value={qtdEmbalagens}
+                  onChange={(e) => {
+                    setQtdEmbalagens(e.target.value)
+                    aplicarEmbalagem(embalagemId, e.target.value)
+                  }}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-xs text-slate-500">Local</label>
             <input value={form.local} onChange={(e) => setForm({ ...form, local: e.target.value })} className={inputCls} />

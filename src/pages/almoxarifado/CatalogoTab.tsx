@@ -1,22 +1,27 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import {
   atualizarCategoriaProduto,
+  atualizarEmbalagem,
   atualizarProdutoCategoria,
   atualizarProdutoNome,
   atualizarProdutoUnidade,
   atualizarUnidadeMedida,
   buscarSaldos,
   criarCategoriaProduto,
+  criarEmbalagem,
   criarProduto,
   criarUnidadeMedida,
   excluirCategoriaProduto,
+  excluirEmbalagem,
   excluirUnidadeMedida,
   listarCategoriasProduto,
+  listarEmbalagens,
   listarProdutos,
   listarUnidadesMedida,
   type CategoriaProduto,
   type Produto,
+  type ProdutoEmbalagem,
   type UnidadeMedida,
 } from '../../lib/almoxarifado'
 import { formatarQtd } from '../../utils/numero'
@@ -57,6 +62,14 @@ export function CatalogoTab() {
   const [erroUnidades, setErroUnidades] = useState<string | null>(null)
 
   const [edicoesNomeProduto, setEdicoesNomeProduto] = useState<Record<string, string>>({})
+
+  const [embalagemAberta, setEmbalagemAberta] = useState<string | null>(null)
+  const [embalagensPorProduto, setEmbalagensPorProduto] = useState<Record<string, ProdutoEmbalagem[]>>({})
+  const [edicoesEmbalagem, setEdicoesEmbalagem] = useState<Record<string, { nome: string; qtd: string }>>({})
+  const [novaEmbalagemNome, setNovaEmbalagemNome] = useState('')
+  const [novaEmbalagemQtd, setNovaEmbalagemQtd] = useState('')
+  const [salvandoEmbalagem, setSalvandoEmbalagem] = useState(false)
+  const [erroEmbalagem, setErroEmbalagem] = useState<string | null>(null)
 
   useEffect(() => {
     recarregar()
@@ -174,6 +187,67 @@ export function CatalogoTab() {
       recarregar()
     } catch (e) {
       setErroUnidades(e instanceof Error ? e.message : 'Erro ao remover unidade de medida.')
+    }
+  }
+
+  function recarregarEmbalagens(produtoId: string) {
+    listarEmbalagens(produtoId).then((lista) => {
+      setEmbalagensPorProduto((atual) => ({ ...atual, [produtoId]: lista }))
+      setEdicoesEmbalagem(Object.fromEntries(lista.map((e) => [e.id, { nome: e.nome, qtd: String(e.qtd_por_embalagem) }])))
+    })
+  }
+
+  function alternarEmbalagens(produtoId: string) {
+    if (embalagemAberta === produtoId) {
+      setEmbalagemAberta(null)
+      return
+    }
+    setEmbalagemAberta(produtoId)
+    setErroEmbalagem(null)
+    setNovaEmbalagemNome('')
+    setNovaEmbalagemQtd('')
+    recarregarEmbalagens(produtoId)
+  }
+
+  async function salvarNovaEmbalagem(produtoId: string) {
+    const qtd = Number(novaEmbalagemQtd.replace(',', '.'))
+    if (!unidade || !novaEmbalagemNome.trim() || !qtd || qtd <= 0) return
+    setSalvandoEmbalagem(true)
+    setErroEmbalagem(null)
+    try {
+      await criarEmbalagem(unidade.empresa_id, produtoId, novaEmbalagemNome.trim(), qtd)
+      setNovaEmbalagemNome('')
+      setNovaEmbalagemQtd('')
+      recarregarEmbalagens(produtoId)
+    } catch (e) {
+      setErroEmbalagem(e instanceof Error ? e.message : 'Erro ao criar embalagem.')
+    } finally {
+      setSalvandoEmbalagem(false)
+    }
+  }
+
+  async function salvarEdicaoEmbalagem(embalagem: ProdutoEmbalagem) {
+    const edicao = edicoesEmbalagem[embalagem.id]
+    const qtd = Number((edicao?.qtd ?? '').replace(',', '.'))
+    if (!edicao || !edicao.nome.trim() || !qtd || qtd <= 0) return
+    if (edicao.nome === embalagem.nome && qtd === embalagem.qtd_por_embalagem) return
+    setErroEmbalagem(null)
+    try {
+      await atualizarEmbalagem(embalagem.id, edicao.nome.trim(), qtd)
+      recarregarEmbalagens(embalagem.produto_id)
+    } catch (e) {
+      setErroEmbalagem(e instanceof Error ? e.message : 'Erro ao editar embalagem.')
+    }
+  }
+
+  async function removerEmbalagem(embalagem: ProdutoEmbalagem) {
+    if (!confirm(`Remover a embalagem "${embalagem.nome}"?`)) return
+    setErroEmbalagem(null)
+    try {
+      await excluirEmbalagem(embalagem.id)
+      recarregarEmbalagens(embalagem.produto_id)
+    } catch (e) {
+      setErroEmbalagem(e instanceof Error ? e.message : 'Erro ao remover embalagem.')
     }
   }
 
@@ -497,25 +571,27 @@ export function CatalogoTab() {
               <th className="px-3 py-2 font-medium">Categoria</th>
               <th className="px-3 py-2 font-medium">Unidade</th>
               <th className="px-3 py-2 font-medium">Saldo</th>
+              <th className="px-3 py-2 font-medium">Embalagens</th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={5} className="px-3 py-4 text-center text-slate-500">
+                <td colSpan={6} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && produtos.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-4 text-center text-slate-500">
+                <td colSpan={6} className="px-3 py-4 text-center text-slate-500">
                   Nenhum produto cadastrado.
                 </td>
               </tr>
             )}
             {produtos.map((p) => (
-              <tr key={p.id} className="border-b border-white/5 last:border-0">
+              <Fragment key={p.id}>
+              <tr className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2 text-slate-400">{p.codigo ?? '—'}</td>
                 <td className="px-3 py-2">
                   <input
@@ -557,7 +633,98 @@ export function CatalogoTab() {
                   {formatarQtd(saldos.get(p.id) ?? 0)}{' '}
                   {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '') : (p.unidade_medida ?? '')}
                 </td>
+                <td className="px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => alternarEmbalagens(p.id)}
+                    className="text-xs text-slate-500 hover:text-slate-300 hover:underline"
+                  >
+                    {embalagemAberta === p.id ? 'Fechar' : 'Gerenciar'}
+                    {embalagensPorProduto[p.id] ? ` (${embalagensPorProduto[p.id].length})` : ''}
+                  </button>
+                </td>
               </tr>
+              {embalagemAberta === p.id && (
+                <tr className="border-b border-white/5 bg-white/[0.02]">
+                  <td colSpan={6} className="px-4 py-3">
+                    <p className="mb-2 text-xs text-slate-500">
+                      Formas de comprar/contar "{p.nome}" em pacote fechado — o sistema converte pra{' '}
+                      {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? 'unidade base') : (p.unidade_medida ?? 'unidade base')}{' '}
+                      sozinho ao lançar entrada.
+                    </p>
+                    {erroEmbalagem && <p className="mb-2 text-sm text-red-400">{erroEmbalagem}</p>}
+                    <div className="space-y-2">
+                      {(embalagensPorProduto[p.id] ?? []).map((emb) => (
+                        <div key={emb.id} className="flex items-center gap-2">
+                          <input
+                            value={edicoesEmbalagem[emb.id]?.nome ?? ''}
+                            onChange={(e) =>
+                              setEdicoesEmbalagem({
+                                ...edicoesEmbalagem,
+                                [emb.id]: { ...edicoesEmbalagem[emb.id], nome: e.target.value },
+                              })
+                            }
+                            onBlur={() => salvarEdicaoEmbalagem(emb)}
+                            className={`${inputCls} max-w-xs`}
+                          />
+                          <span className="text-xs text-slate-500">=</span>
+                          <input
+                            value={edicoesEmbalagem[emb.id]?.qtd ?? ''}
+                            onChange={(e) =>
+                              setEdicoesEmbalagem({
+                                ...edicoesEmbalagem,
+                                [emb.id]: { ...edicoesEmbalagem[emb.id], qtd: e.target.value },
+                              })
+                            }
+                            onBlur={() => salvarEdicaoEmbalagem(emb)}
+                            className={`${inputCls} max-w-[6rem]`}
+                          />
+                          <span className="text-xs text-slate-500">
+                            {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '') : (p.unidade_medida ?? '')}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removerEmbalagem(emb)}
+                            className="shrink-0 text-xs text-red-400 hover:underline"
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      ))}
+                      {(embalagensPorProduto[p.id] ?? []).length === 0 && (
+                        <p className="text-sm text-slate-500">Nenhuma embalagem cadastrada — conta e lança direto na unidade base.</p>
+                      )}
+                    </div>
+                    <div className="mt-3 flex items-center gap-2 border-t border-white/5 pt-3">
+                      <input
+                        value={novaEmbalagemNome}
+                        onChange={(e) => setNovaEmbalagemNome(e.target.value)}
+                        placeholder="Nome (ex: Pacote 400g)"
+                        className={`${inputCls} max-w-xs`}
+                      />
+                      <span className="text-xs text-slate-500">=</span>
+                      <input
+                        value={novaEmbalagemQtd}
+                        onChange={(e) => setNovaEmbalagemQtd(e.target.value)}
+                        placeholder="0,4"
+                        className={`${inputCls} max-w-[6rem]`}
+                      />
+                      <span className="text-xs text-slate-500">
+                        {p.unidade_medida_id ? (siglaUnidade.get(p.unidade_medida_id) ?? '') : (p.unidade_medida ?? '')}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => salvarNovaEmbalagem(p.id)}
+                        disabled={salvandoEmbalagem || !novaEmbalagemNome.trim() || !novaEmbalagemQtd.trim()}
+                        className="shrink-0 rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
+                      >
+                        Adicionar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
         </table>

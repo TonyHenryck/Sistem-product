@@ -12,6 +12,7 @@ export type Requisicao = Database['public']['Tables']['requisicao']['Row']
 export type RequisicaoInsert = Database['public']['Tables']['requisicao']['Insert']
 export type CategoriaProduto = Database['public']['Tables']['cat_categoria_produto']['Row']
 export type UnidadeMedida = Database['public']['Tables']['cat_unidade_medida']['Row']
+export type ProdutoEmbalagem = Database['public']['Tables']['cat_produto_embalagem']['Row']
 
 // ---------- produto / saldo ----------
 
@@ -94,6 +95,56 @@ export async function atualizarUnidadeMedida(id: string, nome: string, sigla: st
 // cascade, então some da lista, mas o histórico de quem já usava não quebra.
 export async function excluirUnidadeMedida(id: string): Promise<void> {
   const { error } = await supabase.from('cat_unidade_medida').update({ ativo: false }).eq('id', id)
+  if (error) throw error
+}
+
+// ---------- embalagem do produto ----------
+// O codigo do Teknisa nao distingue tamanho de embalagem (achocolatado
+// 200g e 400g sao o mesmo codigo), entao embalagem nao vira produto novo
+// -- vira so uma forma auxiliar de lancar entrada/contagem em "pacotes",
+// convertendo pra unidade base do produto na hora de gravar.
+
+export async function listarEmbalagens(produtoId: string): Promise<ProdutoEmbalagem[]> {
+  const { data, error } = await supabase
+    .from('cat_produto_embalagem')
+    .select('*')
+    .eq('produto_id', produtoId)
+    .eq('ativo', true)
+    .order('nome')
+  if (error) throw error
+  return data ?? []
+}
+
+// Upsert por (produto_id, nome): mesma logica das outras catalogacoes --
+// reativa em vez de falhar se o nome ja existiu e foi excluido antes.
+export async function criarEmbalagem(
+  empresaId: string,
+  produtoId: string,
+  nome: string,
+  qtdPorEmbalagem: number,
+): Promise<ProdutoEmbalagem> {
+  const { data, error } = await supabase
+    .from('cat_produto_embalagem')
+    .upsert(
+      { empresa_id: empresaId, produto_id: produtoId, nome, qtd_por_embalagem: qtdPorEmbalagem, ativo: true },
+      { onConflict: 'produto_id,nome' },
+    )
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function atualizarEmbalagem(id: string, nome: string, qtdPorEmbalagem: number): Promise<void> {
+  const { error } = await supabase
+    .from('cat_produto_embalagem')
+    .update({ nome, qtd_por_embalagem: qtdPorEmbalagem })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function excluirEmbalagem(id: string): Promise<void> {
+  const { error } = await supabase.from('cat_produto_embalagem').update({ ativo: false }).eq('id', id)
   if (error) throw error
 }
 
