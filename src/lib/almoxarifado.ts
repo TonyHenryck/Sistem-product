@@ -103,6 +103,11 @@ export async function criarProduto(dados: ProdutoInsert): Promise<Produto> {
   return data
 }
 
+export async function atualizarProdutoNome(id: string, nome: string): Promise<void> {
+  const { error } = await supabase.from('produto').update({ nome }).eq('id', id)
+  if (error) throw error
+}
+
 export async function atualizarProdutoCategoria(id: string, categoriaId: string | null): Promise<void> {
   const { error } = await supabase.from('produto').update({ categoria_id: categoriaId }).eq('id', id)
   if (error) throw error

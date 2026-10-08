@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/useAuth'
 import {
   atualizarCategoriaProduto,
   atualizarProdutoCategoria,
+  atualizarProdutoNome,
   atualizarProdutoUnidade,
   atualizarUnidadeMedida,
   buscarSaldos,
@@ -55,6 +56,8 @@ export function CatalogoTab() {
   const [edicoesUnidades, setEdicoesUnidades] = useState<Record<string, { nome: string; sigla: string }>>({})
   const [erroUnidades, setErroUnidades] = useState<string | null>(null)
 
+  const [edicoesNomeProduto, setEdicoesNomeProduto] = useState<Record<string, string>>({})
+
   useEffect(() => {
     recarregar()
   }, [unidade])
@@ -73,6 +76,7 @@ export function CatalogoTab() {
         setSaldos(s)
         setCategorias(c)
         setUnidadesMedida(u)
+        setEdicoesNomeProduto(Object.fromEntries(p.map((produto) => [produto.id, produto.nome])))
       })
       .finally(() => setCarregando(false))
   }
@@ -170,6 +174,19 @@ export function CatalogoTab() {
       recarregar()
     } catch (e) {
       setErroUnidades(e instanceof Error ? e.message : 'Erro ao remover unidade de medida.')
+    }
+  }
+
+  async function salvarNomeProduto(id: string) {
+    const nome = (edicoesNomeProduto[id] ?? '').trim()
+    const atual = produtos.find((p) => p.id === id)
+    if (!nome || nome === atual?.nome) return
+    setErro(null)
+    try {
+      await atualizarProdutoNome(id, nome)
+      recarregar()
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao renomear produto.')
     }
   }
 
@@ -500,7 +517,14 @@ export function CatalogoTab() {
             {produtos.map((p) => (
               <tr key={p.id} className="border-b border-white/5 last:border-0">
                 <td className="px-3 py-2 text-slate-400">{p.codigo ?? '—'}</td>
-                <td className="px-3 py-2">{p.nome}</td>
+                <td className="px-3 py-2">
+                  <input
+                    value={edicoesNomeProduto[p.id] ?? p.nome}
+                    onChange={(e) => setEdicoesNomeProduto({ ...edicoesNomeProduto, [p.id]: e.target.value })}
+                    onBlur={() => salvarNomeProduto(p.id)}
+                    className={`${inputCls} min-w-[14rem]`}
+                  />
+                </td>
                 <td className="px-3 py-2">
                   <select
                     value={p.categoria_id ?? ''}
