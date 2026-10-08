@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import {
+  atualizarCategoriaProduto,
   buscarSaldos,
   criarCategoriaProduto,
   criarProduto,
+  excluirCategoriaProduto,
   listarCategoriasProduto,
   listarProdutos,
   type CategoriaProduto,
@@ -30,6 +32,10 @@ export function CatalogoTab() {
   const [mostrarNovaCategoria, setMostrarNovaCategoria] = useState(false)
   const [novaCategoria, setNovaCategoria] = useState('')
   const [salvandoCategoria, setSalvandoCategoria] = useState(false)
+
+  const [gerenciandoCategorias, setGerenciandoCategorias] = useState(false)
+  const [edicoesCategorias, setEdicoesCategorias] = useState<Record<string, string>>({})
+  const [erroCategorias, setErroCategorias] = useState<string | null>(null)
 
   useEffect(() => {
     recarregar()
@@ -66,6 +72,36 @@ export function CatalogoTab() {
       setErro(e instanceof Error ? e.message : 'Erro ao criar categoria.')
     } finally {
       setSalvandoCategoria(false)
+    }
+  }
+
+  function abrirGerenciarCategorias() {
+    setEdicoesCategorias(Object.fromEntries(categorias.map((c) => [c.id, c.nome])))
+    setErroCategorias(null)
+    setGerenciandoCategorias(true)
+  }
+
+  async function salvarNomeCategoria(id: string) {
+    const nome = (edicoesCategorias[id] ?? '').trim()
+    const atual = categorias.find((c) => c.id === id)
+    if (!nome || nome === atual?.nome) return
+    setErroCategorias(null)
+    try {
+      await atualizarCategoriaProduto(id, nome)
+      recarregar()
+    } catch (e) {
+      setErroCategorias(e instanceof Error ? e.message : 'Erro ao renomear categoria.')
+    }
+  }
+
+  async function removerCategoria(categoria: CategoriaProduto) {
+    if (!confirm(`Remover a categoria "${categoria.nome}"? Produtos que usam ela ficam sem categoria.`)) return
+    setErroCategorias(null)
+    try {
+      await excluirCategoriaProduto(categoria.id)
+      recarregar()
+    } catch (e) {
+      setErroCategorias(e instanceof Error ? e.message : 'Erro ao remover categoria.')
     }
   }
 
@@ -147,6 +183,13 @@ export function CatalogoTab() {
                 </button>
               </div>
             )}
+            <button
+              type="button"
+              onClick={abrirGerenciarCategorias}
+              className="mt-2 text-xs text-slate-500 hover:text-slate-300 hover:underline"
+            >
+              Gerenciar categorias
+            </button>
           </div>
           <div>
             <label className="mb-1 block text-xs text-slate-500">Unidade</label>
@@ -162,6 +205,61 @@ export function CatalogoTab() {
           {salvando ? 'Salvando...' : 'Cadastrar'}
         </button>
       </div>
+
+      {gerenciandoCategorias && (
+        <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-medium text-slate-300">Categorias de produto</p>
+            <button
+              type="button"
+              onClick={() => setGerenciandoCategorias(false)}
+              className="text-xs text-slate-500 hover:text-slate-300"
+            >
+              Fechar
+            </button>
+          </div>
+
+          {erroCategorias && <p className="mb-2 text-sm text-red-400">{erroCategorias}</p>}
+
+          <div className="space-y-2">
+            {categorias.map((c) => (
+              <div key={c.id} className="flex items-center gap-2">
+                <input
+                  value={edicoesCategorias[c.id] ?? ''}
+                  onChange={(e) => setEdicoesCategorias({ ...edicoesCategorias, [c.id]: e.target.value })}
+                  onBlur={() => salvarNomeCategoria(c.id)}
+                  className={`${inputCls} max-w-xs`}
+                />
+                <button
+                  type="button"
+                  onClick={() => removerCategoria(c)}
+                  className="shrink-0 text-xs text-red-400 hover:underline"
+                >
+                  Remover
+                </button>
+              </div>
+            ))}
+            {categorias.length === 0 && <p className="text-sm text-slate-500">Nenhuma categoria cadastrada.</p>}
+          </div>
+
+          <div className="mt-3 flex gap-2 border-t border-white/5 pt-3">
+            <input
+              value={novaCategoria}
+              onChange={(e) => setNovaCategoria(e.target.value)}
+              placeholder="Nova categoria"
+              className={`${inputCls} max-w-xs`}
+            />
+            <button
+              type="button"
+              onClick={salvarNovaCategoria}
+              disabled={salvandoCategoria || !novaCategoria.trim()}
+              className="shrink-0 rounded bg-slate-100 px-3 py-1.5 text-sm text-slate-900 hover:bg-white disabled:opacity-60"
+            >
+              Adicionar
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <table className="w-full text-sm">

@@ -36,14 +36,29 @@ export async function listarCategoriasProduto(empresaId: string): Promise<Catego
   return data ?? []
 }
 
+// Upsert por (empresa_id, nome): se já existia uma categoria com esse nome
+// desativada (excluída antes), reativa em vez de bater no unique e falhar.
 export async function criarCategoriaProduto(empresaId: string, nome: string): Promise<CategoriaProduto> {
   const { data, error } = await supabase
     .from('cat_categoria_produto')
-    .insert({ empresa_id: empresaId, nome })
+    .upsert({ empresa_id: empresaId, nome, ativo: true }, { onConflict: 'empresa_id,nome' })
     .select()
     .single()
   if (error) throw error
   return data
+}
+
+export async function atualizarCategoriaProduto(id: string, nome: string): Promise<void> {
+  const { error } = await supabase.from('cat_categoria_produto').update({ nome }).eq('id', id)
+  if (error) throw error
+}
+
+// Soft delete (ativo = false) — FK de produto.categoria_id não tem cascade,
+// então não dá pra apagar de vez sem risco; some da lista, mas o histórico
+// de quem já usava essa categoria não quebra.
+export async function excluirCategoriaProduto(id: string): Promise<void> {
+  const { error } = await supabase.from('cat_categoria_produto').update({ ativo: false }).eq('id', id)
+  if (error) throw error
 }
 
 export async function criarProduto(dados: ProdutoInsert): Promise<Produto> {
