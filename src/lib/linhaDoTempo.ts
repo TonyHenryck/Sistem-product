@@ -29,6 +29,7 @@ export async function buscarLinhaDoTempo(unidadeId: string, limite = 30): Promis
       .from('falta')
       .select('id, data, tipo, colaborador_id')
       .eq('unidade_id', unidadeId)
+      .eq('ativo', true)
       .order('data', { ascending: false })
       .limit(limite),
     supabase

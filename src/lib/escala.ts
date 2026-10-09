@@ -152,6 +152,7 @@ export async function buscarExcecoesDoMes(unidadeId: string, ano: number, mes: n
       .from('falta')
       .select('colaborador_id, data')
       .eq('unidade_id', unidadeId)
+      .eq('ativo', true)
       .gte('data', inicio)
       .lte('data', fim),
   ])

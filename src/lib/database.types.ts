@@ -447,6 +447,7 @@ export interface Database {
           notificado: boolean
           obs: string | null
           arquivo_local: string | null
+          ativo: boolean
           criado_em: string
         }
         Insert: {
@@ -470,6 +471,7 @@ export interface Database {
           notificado?: boolean
           obs?: string | null
           arquivo_local?: string | null
+          ativo?: boolean
           criado_em?: string
         }
         Update: {
@@ -493,6 +495,7 @@ export interface Database {
           notificado?: boolean
           obs?: string | null
           arquivo_local?: string | null
+          ativo?: boolean
           criado_em?: string
         }
         Relationships: []

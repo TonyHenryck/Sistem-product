@@ -134,7 +134,13 @@ export async function buscarIndicadoresFaltas(
   fim: string,
 ): Promise<{ ranking: RankingFaltaColaborador[]; porFuncao: FaltaPorFuncao[] }> {
   const [{ data: faltas, error }, { data: colaboradores }, { data: funcoes }] = await Promise.all([
-    supabase.from('falta').select('colaborador_id, tipo, dias').eq('unidade_id', unidadeId).gte('data', inicio).lte('data', fim),
+    supabase
+      .from('falta')
+      .select('colaborador_id, tipo, dias')
+      .eq('unidade_id', unidadeId)
+      .eq('ativo', true)
+      .gte('data', inicio)
+      .lte('data', fim),
     supabase.from('colaborador').select('id, nome, funcao_id').eq('unidade_id', unidadeId),
     supabase.from('cat_funcao').select('id, nome').eq('empresa_id', empresaId),
   ])

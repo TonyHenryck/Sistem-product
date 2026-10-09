@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { listarColaboradoresAtivos, listarNomesColaboradores, type Catalogo } from '../../lib/colaboradores'
 import { buscarDetalheColaboradorEscala, type DetalheColaboradorEscala } from '../../lib/escalaIndividual'
-import { criarFalta, listarFaltas, type Falta, type FaltaInsert } from '../../lib/faltas'
+import { atualizarFalta, criarFalta, excluirFalta, listarFaltas, type Falta, type FaltaInsert } from '../../lib/faltas'
 import { formatarIntervalo } from '../../lib/ponto'
 import { formatarData } from '../../utils/data'
 
@@ -70,6 +70,8 @@ export function Faltas() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [detalheColaborador, setDetalheColaborador] = useState<DetalheColaboradorEscala | null>(null)
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [faltaEmEdicao, setFaltaEmEdicao] = useState<Falta | null>(null)
 
   useEffect(() => {
     if (!unidade) return
@@ -106,6 +108,44 @@ export function Faltas() {
       .finally(() => setCarregando(false))
   }
 
+  function editar(f: Falta) {
+    setEditandoId(f.id)
+    setFaltaEmEdicao(f)
+    setForm({
+      data: f.data,
+      colaboradorId: f.colaborador_id,
+      tipo: f.tipo,
+      dias: String(f.dias ?? 1),
+      horarioCombinado: '',
+      atestado: f.atestado ?? '',
+      descontar: f.descontar,
+      perdeDsr: f.perde_dsr,
+      notificado: f.notificado,
+      obs: f.obs ?? '',
+    })
+    setErro(null)
+  }
+
+  function cancelarEdicao() {
+    setEditandoId(null)
+    setFaltaEmEdicao(null)
+    setForm(vazio)
+    setDetalheColaborador(null)
+    setErro(null)
+  }
+
+  async function excluir(f: Falta) {
+    if (!confirm(`Excluir a falta de ${nomes.get(f.colaborador_id) ?? 'colaborador'} em ${formatarData(f.data)}?`)) return
+    setErro(null)
+    try {
+      await excluirFalta(f.id)
+      if (editandoId === f.id) cancelarEdicao()
+      recarregar()
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Erro ao excluir.')
+    }
+  }
+
   async function salvar() {
     if (!unidade || !form.data || !form.colaboradorId || !form.tipo) {
       setErro('Data, colaborador e tipo são obrigatórios.')
@@ -115,21 +155,38 @@ export function Faltas() {
     setSalvando(true)
     setErro(null)
     try {
-      await criarFalta({
+      // Se não mexeu no "horário combinado" durante uma edição, mantém o
+      // tempo perdido que já estava gravado em vez de apagar.
+      const tempoPerdido =
+        tempoPerdidoHoras != null
+          ? horasParaIntervalo(tempoPerdidoHoras)
+          : editandoId
+            ? (faltaEmEdicao?.tempo_perdido ?? null)
+            : null
+
+      const dados: FaltaInsert = {
         empresa_id: unidade.empresa_id,
         unidade_id: unidade.id,
         data: form.data,
         colaborador_id: form.colaboradorId,
         tipo: form.tipo,
         dias: Number(form.dias) || 1,
-        tempo_perdido: tempoPerdidoHoras != null ? horasParaIntervalo(tempoPerdidoHoras) : null,
+        tempo_perdido: tempoPerdido,
         atestado: form.atestado || null,
         descontar: form.descontar,
         perde_dsr: form.perdeDsr,
         notificado: form.notificado,
         obs: form.obs || null,
-      })
+      }
+
+      if (editandoId) {
+        await atualizarFalta(editandoId, dados)
+      } else {
+        await criarFalta(dados)
+      }
       setForm(vazio)
+      setEditandoId(null)
+      setFaltaEmEdicao(null)
       setDetalheColaborador(null)
       recarregar()
     } catch (e) {
@@ -147,7 +204,7 @@ export function Faltas() {
       <h1 className="mb-4 text-lg font-semibold text-slate-100">Faltas</h1>
 
       <div className="mb-6 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-4">
-        <p className="mb-3 text-sm font-medium text-slate-300">Registrar falta</p>
+        <p className="mb-3 text-sm font-medium text-slate-300">{editandoId ? 'Editar falta' : 'Registrar falta'}</p>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs text-slate-500">Data</label>
@@ -234,6 +291,11 @@ export function Faltas() {
                   onChange={(e) => setForm({ ...form, horarioCombinado: e.target.value })}
                   className={inputCls}
                 />
+                {editandoId && !form.horarioCombinado && faltaEmEdicao?.tempo_perdido && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Atual: {formatarIntervalo(faltaEmEdicao.tempo_perdido)} (deixe em branco pra manter)
+                  </p>
+                )}
               </div>
               <div className="col-span-3 flex items-end pb-2 text-xs text-slate-500">
                 {!form.colaboradorId ? (
@@ -285,13 +347,24 @@ export function Faltas() {
 
         {erro && <p className="mt-3 text-sm text-red-400">{erro}</p>}
 
-        <button
-          onClick={salvar}
-          disabled={salvando}
-          className="mt-4 rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
-        >
-          {salvando ? 'Salvando...' : 'Registrar'}
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={salvar}
+            disabled={salvando}
+            className="rounded bg-slate-100 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-white disabled:opacity-60"
+          >
+            {salvando ? 'Salvando...' : editandoId ? 'Salvar edição' : 'Registrar'}
+          </button>
+          {editandoId && (
+            <button
+              type="button"
+              onClick={cancelarEdicao}
+              className="rounded border border-white/10 px-4 py-2 text-sm text-slate-400 hover:bg-white/5"
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
@@ -305,25 +378,26 @@ export function Faltas() {
               <th className="px-3 py-2 font-medium">Tempo perdido</th>
               <th className="px-3 py-2 font-medium">Descontar</th>
               <th className="px-3 py-2 font-medium">Perde DSR</th>
+              <th className="px-3 py-2 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {carregando && (
               <tr>
-                <td colSpan={7} className="px-3 py-4 text-center text-slate-500">
+                <td colSpan={8} className="px-3 py-4 text-center text-slate-500">
                   Carregando...
                 </td>
               </tr>
             )}
             {!carregando && faltas.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-4 text-center text-slate-500">
+                <td colSpan={8} className="px-3 py-4 text-center text-slate-500">
                   Nenhuma falta registrada.
                 </td>
               </tr>
             )}
             {faltas.map((f) => (
-              <tr key={f.id} className="border-b border-white/5 last:border-0">
+              <tr key={f.id} className={`border-b border-white/5 last:border-0 ${editandoId === f.id ? 'bg-white/5' : ''}`}>
                 <td className="px-3 py-2">{formatarData(f.data)}</td>
                 <td className="px-3 py-2">{nomes.get(f.colaborador_id) ?? '—'}</td>
                 <td className="px-3 py-2 text-slate-400">{f.tipo}</td>
@@ -331,6 +405,18 @@ export function Faltas() {
                 <td className="px-3 py-2 text-slate-400">{formatarIntervalo(f.tempo_perdido) || '—'}</td>
                 <td className="px-3 py-2 text-slate-400">{f.descontar ? 'Sim' : 'Não'}</td>
                 <td className="px-3 py-2 text-slate-400">{f.perde_dsr ? 'Sim' : 'Não'}</td>
+                <td className="px-3 py-2 text-right whitespace-nowrap">
+                  <button type="button" onClick={() => editar(f)} className="text-xs text-slate-400 hover:underline">
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => excluir(f)}
+                    className="ml-3 text-xs text-red-400 hover:underline"
+                  >
+                    Excluir
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

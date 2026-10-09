@@ -241,7 +241,7 @@ async function buscarRelatorioColaboradores(
 // ---------------------------------------------------------------------
 
 async function buscarRelatorioFaltas(unidadeId: string, empresaId: string, filtros: FiltrosRelatorio): Promise<ResultadoRelatorio> {
-  let query = supabase.from('falta').select('*').eq('unidade_id', unidadeId).order('data', { ascending: false })
+  let query = supabase.from('falta').select('*').eq('unidade_id', unidadeId).eq('ativo', true).order('data', { ascending: false })
   if (filtros.dataInicio) query = query.gte('data', filtros.dataInicio)
   if (filtros.dataFim) query = query.lte('data', filtros.dataFim)
   if (filtros.tipo) {
